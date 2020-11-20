@@ -4,7 +4,7 @@
 #include <QJsonDocument>
 
 struct SIDeviceAccessRegistry::Private_ {
-    QVector<std::shared_ptr<SIDeviceAccess>> accesses;
+
 };
 
 SIDeviceAccessRegistry::SIDeviceAccessRegistry(): priv_(new Private_) {}
@@ -12,29 +12,31 @@ SIDeviceAccessRegistry::SIDeviceAccessRegistry(): priv_(new Private_) {}
 SIDeviceAccessRegistry::~SIDeviceAccessRegistry() = default;
 
 int SIDeviceAccessRegistry::deviceAccessCount() const {
-    return priv_->accesses.count();
+    return children().count();
 }
 
-std::weak_ptr<SIDeviceAccess> SIDeviceAccessRegistry::deviceAccess(int index) const {
-    if (index < priv_->accesses.count()) {
-        return priv_->accesses[index];
+QPointer<SIDeviceAccess> SIDeviceAccessRegistry::deviceAccess(int index) const {
+    if (index < children().count()) {
+        return qobject_cast<SIDeviceAccess*>(children()[index]);
     } else {
-        return {};
+        return nullptr;
     }
 }
 
-std::weak_ptr<SIDeviceAccess> SIDeviceAccessRegistry::deviceAccess(const QString& id) const {
-    for (const auto& access: priv_->accesses) {
+QPointer<SIDeviceAccess> SIDeviceAccessRegistry::deviceAccess(const QString& id) const {
+    for (auto* child: children()) {
+        auto* access = qobject_cast<SIDeviceAccess*>(child);
         if (access->id() == id) {
             return access;
         }
     }
-    return {};
+    return nullptr;
 }
 
 QJsonObject SIDeviceAccessRegistry::jsonDescription(SIJsonFlags flags) const {
     QJsonArray accesses;
-    for (const auto& access: priv_->accesses) {
+    for (auto* child: children()) {
+        auto* access = qobject_cast<SIDeviceAccess*>(child);
         accesses.append(access->jsonDescription(flags));
     }
 
@@ -53,5 +55,6 @@ SIDeviceAccessRegistry& SIDeviceAccessRegistry::sharedRegistry() {
 }
 
 void SIDeviceAccessRegistry::registerDeviceAccess_(SIDeviceAccess* access) {
-    priv_->accesses.append(std::shared_ptr<SIDeviceAccess>(access));
+    assert(access != nullptr);
+    access->setParent(this);
 }

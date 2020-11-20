@@ -4,17 +4,22 @@
 #include "sipropertywriteresult.h"
 #include "sijsonflags.h"
 #include <memory>
+#include <QObject>
 #include <QString>
 #include <QVector>
 #include <QVariant>
 #include <QPair>
 #include <QJsonObject>
 
-class SIDevice {
+class SIDeviceAccess;
+
+class SIDevice: public QObject {
+    Q_OBJECT
+
   public:
     SIDevice(const SIDevice&) = delete;
     SIDevice& operator =(const SIDevice&) = delete;
-    virtual ~SIDevice();
+    ~SIDevice() override;
 
     const QString& model() const;
 
@@ -22,13 +27,13 @@ class SIDevice {
 
     const QVector<SIProperty>& properties() const;
 
+    const QJsonObject& jsonDescription(SIJsonFlags flags) const;
+
     SIPropertyReadResult readProperty(SIPropertyID id) const;
     QVector<SIPropertyReadResult> readProperties(const QVector<SIPropertyID>& ids) const;
 
     SIPropertyWriteResult writeProperty(SIPropertyID id, const QVariant& value);
     QVector<SIPropertyWriteResult> writeProperties(const QVector<const QPair<SIPropertyID,const QVariant>>& properties);
-
-    const QJsonObject& jsonDescription(SIJsonFlags flags) const;
 
   protected:
     explicit SIDevice(const QString& model, const QString& id);

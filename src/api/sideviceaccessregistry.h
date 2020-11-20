@@ -1,31 +1,33 @@
 #pragma once
 #include <sijsonflags.h>
 #include <memory>
+#include <QObject>
 #include <QString>
 #include <QJsonObject>
+#include <QPointer>
 
 class SIDeviceAccess;
 
-class SIDeviceAccessRegistry final {
+class SIDeviceAccessRegistry final: QObject {
     friend class SIDeviceAccess;
 
   public:
     SIDeviceAccessRegistry();
     SIDeviceAccessRegistry(const SIDeviceAccessRegistry&) = delete;
     SIDeviceAccessRegistry& operator =(const SIDeviceAccessRegistry&) = delete;
-    ~SIDeviceAccessRegistry();
+    ~SIDeviceAccessRegistry() override;
 
     int deviceAccessCount() const;
 
-    std::weak_ptr<SIDeviceAccess> deviceAccess(int index) const;
+    QPointer<SIDeviceAccess> deviceAccess(int index) const;
 
-    inline std::weak_ptr<SIDeviceAccess> operator [](int index) const {
+    inline QPointer<SIDeviceAccess> operator [](int index) const {
         return deviceAccess(index);
     }
 
-    std::weak_ptr<SIDeviceAccess> deviceAccess(const QString& id) const;
+    QPointer<SIDeviceAccess> deviceAccess(const QString& id) const;
 
-    inline std::weak_ptr<SIDeviceAccess> operator [](const QString& id) const {
+    inline QPointer<SIDeviceAccess> operator [](const QString& id) const {
         return deviceAccess(id);
     }
 

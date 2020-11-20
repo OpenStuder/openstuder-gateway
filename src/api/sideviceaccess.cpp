@@ -5,7 +5,6 @@
 
 struct SIDeviceAccess::Private_ {
     QString id;
-    QVector<std::shared_ptr<SIDevice>> devices;
     mutable SIJsonFlags cachedJsonFlags = SIJsonFlag::None;
     mutable QJsonObject cachedJsonDescription;
 };
@@ -33,8 +32,18 @@ QVector<SIDeviceMessage> SIDeviceAccess::retrievePendingDeviceMessages() const {
 
 int SIDeviceAccess::enumerateDevices() {
     priv_->cachedJsonDescription = {};
-    if (enumerateDevices_(priv_->devices)) {
-        return priv_->devices.count();
+    QVector<SIDevice*> devices;
+    for (const auto& child: children()) {
+        devices.append(qobject_cast<SIDevice*>(child));
+    }
+    if (enumerateDevices_(devices)) {
+        for (const auto& child: children()) {
+            devices.removeOne(qobject_cast<SIDevice*>(child));
+        }
+        for (auto* device: devices) {
+            device->setParent(this);
+        }
+        return children().count();
     } else
     {
         return -1;
@@ -42,24 +51,25 @@ int SIDeviceAccess::enumerateDevices() {
 }
 
 int SIDeviceAccess::deviceCount() const {
-    return priv_->devices.count();
+    return children().count();
 }
 
-std::weak_ptr<SIDevice> SIDeviceAccess::device(int index) const {
-    if (index < priv_->devices.count()) {
-        return priv_->devices[index];
+QPointer<SIDevice> SIDeviceAccess::device(int index) const {
+    if (index < children().count()) {
+        return qobject_cast<SIDevice*>(children()[index]);
     } else {
-        return {};
+        return nullptr;
     }
 }
 
-std::weak_ptr<SIDevice> SIDeviceAccess::device(const QString& id) const {
-    for (const auto& device: priv_->devices) {
+QPointer<SIDevice> SIDeviceAccess::device(const QString& id) const {
+    for (auto* child: children()) {
+        auto* device = qobject_cast<SIDevice*>(child);
         if (device->id() == id) {
             return device;
         }
     }
-    return {};
+    return nullptr;
 }
 
 const QJsonObject& SIDeviceAccess::jsonDescription(SIJsonFlags flags) const {
@@ -72,7 +82,8 @@ const QJsonObject& SIDeviceAccess::jsonDescription(SIJsonFlags flags) const {
         priv_->cachedJsonDescription["id"] = id();
         if (flags.testFlag(SIJsonFlag::IncludeAccessDetails)) {
             QJsonArray devs;
-            for (const auto& device: priv_->devices) {
+            for (auto* child: children()) {
+                auto* device = qobject_cast<SIDevice*>(child);
                 devs.append(device->jsonDescription(flags));
             }
             priv_->cachedJsonDescription["devices"] = devs;
