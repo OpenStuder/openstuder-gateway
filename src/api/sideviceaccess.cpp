@@ -25,6 +25,12 @@ const QString& SIDeviceAccess::id() const {
     return priv_->id;
 }
 
+QVector<SIDeviceMessage> SIDeviceAccess::retrievePendingDeviceMessages() const {
+    QVector<SIDeviceMessage> messages;
+    retrievePendingDeviceMessages_(messages);
+    return messages;
+}
+
 int SIDeviceAccess::enumerateDevices() {
     priv_->cachedJsonDescription = {};
     if (enumerateDevices_(priv_->devices)) {
@@ -74,6 +80,10 @@ const QJsonObject& SIDeviceAccess::jsonDescription(SIJsonFlags flags) const {
         }
     }
     return priv_->cachedJsonDescription;
+}
+
+void SIDeviceAccess::retrievePendingDeviceMessages_(QVector<SIDeviceMessage>& messages) const {
+    Q_UNUSED(messages)
 }
 
 void SIDeviceAccess::completeJsonDescription_(QJsonObject& object, SIJsonFlags flags) const {

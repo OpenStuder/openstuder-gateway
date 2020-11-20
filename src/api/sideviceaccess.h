@@ -1,5 +1,6 @@
 #pragma once
-#include <sijsonflags.h>
+#include "sijsonflags.h"
+#include "sidevicemessage.h"
 #include <memory>
 #include <QString>
 #include <QVector>
@@ -16,6 +17,8 @@ class SIDeviceAccess {
     virtual ~SIDeviceAccess();
 
     const QString& id() const;
+
+    QVector<SIDeviceMessage> retrievePendingDeviceMessages() const;
 
     int enumerateDevices();
 
@@ -39,6 +42,8 @@ class SIDeviceAccess {
     explicit SIDeviceAccess(const QString& id, SIDeviceAccessRegistry* registry = nullptr);
 
   private:
+    virtual void retrievePendingDeviceMessages_(QVector<SIDeviceMessage>& messages) const;
+
     virtual bool enumerateDevices_(QVector<std::shared_ptr<SIDevice>>& devices) = 0;
 
     virtual void completeJsonDescription_(QJsonObject& object, SIJsonFlags flags) const;
