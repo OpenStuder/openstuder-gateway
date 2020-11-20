@@ -18,6 +18,8 @@ jobs:
 
       - name: Get CMake
         uses: symbitic/install-cmake@master
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
       - name: Build
         run: |
