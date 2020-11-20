@@ -1,0 +1,26 @@
+name: CI
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.9-9'
+
+      - name: Get CMake
+        uses: symbitic/install-cmake@master
+
+      - name: Build
+        run: |
+          cmake -G Ninja .B build
+          cmake --build build
+  
