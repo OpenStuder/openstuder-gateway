@@ -1,5 +1,6 @@
 #include "sideviceaccessregistry.h"
 #include "sideviceaccess.h"
+#include <cassert>
 #include <QJsonArray>
 #include <QJsonDocument>
 
