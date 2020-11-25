@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(StuderGateway)
-find_package(Qt5 COMPONENTS Core REQUIRED)
+find_package(Qt5 COMPONENTS Core SerialPort SerialBus REQUIRED)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -34,4 +34,17 @@ function(add_device_access_driver name)
                           SUFFIX ".dap"
                           )
 endfunction()
+
+add_device_access_driver(XCom485i
+                         src/drivers/xcom485i/xcom485idevice.h
+                         src/drivers/xcom485i/xcom485idevice.cpp
+                         src/drivers/xcom485i/xcom485ideviceaccess.h
+                         src/drivers/xcom485i/xcom485ideviceaccess.cpp
+                         src/drivers/xcom485i/xcom485idriver.h
+                         src/drivers/xcom485i/xcom485idriver.cpp
+                         src/drivers/xcom485i/xcom485ixtender.h
+                         src/drivers/xcom485i/xcom485ixtender.cpp
+                         )
+
+target_link_libraries(XCom485i Qt5::SerialPort Qt5::SerialBus)
 

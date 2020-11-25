@@ -1,0 +1,25 @@
+{
+  "name": "XCom-485i",
+  "version": "1.0",
+  "author": "michael.clausen@hevs.ch",
+  "parameters": [
+    {
+      "name": "port",
+      "type": "QString",
+      "required": true,
+      "default": null
+    },
+    {
+      "name": "baudRate",
+      "type": "unsigned int",
+      "required": false,
+      "default": 9600
+    },
+    {
+      "name": "addressOffset",
+      "type": "unsigned int",
+      "required": false,
+      "default": 0
+    }
+  ]
+}
