@@ -12,9 +12,9 @@ struct SIDeviceAccess::Private_ {
 SIDeviceAccess::SIDeviceAccess(const QString& id, SIDeviceAccessRegistry* registry): priv_(new Private_) {
     priv_->id = id;
     if (registry != nullptr) {
-        registry->registerDeviceAccess_(this);
+        registry->registerDeviceAccessInstance_(this);
     } else {
-        SIDeviceAccessRegistry::sharedRegistry().registerDeviceAccess_(this);
+        SIDeviceAccessRegistry::sharedRegistry().registerDeviceAccessInstance_(this);
     }
 }
 

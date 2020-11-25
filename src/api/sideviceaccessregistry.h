@@ -7,6 +7,7 @@
 #include <QPointer>
 
 class SIDeviceAccess;
+class SIDeviceAccessDriver;
 
 class SIDeviceAccessRegistry final: QObject {
     friend class SIDeviceAccess;
@@ -35,8 +36,12 @@ class SIDeviceAccessRegistry final: QObject {
 
     static SIDeviceAccessRegistry& sharedRegistry();
 
+    static bool registerDeviceAccessDriver(const QString& name, const QJsonObject& metaData, SIDeviceAccessDriver* deviceAccessFactory);
+    static bool loadDeviceAccessDriver(const QString& driverFile);
+    static int loadDeviceAccessDriversInFolder(const QString& driversFolderPath);
+
   private:
-    void registerDeviceAccess_(SIDeviceAccess* access);
+    void registerDeviceAccessInstance_(SIDeviceAccess* access);
 
     struct Private_;
     std::unique_ptr<Private_> priv_;
