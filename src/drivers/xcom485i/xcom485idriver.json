@@ -16,7 +16,7 @@
       "default": 9600
     },
     {
-      "name": "addressOffset",
+      "name": "deviceAddressOffset",
       "type": "unsigned int",
       "required": false,
       "default": 0

@@ -1,7 +1,6 @@
 #include "xcom485ixtender.h"
 
-XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress) {
-}
+XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress) {}
 
 XCom485iXtender::Model XCom485iXtender::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(modbusAddress, 248);
@@ -26,7 +25,7 @@ XCom485iXtender::Model XCom485iXtender::model(quint8 modbusAddress, XCom485iModb
 QString XCom485iXtender::toString(XCom485iXtender::Model model) {
     switch (model) {
         case Invalid:
-            return "Invalid";
+            return "Invalid Xtender model";
 
         case Multicast:
             return "Xtender multicast";

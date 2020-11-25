@@ -3,20 +3,23 @@
 #include "xcom485imodbusaccess.h"
 #include <QSerialPort>
 #include <QModbusRtuSerialMaster>
+#include <sipropertywriteresult.h>
 
 class XCom485iDeviceAccess: public SIDeviceAccess, private XCom485iModbusAccess {
   public:
     explicit XCom485iDeviceAccess(const QString& id);
 
-    bool open(const QString& port, unsigned int baudRate, unsigned int deviceOffset);
+    bool open(const QString& port, unsigned int baudRate, quint8 deviceOffset);
 
   private:
     void retrievePendingDeviceMessages_(QVector<SIDeviceMessage>& messages) const override;
     bool enumerateDevices_(QVector<SIDevice*>& devices) override;
     void completeJsonDescription_(QJsonObject& object, SIJsonFlags flags) const override;
 
-    SIPropertyReadResult readInputRegister(quint8 deviceAddress, unsigned int propertyModbusAddress, SIPropertyType type) override;
+    SIPropertyReadResult readInputRegister_(quint8 deviceAddress, unsigned int propertyModbusAddress, SIPropertyType type) override;
+    SIPropertyReadResult readHoldingRegister_(quint8 deviceAddress, unsigned int registerAddress, SIPropertyType type) override;
+    SIPropertyWriteResult writeHoldingRegister_(quint8 deviceAddress, unsigned int registerAddress, const QVariant& value, SIPropertyType type) override;
 
     mutable QModbusRtuSerialMaster modbus_;
-    unsigned int deviceOffset_;
+    quint8 deviceOffset_;
 };
