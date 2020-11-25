@@ -65,23 +65,26 @@ bool SIDeviceAccessRegistry::instantiateDeviceAccess(const QString& driverName, 
 }
 
 QJsonObject SIDeviceAccessRegistry::jsonDescription(SIJsonFlags flags) const {
-    QJsonArray accesses;
-    for (auto* child: children()) {
-        auto* access = qobject_cast<SIDeviceAccess*>(child);
-        QJsonObject description = access->jsonDescription(flags);
-        description["driver"] = priv_->instanceDriverNames[access];
-        accesses.append(description);
+    QJsonObject description;
+
+    if (flags.testFlag(SIJsonFlag::IncludeAccessInformation)) {
+        QJsonArray instances;
+        for (auto* child: children()) {
+            auto* access = qobject_cast<SIDeviceAccess*>(child);
+            QJsonObject description = access->jsonDescription(flags);
+            description["driver"] = priv_->instanceDriverNames[access];
+            instances.append(description);
+        }
+        description["instances"] = instances;
     }
 
-    QJsonObject drivers;
-    for (const auto& driver: drivers_) {
-        drivers[driver.name] = driver.metaData;
+    if (flags.testFlag(SIJsonFlag::IncludeDriverInformation)) {
+        QJsonObject drivers;
+        for (const auto& driver: drivers_) {
+            drivers[driver.name] = driver.metaData;
+        }
+        description["drivers"] = drivers;
     }
-
-    QJsonObject description {
-        {"instances", accesses},
-        {"drivers", drivers}
-    };
 
     return description;
 }
