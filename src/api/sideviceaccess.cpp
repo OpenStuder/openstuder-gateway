@@ -9,13 +9,8 @@ struct SIDeviceAccess::Private_ {
     mutable QJsonObject cachedJsonDescription;
 };
 
-SIDeviceAccess::SIDeviceAccess(const QString& id, SIDeviceAccessRegistry* registry): priv_(new Private_) {
+SIDeviceAccess::SIDeviceAccess(const QString& id): priv_(new Private_) {
     priv_->id = id;
-    if (registry != nullptr) {
-        registry->registerDeviceAccessInstance_(this);
-    } else {
-        SIDeviceAccessRegistry::sharedRegistry().registerDeviceAccessInstance_(this);
-    }
 }
 
 SIDeviceAccess::~SIDeviceAccess() = default;

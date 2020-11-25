@@ -1,22 +1,22 @@
 #include "sideviceaccessregistry.h"
 #include "sideviceaccess.h"
 #include "sideviceaccessdriver.h"
-#include <cassert>
+#include <algorithm>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QDir>
 #include <QPluginLoader>
 
-struct SIDeviceAccessFactoryElement {
+struct SIDeviceAccessDriverElement {
     QString name;
     QJsonObject metaData;
-    SIDeviceAccessDriver* factory;
+    SIDeviceAccessDriver* driver;
 };
 
-static QVector<SIDeviceAccessFactoryElement> factories_;
+static QVector<SIDeviceAccessDriverElement> drivers_;
 
 struct SIDeviceAccessRegistry::Private_ {
-
+    QMap<SIDeviceAccess*,QString> instanceDriverNames;
 };
 
 SIDeviceAccessRegistry::SIDeviceAccessRegistry(): priv_(new Private_) {}
@@ -45,21 +45,42 @@ QPointer<SIDeviceAccess> SIDeviceAccessRegistry::deviceAccess(const QString& id)
     return nullptr;
 }
 
+bool SIDeviceAccessRegistry::instantiateDeviceAccess(const QString& driverName, const QString& id, const QVariantMap& parameters) {
+    auto driver = std::find_if(drivers_.cbegin(), drivers_.cend(), [&driverName](const SIDeviceAccessDriverElement& driverElement) {
+        return driverElement.name == driverName;
+    });
+
+    if (driver == drivers_.cend()) {
+        return false;
+    }
+
+    auto* instance = driver->driver->createDeviceAccessInstance(id, parameters);
+    if (instance == nullptr) {
+        return false;
+    }
+
+    priv_->instanceDriverNames[instance] = driverName;
+    instance->setParent(this);
+    return true;
+}
+
 QJsonObject SIDeviceAccessRegistry::jsonDescription(SIJsonFlags flags) const {
     QJsonArray accesses;
     for (auto* child: children()) {
         auto* access = qobject_cast<SIDeviceAccess*>(child);
-        accesses.append(access->jsonDescription(flags));
+        QJsonObject description = access->jsonDescription(flags);
+        description["driver"] = priv_->instanceDriverNames[access];
+        accesses.append(description);
     }
 
-    QJsonObject factories;
-    for (const auto& factory: factories_) {
-        factories[factory.name] = factory.metaData;
+    QJsonObject drivers;
+    for (const auto& driver: drivers_) {
+        drivers[driver.name] = driver.metaData;
     }
 
     QJsonObject description {
         {"instances", accesses},
-        {"drivers",  factories}
+        {"drivers", drivers}
     };
 
     return description;
@@ -73,11 +94,11 @@ SIDeviceAccessRegistry& SIDeviceAccessRegistry::sharedRegistry() {
     return *instance;
 }
 
-bool SIDeviceAccessRegistry::registerDeviceAccessDriver(const QString& name, const QJsonObject& metaData, SIDeviceAccessDriver* deviceAccessFactory) {
-    if (deviceAccessFactory && std::none_of(factories_.cbegin(), factories_.cend(), [&name](const SIDeviceAccessFactoryElement& pluginElement) {
-        return pluginElement.name == name;
+bool SIDeviceAccessRegistry::registerDeviceAccessDriver(const QString& name, const QJsonObject& metaData, SIDeviceAccessDriver* deviceAccessDriver) {
+    if (deviceAccessDriver && std::none_of(drivers_.cbegin(), drivers_.cend(), [&name](const SIDeviceAccessDriverElement& driverElement) {
+        return driverElement.name == name;
     })) {
-        factories_.append({name, metaData, deviceAccessFactory});
+        drivers_.append({name, metaData, deviceAccessDriver});
         return true;
     } else {
         return false;
@@ -89,24 +110,19 @@ bool SIDeviceAccessRegistry::loadDeviceAccessDriver(const QString& driverFile) {
     if (pluginLoader.load()) {
         auto metaData = pluginLoader.metaData();
         auto name = metaData["MetaData"].toObject()["name"].toString();
-        auto* plugin = qobject_cast<SIDeviceAccessDriver*>(pluginLoader.instance());
-        return registerDeviceAccessDriver(name, metaData["MetaData"].toObject(), plugin);
+        auto* driver = qobject_cast<SIDeviceAccessDriver*>(pluginLoader.instance());
+        return registerDeviceAccessDriver(name, metaData["MetaData"].toObject(), driver);
     }
     return false;
 }
 
 int SIDeviceAccessRegistry::loadDeviceAccessDriversInFolder(const QString& driversFolderPath) {
-    int pluginsLoaded = 0;
-    QDir pluginFolder(driversFolderPath);
-    for (const auto& pluginFile: pluginFolder.entryList({"*.dap"})) {
-        if (loadDeviceAccessDriver(pluginFolder.filePath(pluginFile))) {
-            ++pluginsLoaded;
+    int driversLoaded = 0;
+    QDir driversFolder(driversFolderPath);
+    for (const auto& driverFile: driversFolder.entryList({"*.dap"})) {
+        if (loadDeviceAccessDriver(driversFolder.filePath(driverFile))) {
+            ++driversLoaded;
         }
     }
-    return pluginsLoaded;
-}
-
-void SIDeviceAccessRegistry::registerDeviceAccessInstance_(SIDeviceAccess* access) {
-    assert(access != nullptr);
-    access->setParent(this);
+    return driversLoaded;
 }

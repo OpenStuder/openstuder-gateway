@@ -43,7 +43,7 @@ class SIDeviceAccess: public QObject {
     const QJsonObject& jsonDescription(SIJsonFlags flags) const;
 
   protected:
-    explicit SIDeviceAccess(const QString& id, SIDeviceAccessRegistry* registry = nullptr);
+    explicit SIDeviceAccess(const QString& id);
 
   private:
     virtual void retrievePendingDeviceMessages_(QVector<SIDeviceMessage>& messages) const;

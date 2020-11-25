@@ -1,14 +1,13 @@
 #pragma once
 #include "sideviceaccessregistry.h"
-#include <QVector>
-#include <QVariant>
 #include <QString>
+#include <QVariantMap>
 
 class SIDeviceAccessDriver {
   public:
     virtual ~SIDeviceAccessDriver() = default;
 
-    virtual SIDeviceAccess* createDeviceAccessInstance(const QVariantMap& parameters = {}) = 0;
+    virtual SIDeviceAccess* createDeviceAccessInstance(const QString& id, const QVariantMap& parameters = {}) = 0;
 };
 
 #define SIDeviceAccessDriverPlugin_IID "org.sgw.SIDeviceAccessDriverPlugin"

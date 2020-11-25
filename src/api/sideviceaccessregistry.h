@@ -5,13 +5,12 @@
 #include <QString>
 #include <QJsonObject>
 #include <QPointer>
+#include <QVariantMap>
 
 class SIDeviceAccess;
 class SIDeviceAccessDriver;
 
 class SIDeviceAccessRegistry final: QObject {
-    friend class SIDeviceAccess;
-
   public:
     SIDeviceAccessRegistry();
     SIDeviceAccessRegistry(const SIDeviceAccessRegistry&) = delete;
@@ -32,17 +31,17 @@ class SIDeviceAccessRegistry final: QObject {
         return deviceAccess(id);
     }
 
+    bool instantiateDeviceAccess(const QString& driverName, const QString& id, const QVariantMap& parameters);
+
     QJsonObject jsonDescription(SIJsonFlags flags = SIJsonFlag::Default) const;
 
     static SIDeviceAccessRegistry& sharedRegistry();
 
-    static bool registerDeviceAccessDriver(const QString& name, const QJsonObject& metaData, SIDeviceAccessDriver* deviceAccessFactory);
+    static bool registerDeviceAccessDriver(const QString& driverElement, const QJsonObject& metaData, SIDeviceAccessDriver* deviceAccessDriver);
     static bool loadDeviceAccessDriver(const QString& driverFile);
     static int loadDeviceAccessDriversInFolder(const QString& driversFolderPath);
 
   private:
-    void registerDeviceAccessInstance_(SIDeviceAccess* access);
-
     struct Private_;
     std::unique_ptr<Private_> priv_;
 };
