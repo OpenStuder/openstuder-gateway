@@ -31,16 +31,18 @@ const QVector<SIProperty>& SIDevice::properties() const {
 SIPropertyReadResult SIDevice::readProperty(SIPropertyID id) const {
     return readProperty_(id);
 }
+
 QVector<SIPropertyReadResult> SIDevice::readProperties(const QVector<SIPropertyID>& ids) const {
     return readProperties_(ids);
 }
+
 SIPropertyWriteResult SIDevice::writeProperty(SIPropertyID id, const QVariant& value, SIPropertyWriteFlags flags) {
     return writeProperty_(id, value, flags);
 }
+
 QVector<SIPropertyWriteResult> SIDevice::writeProperties(const QVector<const QPair<SIPropertyID, const QVariant>>& properties, SIPropertyWriteFlags flags) {
     return writeProperties_(properties, flags);
 }
-
 
 const QJsonObject& SIDevice::jsonDescription(SIJsonFlags flags) const {
     if (priv_->cachedJsonFlags != flags) {

@@ -1,6 +1,7 @@
 #include "xcom485ixtender.h"
+#include "xcom485imodbusaccess.h"
 
-XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress, {
+XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess): XCom485iDevice(toString(model), modbusAddress, modbusAccess, {
     {0, 3000, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
     {2, 3001, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery temperature", "°C"},
     {10, 3005, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery charge current", "Adc"},

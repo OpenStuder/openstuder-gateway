@@ -1,6 +1,7 @@
 #include "xcom485ivariostring.h"
+#include "xcom485imodbusaccess.h"
 
-XCom485iVarioString::XCom485iVarioString(XCom485iVarioString::Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress, {
+XCom485iVarioString::XCom485iVarioString(Model model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess): XCom485iDevice(toString(model), modbusAddress, modbusAccess, {
     {0, 15000, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
     {2, 15001, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery current", "Adc"},
 

@@ -1,9 +1,10 @@
 #include "xcom485ibatterymanager.h"
+#include "xcom485imodbusaccess.h"
 #include <cmath>
 
 using namespace std;
 
-XCom485iBatteryManager::XCom485iBatteryManager(XCom485iBatteryManager::Model model): XCom485iDevice(toString(model), 61, {
+XCom485iBatteryManager::XCom485iBatteryManager(Model model, XCom485iModbusAccess* modbusAccess): XCom485iDevice(toString(model), 61, modbusAccess, {
     {0, 7000, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
     {2, 7001, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery current", "Adc"}
 }), model_(model) {

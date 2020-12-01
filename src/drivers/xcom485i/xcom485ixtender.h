@@ -11,7 +11,7 @@ class XCom485iXtender: public XCom485iDevice {
         XTS
     };
 
-    explicit XCom485iXtender(Model model, quint8 modbusAddress);
+    explicit XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess);
 
     static Model model(quint8 modbusAddress, XCom485iModbusAccess& access);
 

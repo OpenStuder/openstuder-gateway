@@ -10,7 +10,7 @@ class XCom485iVarioString: public XCom485iDevice {
         VS70
     };
 
-    explicit XCom485iVarioString(Model model, quint8 modbusAddress);
+    explicit XCom485iVarioString(Model model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess);
 
     static Model model(quint8 modbusAddress, XCom485iModbusAccess& access);
 

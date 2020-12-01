@@ -9,7 +9,7 @@ class XCom485iBatteryManager: public XCom485iDevice {
         XComCAN_BMS
     };
 
-    explicit XCom485iBatteryManager(Model model);
+    explicit XCom485iBatteryManager(Model model, XCom485iModbusAccess* modbusAccess);
 
     inline Model xComModel() const {
         return model_;

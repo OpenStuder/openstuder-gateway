@@ -111,7 +111,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
             break;
         }
 
-        xtenders << new XCom485iXtender(model, nextExpectedXtenderAddress++);
+        xtenders << new XCom485iXtender(model, nextExpectedXtenderAddress++, this);
         devices.append(xtenders.last());
     }
 
@@ -121,7 +121,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
         delete virtualXtender;
     }
     if (!xtenders.isEmpty() && virtualXtender == nullptr) {
-        virtualXtender = new XCom485iXtender(XCom485iXtender::Multicast, 10);
+        virtualXtender = new XCom485iXtender(XCom485iXtender::Multicast, 10, this);
         devices.append(virtualXtender);
     }
 
@@ -145,7 +145,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
             break;
         }
 
-        varioTracks << new XCom485iVarioTrack(model, nextExpectedVarioTrackAddress++);
+        varioTracks << new XCom485iVarioTrack(model, nextExpectedVarioTrackAddress++, this);
         devices.append(varioTracks.last());
     }
 
@@ -155,7 +155,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
         delete virtualVarioTrack;
     }
     if (!varioTracks.isEmpty() && virtualVarioTrack == nullptr) {
-        virtualVarioTrack = new XCom485iVarioTrack(XCom485iVarioTrack::Multicast, 20);
+        virtualVarioTrack = new XCom485iVarioTrack(XCom485iVarioTrack::Multicast, 20, this);
         devices.append(virtualVarioTrack);
     }
 
@@ -179,7 +179,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
             break;
         }
 
-        varioStrings << new XCom485iVarioString(model, nextExpectedVarioStringAddress++);
+        varioStrings << new XCom485iVarioString(model, nextExpectedVarioStringAddress++, this);
         devices.append(varioStrings.last());
     }
 
@@ -189,7 +189,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
         delete virtualVarioString;
     }
     if (!varioStrings.isEmpty() && virtualVarioString == nullptr) {
-        virtualVarioString = new XCom485iVarioString(XCom485iVarioString::Multicast, 40);
+        virtualVarioString = new XCom485iVarioString(XCom485iVarioString::Multicast, 40, this);
         devices.append(virtualVarioString);
     }
 
@@ -212,7 +212,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
 
         // Add battery manager if not already present.
         if (batteryManager == nullptr) {
-            batteryManager = new XCom485iBatteryManager(batteryManagerModel);
+            batteryManager = new XCom485iBatteryManager(batteryManagerModel, this);
             devices.append(batteryManager);
         }
     }
@@ -230,6 +230,7 @@ void XCom485iDeviceAccess::completeJsonDescription_(QJsonObject& object, SIJsonF
 
 SIPropertyReadResult XCom485iDeviceAccess::readInputRegister_(quint8 deviceAddress, unsigned int registerAddress, SIPropertyType type) {
     deviceAddress += deviceOffset_;
+
     auto reply = modbus_.sendReadRequest({QModbusDataUnit::InputRegisters, static_cast<int>(registerAddress), 2}, deviceAddress);
     while (!reply->isFinished()) {
         QCoreApplication::processEvents();
@@ -239,17 +240,48 @@ SIPropertyReadResult XCom485iDeviceAccess::readInputRegister_(quint8 deviceAddre
     union {
         quint16 i[2];
         float f;
-    } value = {{0, 0}};
-    value.i[0] = reply->result().value(1);
-    value.i[1] = reply->result().value(0);
-    return {registerAddress, SIStatus::Success, value.f};
+    } conv = {{0, 0}};
+    conv.i[0] = reply->result().value(1);
+    conv.i[1] = reply->result().value(0);
+
+    return {registerAddress, SIStatus::Success, conv.f};
 }
 
 
 SIPropertyReadResult XCom485iDeviceAccess::readHoldingRegister_(quint8 deviceAddress, unsigned int registerAddress, SIPropertyType type) {
-    return {};
+    deviceAddress += deviceOffset_;
+
+    auto reply = modbus_.sendReadRequest({QModbusDataUnit::HoldingRegisters, static_cast<int>(registerAddress), 2}, deviceAddress);
+    while (!reply->isFinished()) {
+        QCoreApplication::processEvents();
+    }
+    if (reply->error() != QModbusDevice::NoError) { return {registerAddress, SIStatus::Error, {}}; }
+
+    union {
+        quint16 i[2];
+        float f;
+    } conv = {{0, 0}};
+    conv.i[0] = reply->result().value(1);
+    conv.i[1] = reply->result().value(0);
+
+    return {registerAddress, SIStatus::Success, conv.f};
 }
 
 SIPropertyWriteResult XCom485iDeviceAccess::writeHoldingRegister_(quint8 deviceAddress, unsigned int registerAddress, const QVariant& value, SIPropertyType type) {
-    return {};
+    deviceAddress += deviceOffset_;
+
+    union {
+        quint16 i[2];
+        float f;
+    } conv = {{0, 0}};
+
+    conv.f = value.toFloat();
+
+    auto reply = modbus_.sendWriteRequest({QModbusDataUnit::HoldingRegisters, static_cast<int>(registerAddress), {conv.i[1], conv.i[0]}}, deviceAddress);
+    while (!reply->isFinished()) {
+        QCoreApplication::processEvents();
+    }
+    if (reply->error() != QModbusDevice::NoError) { return {registerAddress, SIStatus::Error}; }
+
+    return {registerAddress, SIStatus::Success};
 }

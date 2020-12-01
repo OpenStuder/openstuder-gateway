@@ -10,7 +10,7 @@ class XCom485iVarioTrack: public XCom485iDevice {
         VT65
     };
 
-    explicit XCom485iVarioTrack(Model model, quint8 modbusAddress);
+    explicit XCom485iVarioTrack(Model model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess);
 
     static Model model(quint8 modbusAddress, XCom485iModbusAccess& access);
 
