@@ -1,9 +1,9 @@
 #pragma once
 #include <sideviceaccess.h>
 #include "xcom485imodbusaccess.h"
+#include <sipropertywriteresult.h>
 #include <QSerialPort>
 #include <QModbusRtuSerialMaster>
-#include <sipropertywriteresult.h>
 
 class XCom485iDeviceAccess: public SIDeviceAccess, private XCom485iModbusAccess {
   public:
@@ -14,6 +14,7 @@ class XCom485iDeviceAccess: public SIDeviceAccess, private XCom485iModbusAccess 
   private:
     void retrievePendingDeviceMessages_(QVector<SIDeviceMessage>& messages) const override;
     bool enumerateDevices_(QVector<SIDevice*>& devices) override;
+
     void completeJsonDescription_(QJsonObject& object, SIJsonFlags flags) const override;
 
     SIPropertyReadResult readInputRegister_(quint8 deviceAddress, unsigned int propertyModbusAddress, SIPropertyType type) override;
