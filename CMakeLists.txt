@@ -13,6 +13,7 @@ add_library(SIDeviceAccess SHARED
             src/api/sipropertytype.cpp
             src/api/sipropertyflags.h
             src/api/sipropertyreadresult.h
+            src/api/sipropertywriteflags.h
             src/api/sipropertywriteresult.h
             src/api/sidevice.h
             src/api/sijsonflags.h

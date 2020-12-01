@@ -34,11 +34,11 @@ SIPropertyReadResult SIDevice::readProperty(SIPropertyID id) const {
 QVector<SIPropertyReadResult> SIDevice::readProperties(const QVector<SIPropertyID>& ids) const {
     return readProperties_(ids);
 }
-SIPropertyWriteResult SIDevice::writeProperty(SIPropertyID id, const QVariant& value) {
-    return writeProperty_(id, value);
+SIPropertyWriteResult SIDevice::writeProperty(SIPropertyID id, const QVariant& value, SIPropertyWriteFlags flags) {
+    return writeProperty_(id, value, flags);
 }
-QVector<SIPropertyWriteResult> SIDevice::writeProperties(const QVector<const QPair<SIPropertyID, const QVariant>>& properties) {
-    return writeProperties_(properties);
+QVector<SIPropertyWriteResult> SIDevice::writeProperties(const QVector<const QPair<SIPropertyID, const QVariant>>& properties, SIPropertyWriteFlags flags) {
+    return writeProperties_(properties, flags);
 }
 
 
@@ -60,7 +60,6 @@ const QJsonObject& SIDevice::jsonDescription(SIJsonFlags flags) const {
                         {"type",        to_string(property.type)},
                         {"readable",    property.flags.testFlag(SIPropertyFlag::Readable)},
                         {"writeable",   property.flags.testFlag(SIPropertyFlag::Writeable)},
-                        {"permanent",   property.flags.testFlag(SIPropertyFlag::Permanent)},
                         {"description", property.description},
                         {"unit",        property.unit}
                     });
@@ -81,10 +80,10 @@ QVector<SIPropertyReadResult> SIDevice::readProperties_(const QVector<SIProperty
     return results;
 }
 
-QVector<SIPropertyWriteResult> SIDevice::writeProperties_(const QVector<const QPair<SIPropertyID, const QVariant>>& properties) {
+QVector<SIPropertyWriteResult> SIDevice::writeProperties_(const QVector<const QPair<SIPropertyID, const QVariant>>& properties, SIPropertyWriteFlags flags) {
     QVector<SIPropertyWriteResult> results(properties.count());
     for (const auto& property: properties) {
-        results.append(writeProperty_(property.first, property.second));
+        results.append(writeProperty_(property.first, property.second, flags));
     }
     return results;
 }
