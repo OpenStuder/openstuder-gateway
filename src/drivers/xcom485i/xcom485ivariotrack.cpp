@@ -1,6 +1,15 @@
 #include "xcom485ivariotrack.h"
 
-XCom485iVarioTrack::XCom485iVarioTrack(Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress, {}) {}
+XCom485iVarioTrack::XCom485iVarioTrack(Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress, {
+    {0, 11000, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
+    {2, 11001, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery current", "Adc"},
+
+    {10, 10005, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Floating voltage", "Vdc"},
+    {18, 1009, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Absorption voltage", "Vdc"},
+
+    {4, 10002, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Battery charge current", "Adc"},
+    {668, 10334, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Battery undervoltage", "Vdc"}
+}) {}
 
 XCom485iVarioTrack::Model XCom485iVarioTrack::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(modbusAddress, 30);
