@@ -1,6 +1,34 @@
 #include "xcom485ivariostring.h"
 
-XCom485iVarioString::XCom485iVarioString(XCom485iVarioString::Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress, {}) {}
+XCom485iVarioString::XCom485iVarioString(XCom485iVarioString::Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress, {
+    {0, 15000, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
+    {2, 15001, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery current", "Adc"},
+
+    {432, 14216, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery undervoltage", "Vdc"}
+}) {
+    switch (model) {
+        case Invalid:
+            break;
+        case Multicast:
+            addProperties({
+                {2, 14001, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Battery charge current (VS-120)", "Adc"},
+                {434, 14217, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Battery charge current (VS-70)", "Adc"}
+            });
+            break;
+
+        case VS120:
+            addProperties({
+                {2, 14001, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Battery charge current", "Adc"}
+            });
+            break;
+
+        case VS70:
+            addProperties({
+                {434, 14217, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Battery charge current", "Adc"}
+            });
+            break;
+    }
+}
 
 XCom485iVarioString::Model XCom485iVarioString::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(modbusAddress, 148);

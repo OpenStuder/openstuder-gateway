@@ -5,11 +5,14 @@
 
 class XCom485iDevice: public SIDevice {
   public:
-    explicit XCom485iDevice(const QString& model, quint8 modbusAddress, std::initializer_list<XCom58iProperty> properties);
+    explicit XCom485iDevice(const QString& model, quint8 modbusAddress, const std::initializer_list<XCom58iProperty>& properties);
 
     inline quint8 modbusAddress() const {
         return modbusAddress_;
     }
+
+  protected:
+    void addProperties(std::initializer_list<XCom58iProperty> properties);
 
   private:
     const QVector<SIProperty>& properties_() const override;
