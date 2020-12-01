@@ -26,21 +26,35 @@ QVector<SIDeviceMessage> SIDeviceAccess::retrievePendingDeviceMessages() const {
 }
 
 int SIDeviceAccess::enumerateDevices() {
+
+    // Clear JSON description cache,
     priv_->cachedJsonDescription = {};
+
+    // Populate device list.
     QVector<SIDevice*> devices;
     for (const auto& child: children()) {
         devices.append(qobject_cast<SIDevice*>(child));
     }
+
+    // Let the driver enumerate the devices.
     if (enumerateDevices_(devices)) {
+
+        // Remove all devices from the devices list that are already present.
+        // TODO: might not be needed, moving to the same parent again is no problem.
         for (const auto& child: children()) {
             devices.removeOne(qobject_cast<SIDevice*>(child));
         }
+
+        // Set parent for all enumerated devices.
         for (auto* device: devices) {
             device->setParent(this);
         }
+
+        // Return the number of children.
         return children().count();
-    } else
-    {
+    } else {
+
+        // Return error.
         return -1;
     }
 }

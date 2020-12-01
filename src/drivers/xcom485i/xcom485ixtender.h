@@ -1,8 +1,6 @@
 #pragma once
 #include "xcom485idevice.h"
 
-class QModbusRtuSerialMaster;
-
 class XCom485iXtender: public XCom485iDevice {
   public:
     enum Model {

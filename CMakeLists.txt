@@ -48,6 +48,8 @@ add_device_access_driver(XCom485i
                          src/drivers/xcom485i/xcom485ivariotrack.cpp
                          src/drivers/xcom485i/xcom485ivariostring.h
                          src/drivers/xcom485i/xcom485ivariostring.cpp
+                         src/drivers/xcom485i/xcom485ibatterymanager.h
+                         src/drivers/xcom485i/xcom485ibatterymanager.cpp
                          )
 
 target_link_libraries(XCom485i Qt5::SerialPort Qt5::SerialBus)

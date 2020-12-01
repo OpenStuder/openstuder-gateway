@@ -3,6 +3,7 @@
 #include "xcom485ixtender.h"
 #include "xcom485ivariotrack.h"
 #include "xcom485ivariostring.h"
+#include "xcom485ibatterymanager.h"
 #include <QCoreApplication>
 #include <QLoggingCategory>
 
@@ -67,7 +68,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
     QVector<XCom485iVarioTrack*> varioTracks;
     XCom485iVarioString* virtualVarioString = nullptr;
     QVector<XCom485iVarioString*> varioStrings;
-    XCom485iDevice* bsp = nullptr;
+    XCom485iBatteryManager* batteryManager = nullptr;
     for (auto* device: devices) {
         auto* xcomDevice = dynamic_cast<XCom485iDevice*>(device);
         if (xcomDevice) {
@@ -85,7 +86,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
             } else if (modbusAddress >= 41 && modbusAddress <= 55) {
                 varioStrings << dynamic_cast<XCom485iVarioString*>(xcomDevice);
             } else if (modbusAddress == 61) {
-                bsp = xcomDevice;
+                batteryManager = dynamic_cast<XCom485iBatteryManager*>(xcomDevice);
             }
         }
     }
@@ -99,6 +100,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
     while (!xtenders.isEmpty() && XCom485iXtender::model(xtenders.last()->modbusAddress(), *this) == XCom485iXtender::Invalid) {
         auto missing = xtenders.takeLast();
         devices.removeAll(missing);
+        delete missing;
     }
 
     // Try to add new extenders as long as they respond.
@@ -116,6 +118,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
     // If there is at least one xtender on the bus, create the virtual multicast device, if none xtenders are present remove virtual device.
     if (xtenders.isEmpty() && virtualXtender != nullptr) {
         devices.removeAll(virtualXtender);
+        delete virtualXtender;
     }
     if (!xtenders.isEmpty() && virtualXtender == nullptr) {
         virtualXtender = new XCom485iXtender(XCom485iXtender::Multicast, 10);
@@ -131,6 +134,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
     while (!varioTracks.isEmpty() && XCom485iVarioTrack::model(varioTracks.last()->modbusAddress(), *this) == XCom485iVarioTrack::Invalid) {
         auto missing = varioTracks.takeLast();
         devices.removeAll(missing);
+        delete missing;
     }
 
     // Try to add new VarioTracks as long as they respond.
@@ -148,6 +152,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
     // If there is at least one VarioTrack on the bus, create the virtual multicast device, if none VarioTracks are present remove virtual device.
     if (varioTracks.isEmpty() && virtualVarioTrack != nullptr) {
         devices.removeAll(virtualVarioTrack);
+        delete virtualVarioTrack;
     }
     if (!varioTracks.isEmpty() && virtualVarioTrack == nullptr) {
         virtualVarioTrack = new XCom485iVarioTrack(XCom485iVarioTrack::Multicast, 20);
@@ -163,6 +168,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
     while (!varioStrings.isEmpty() && XCom485iVarioString::model(varioStrings.last()->modbusAddress(), *this) == XCom485iVarioString::Invalid) {
         auto missing = varioStrings.takeLast();
         devices.removeAll(missing);
+        delete missing;
     }
 
     // Try to add new VarioStrings as long as they respond.
@@ -180,10 +186,35 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
     // If there is at least one VarioString on the bus, create the virtual multicast device, if none VarioStrings are present remove virtual device.
     if (varioStrings.isEmpty() && virtualVarioString != nullptr) {
         devices.removeAll(virtualVarioString);
+        delete virtualVarioString;
     }
     if (!varioStrings.isEmpty() && virtualVarioString == nullptr) {
         virtualVarioString = new XCom485iVarioString(XCom485iVarioString::Multicast, 40);
         devices.append(virtualVarioString);
+    }
+
+    // Check for BSP or XCom-CAN BMS device on bus.
+    auto batteryManagerModel = XCom485iBatteryManager::model(*this);
+
+    if (batteryManagerModel == XCom485iBatteryManager::Invalid) {
+        if (batteryManager != nullptr) {
+            // If there is no device on the bus, remove the existing object from devices.
+            devices.removeAll(batteryManager);
+            delete batteryManager;
+        }
+    } else {
+        // Remove existing battery manager if it is present and not the correct model.
+        if (batteryManager != nullptr && batteryManager->xComModel() != batteryManagerModel) {
+            devices.removeAll(batteryManager);
+            delete batteryManager;
+            batteryManager = nullptr;
+        }
+
+        // Add battery manager if not already present.
+        if (batteryManager == nullptr) {
+            batteryManager = new XCom485iBatteryManager(batteryManagerModel);
+            devices.append(batteryManager);
+        }
     }
 
     return true;
