@@ -6,6 +6,7 @@
 #include <utility>
 
 struct SIProperty {
+    inline SIProperty(): id(0), type(SIPropertyType::Invalid), flags(SIPropertyFlag::None) {}
     inline SIProperty(SIPropertyID id, SIPropertyType type, SIPropertyFlags flags, QString  description, QString  unit):
         id(id), type(type), flags(flags), description(std::move(description)), unit(std::move(unit)) {}
 
