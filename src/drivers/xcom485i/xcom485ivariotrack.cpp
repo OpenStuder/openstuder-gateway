@@ -1,6 +1,6 @@
 #include "xcom485ivariotrack.h"
 
-XCom485iVarioTrack::XCom485iVarioTrack(Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress) {}
+XCom485iVarioTrack::XCom485iVarioTrack(Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress, {}) {}
 
 XCom485iVarioTrack::Model XCom485iVarioTrack::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(modbusAddress, 30);

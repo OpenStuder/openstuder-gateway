@@ -3,7 +3,7 @@
 
 using namespace std;
 
-XCom485iBatteryManager::XCom485iBatteryManager(XCom485iBatteryManager::Model model): XCom485iDevice(toString(model), 61), model_(model) {}
+XCom485iBatteryManager::XCom485iBatteryManager(XCom485iBatteryManager::Model model): XCom485iDevice(toString(model), 61, {}), model_(model) {}
 
 XCom485iBatteryManager::Model XCom485iBatteryManager::model(XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(61, 122);

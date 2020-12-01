@@ -1,6 +1,6 @@
 #include "xcom485ivariostring.h"
 
-XCom485iVarioString::XCom485iVarioString(XCom485iVarioString::Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress) {}
+XCom485iVarioString::XCom485iVarioString(XCom485iVarioString::Model model, quint8 modbusAddress): XCom485iDevice(toString(model), modbusAddress, {}) {}
 
 XCom485iVarioString::Model XCom485iVarioString::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(modbusAddress, 148);

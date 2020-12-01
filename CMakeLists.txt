@@ -37,6 +37,7 @@ function(add_device_access_driver name)
 endfunction()
 
 add_device_access_driver(XCom485i
+                         src/drivers/xcom485i/xcom485iproperty.h
                          src/drivers/xcom485i/xcom485idevice.h
                          src/drivers/xcom485i/xcom485idevice.cpp
                          src/drivers/xcom485i/xcom485ideviceaccess.h
