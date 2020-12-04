@@ -45,13 +45,14 @@ XCom485iBatteryManager::Model XCom485iBatteryManager::model(XCom485iModbusAccess
 
 QString XCom485iBatteryManager::toString(XCom485iBatteryManager::Model model) {
     switch (model) {
-        case Invalid:
-            return "Invalid BSP/XCom-CAN BMS model";
-
         case BSP:
             return "BSP";
 
         case XComCAN_BMS:
             return "XCom-Can BMS";
+
+        case Invalid:
+        default:
+        return "Invalid BSP/XCom-CAN BMS model";
     }
 }

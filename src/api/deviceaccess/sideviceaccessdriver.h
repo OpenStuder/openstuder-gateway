@@ -1,7 +1,8 @@
 #pragma once
-#include "sideviceaccessregistry.h"
 #include <QString>
 #include <QVariantMap>
+
+class SIDeviceAccess;
 
 class SIDeviceAccessDriver {
   public:

@@ -7,6 +7,7 @@
 #include <array>
 #include <QCoreApplication>
 #include <QLoggingCategory>
+#include <QTime>
 
 Q_DECLARE_LOGGING_CATEGORY(XCOM485i)
 
@@ -408,6 +409,8 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
 }
 
 void XCom485iDeviceAccess::completeJsonDescription_(QJsonObject& object, SIJsonFlags flags) const {
+    Q_UNUSED(flags)
+
     QJsonObject parameters;
     parameters["port"] = modbus_.connectionParameter(QModbusRtuSerialMaster::SerialPortNameParameter).toString();
     parameters["baudRate"] = modbus_.connectionParameter(QModbusRtuSerialMaster::SerialBaudRateParameter).toInt();
@@ -431,9 +434,22 @@ SIPropertyReadResult XCom485iDeviceAccess::readInputRegister_(quint8 deviceAddre
     conv.i[0] = reply->result().value(1);
     conv.i[1] = reply->result().value(0);
 
-    return {registerAddress, SIStatus::Success, conv.f};
-}
+    switch (type) {
+        case SIPropertyType::Float:
+        case SIPropertyType::Enum:
+        case SIPropertyType::Bool:
+        case SIPropertyType::DaysOfWeek:
+            return {registerAddress, SIStatus::Success, conv.f};
 
+        case SIPropertyType::TimeOfDay:
+            return {registerAddress, SIStatus::Success, QTime((int)conv.f / 60, (int)conv.f % 60)};
+
+        case SIPropertyType::Invalid:
+        case SIPropertyType::Signal:
+        default:
+            return {registerAddress, SIStatus::Error, {}};
+    }
+}
 
 SIPropertyReadResult XCom485iDeviceAccess::readHoldingRegister_(quint8 deviceAddress, unsigned int registerAddress, SIPropertyType type) {
     deviceAddress += deviceOffset_;
@@ -451,7 +467,21 @@ SIPropertyReadResult XCom485iDeviceAccess::readHoldingRegister_(quint8 deviceAdd
     conv.i[0] = reply->result().value(1);
     conv.i[1] = reply->result().value(0);
 
-    return {registerAddress, SIStatus::Success, conv.f};
+    switch (type) {
+        case SIPropertyType::Float:
+        case SIPropertyType::Enum:
+        case SIPropertyType::Bool:
+        case SIPropertyType::DaysOfWeek:
+            return {registerAddress, SIStatus::Success, conv.f};
+
+        case SIPropertyType::TimeOfDay:
+            return {registerAddress, SIStatus::Success, QTime((int)conv.f / 60, (int)conv.f % 60)};
+
+        case SIPropertyType::Invalid:
+        case SIPropertyType::Signal:
+        default:
+            return {registerAddress, SIStatus::Error, {}};
+    }
 }
 
 SIPropertyWriteResult XCom485iDeviceAccess::writeHoldingRegister_(quint8 deviceAddress, unsigned int registerAddress, const QVariant& value, SIPropertyType type) {
@@ -462,7 +492,31 @@ SIPropertyWriteResult XCom485iDeviceAccess::writeHoldingRegister_(quint8 deviceA
         float f;
     } conv = {{0, 0}};
 
-    conv.f = value.toFloat();
+    switch (type) {
+        case SIPropertyType::Float:
+        case SIPropertyType::Enum:
+        case SIPropertyType::Bool:
+        case SIPropertyType::DaysOfWeek:
+            conv.f = value.toFloat();
+            break;
+
+        case SIPropertyType::TimeOfDay: {
+            if (!value.canConvert<QTime>()) {
+                return {registerAddress, SIStatus::Error};
+            }
+            auto time = value.toTime();
+            conv.f = (float)time.hour() * 60.0f + (float)time.second();
+            break;
+        }
+
+        case SIPropertyType::Signal:
+            conv.f = 1.0;
+            break;
+
+        case SIPropertyType::Invalid:
+        default:
+            return {registerAddress, SIStatus::Error};
+    }
 
     auto reply = modbus_.sendWriteRequest({QModbusDataUnit::HoldingRegisters, static_cast<int>(registerAddress), {conv.i[1], conv.i[0]}}, deviceAddress);
     while (!reply->isFinished()) {

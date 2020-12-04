@@ -50,9 +50,6 @@ XCom485iVarioString::Model XCom485iVarioString::model(quint8 modbusAddress, XCom
 
 QString XCom485iVarioString::toString(XCom485iVarioString::Model model) {
     switch (model) {
-        case Invalid:
-            return "Invalid VarioString model";
-
         case Multicast:
             return "VarioString multicast";
 
@@ -61,5 +58,9 @@ QString XCom485iVarioString::toString(XCom485iVarioString::Model model) {
 
         case VS70:
             return "VarioString VS70";
+
+        case Invalid:
+        default:
+        return "Invalid VarioString model";
     }
 }

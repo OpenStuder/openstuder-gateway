@@ -1,5 +1,5 @@
 #pragma once
-#include <sijsonflags.h>
+#include "sijsonflags.h"
 #include <memory>
 #include <QObject>
 #include <QString>

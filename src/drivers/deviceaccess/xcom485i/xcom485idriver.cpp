@@ -8,7 +8,7 @@ SIDeviceAccess* XCom485iDriver::createDeviceAccessInstance(const QString& id, co
 
     // Get and validate "port" parameter.
     if (!parameters.contains("port")) {
-        qCCritical(XCOM485i) << "Missing mandatory parameter \"port\"";
+        qCCritical(XCOM485i, "Missing mandatory parameter \"port\"");
         return nullptr;
     }
     if (!parameters["port"].canConvert<QString>()) {
@@ -27,7 +27,7 @@ SIDeviceAccess* XCom485iDriver::createDeviceAccessInstance(const QString& id, co
 
     // Get and validate "deviceAddressOffset" parameter.
     auto deviceAddressOffset = parameters.value("deviceAddressOffset", 0).toUInt(&ok);
-    if (!ok || (deviceAddressOffset != 0 && deviceAddressOffset != 32 && deviceAddressOffset != 64 & deviceAddressOffset != 128)) {
+    if (!ok || (deviceAddressOffset != 0 && deviceAddressOffset != 32 && deviceAddressOffset != 64 && deviceAddressOffset != 128)) {
         qCCritical(XCOM485i) << "Invalid value for parameter \"deviceAddressOffset\", must be one of the following values {0, 32, 64, 128}";
         return nullptr;
     }

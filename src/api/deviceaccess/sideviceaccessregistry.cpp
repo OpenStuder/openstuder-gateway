@@ -122,7 +122,7 @@ bool SIDeviceAccessRegistry::loadDeviceAccessDriver(const QString& driverFile) {
 int SIDeviceAccessRegistry::loadDeviceAccessDriversInFolder(const QString& driversFolderPath) {
     int driversLoaded = 0;
     QDir driversFolder(driversFolderPath);
-    for (const auto& driverFile: driversFolder.entryList({"*.dap"})) {
+    for (const auto& driverFile: driversFolder.entryList({"*.deviceaccess"})) {
         if (loadDeviceAccessDriver(driversFolder.filePath(driverFile))) {
             ++driversLoaded;
         }

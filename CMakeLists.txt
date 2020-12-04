@@ -1,58 +1,82 @@
 cmake_minimum_required(VERSION 3.16)
 project(StuderGateway)
-find_package(Qt5 COMPONENTS Core SerialPort SerialBus REQUIRED)
+find_package(Qt5 COMPONENTS Core SerialPort SerialBus Sql REQUIRED)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+#add_compile_options(-Wall -Wextra -pedantic -Werror)
 
 add_library(SIDeviceAccess SHARED
-            src/api/sistatus.h
-            src/api/sistatus.cpp
-            src/api/sipropertyid.h
-            src/api/sipropertytype.h
-            src/api/sipropertytype.cpp
-            src/api/sipropertyflags.h
-            src/api/sipropertyreadresult.h
-            src/api/sipropertywriteflags.h
-            src/api/sipropertywriteresult.h
-            src/api/sidevice.h
-            src/api/sijsonflags.h
-            src/api/sidevice.cpp
-            src/api/sideviceaccess.h
-            src/api/sideviceaccess.cpp
-            src/api/sideviceaccessregistry.h
-            src/api/sideviceaccessregistry.cpp
-            src/api/sideviceaccessdriver.h
+            src/api/deviceaccess/sistatus.h
+            src/api/deviceaccess/sistatus.cpp
+            src/api/deviceaccess/sipropertyid.h
+            src/api/deviceaccess/sipropertytype.h
+            src/api/deviceaccess/sipropertytype.cpp
+            src/api/deviceaccess/sipropertyflags.h
+            src/api/deviceaccess/sipropertyreadresult.h
+            src/api/deviceaccess/sipropertywriteflags.h
+            src/api/deviceaccess/sipropertywriteresult.h
+            src/api/deviceaccess/sidevice.h
+            src/api/deviceaccess/sijsonflags.h
+            src/api/deviceaccess/sidevice.cpp
+            src/api/deviceaccess/sideviceaccess.h
+            src/api/deviceaccess/sideviceaccess.cpp
+            src/api/deviceaccess/sideviceaccessregistry.h
+            src/api/deviceaccess/sideviceaccessregistry.cpp
+            src/api/deviceaccess/sideviceaccessdriver.h
             )
-target_include_directories(SIDeviceAccess PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/api)
+target_include_directories(SIDeviceAccess INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src/api/deviceaccess)
 target_link_libraries(SIDeviceAccess Qt5::Core)
+
+add_library(SIStorage SHARED
+            src/api/storage/sipropertyhistorystorage.h
+            src/api/storage/sipropertyhistorystorage.cpp
+            src/api/storage/sistoragedriver.h)
+target_include_directories(SIStorage INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src/api/storage)
+target_link_libraries(SIStorage SIDeviceAccess Qt5::Core)
 
 function(add_device_access_driver name)
     add_library(${name} MODULE ${ARGN})
     target_link_libraries(${name} SIDeviceAccess)
     set_target_properties(${name} PROPERTIES
                           PREFIX ""
-                          SUFFIX ".dap"
+                          SUFFIX ".deviceaccess"
+                          )
+endfunction()
+
+function(add_storage_driver name)
+    add_library(${name} MODULE ${ARGN})
+    target_link_libraries(${name} SIDeviceAccess SIStorage)
+    set_target_properties(${name} PROPERTIES
+                          PREFIX ""
+                          SUFFIX ".storage"
                           )
 endfunction()
 
 add_device_access_driver(XCom485i
-                         src/drivers/xcom485i/xcom485iproperty.h
-                         src/drivers/xcom485i/xcom485idevice.h
-                         src/drivers/xcom485i/xcom485idevice.cpp
-                         src/drivers/xcom485i/xcom485ideviceaccess.h
-                         src/drivers/xcom485i/xcom485ideviceaccess.cpp
-                         src/drivers/xcom485i/xcom485idriver.h
-                         src/drivers/xcom485i/xcom485idriver.cpp
-                         src/drivers/xcom485i/xcom485ixtender.h
-                         src/drivers/xcom485i/xcom485ixtender.cpp
-                         src/drivers/xcom485i/xcom485ivariotrack.h
-                         src/drivers/xcom485i/xcom485ivariotrack.cpp
-                         src/drivers/xcom485i/xcom485ivariostring.h
-                         src/drivers/xcom485i/xcom485ivariostring.cpp
-                         src/drivers/xcom485i/xcom485ibatterymanager.h
-                         src/drivers/xcom485i/xcom485ibatterymanager.cpp
+                         src/drivers/deviceaccess/xcom485i/xcom485iproperty.h
+                         src/drivers/deviceaccess/xcom485i/xcom485idevice.h
+                         src/drivers/deviceaccess/xcom485i/xcom485idevice.cpp
+                         src/drivers/deviceaccess/xcom485i/xcom485ideviceaccess.h
+                         src/drivers/deviceaccess/xcom485i/xcom485ideviceaccess.cpp
+                         src/drivers/deviceaccess/xcom485i/xcom485idriver.h
+                         src/drivers/deviceaccess/xcom485i/xcom485idriver.cpp
+                         src/drivers/deviceaccess/xcom485i/xcom485ixtender.h
+                         src/drivers/deviceaccess/xcom485i/xcom485ixtender.cpp
+                         src/drivers/deviceaccess/xcom485i/xcom485ivariotrack.h
+                         src/drivers/deviceaccess/xcom485i/xcom485ivariotrack.cpp
+                         src/drivers/deviceaccess/xcom485i/xcom485ivariostring.h
+                         src/drivers/deviceaccess/xcom485i/xcom485ivariostring.cpp
+                         src/drivers/deviceaccess/xcom485i/xcom485ibatterymanager.h
+                         src/drivers/deviceaccess/xcom485i/xcom485ibatterymanager.cpp
                          )
-
 target_link_libraries(XCom485i Qt5::SerialPort Qt5::SerialBus)
+
+add_storage_driver(SQLite
+                   src/drivers/storage/sqlite/sqlitestorage.h
+                   src/drivers/storage/sqlite/sqlitestorage.cpp
+                   src/drivers/storage/sqlite/sqlitestoragedriver.h
+                   src/drivers/storage/sqlite/sqlitestoragedriver.cpp
+                   )
+target_link_libraries(SQLite Qt5::Sql)
 

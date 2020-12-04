@@ -5,12 +5,16 @@ XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModb
     {0, 3000, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
     {2, 3001, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery temperature", "°C"},
     {10, 3005, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery charge current", "Adc"},
+    {46, 3023, SIPropertyType::Float, SIPropertyFlag::Readable, "Output power", "kVA"},
 
     {14, 1107, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Maximum current of AC source (Input limit)", "Aac"},
     {76, 1138, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current", "Adc"},
+    {48, 1124, SIPropertyType::Bool, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Inverter allowed", ""},
 
     {50, 1125, SIPropertyType::Bool, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Charger allowed", ""},
-    {78, 1139, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Temperature compensation", "mV/°C/cell"}
+    {78, 1139, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Temperature compensation", "mV/°C/cell"},
+    {212, 1206, SIPropertyType::TimeOfDay, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Start hour (AUX 1)", "hh:mm"},
+    {952, 1576, SIPropertyType::Bool, SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "ON/OFF command", ""}
 }) {}
 
 XCom485iXtender::Model XCom485iXtender::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
@@ -35,9 +39,6 @@ XCom485iXtender::Model XCom485iXtender::model(quint8 modbusAddress, XCom485iModb
 
 QString XCom485iXtender::toString(XCom485iXtender::Model model) {
     switch (model) {
-        case Invalid:
-            return "Invalid Xtender model";
-
         case Multicast:
             return "Xtender multicast";
 
@@ -49,5 +50,9 @@ QString XCom485iXtender::toString(XCom485iXtender::Model model) {
 
         case XTS:
             return "Xtender XTS";
+
+        case Invalid:
+        default:
+            return "Invalid Xtender model";
     }
 }

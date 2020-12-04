@@ -31,9 +31,6 @@ XCom485iVarioTrack::Model XCom485iVarioTrack::model(quint8 modbusAddress, XCom48
 
 QString XCom485iVarioTrack::toString(Model model) {
     switch (model) {
-        case Invalid:
-            return "Invalid VarioTrack model";
-
         case Multicast:
             return "VarioTrack multicast";
 
@@ -42,5 +39,9 @@ QString XCom485iVarioTrack::toString(Model model) {
 
         case VT65:
             return "VarioTrack VT-65";
+
+        case Invalid:
+        default:
+            return "Invalid VarioTrack model";
     }
 }

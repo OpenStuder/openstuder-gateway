@@ -30,11 +30,14 @@ SIPropertyReadResult XCom485iDevice::readProperty_(SIPropertyID id) const {
     auto registerAddress = modbusRegisterAddresses_.find(id);
     if (registerAddress == modbusRegisterAddresses_.cend()) return {id, SIStatus::NoProperty, {}};
 
+    SIPropertyReadResult result;
     if (property->flags.testFlag(SIPropertyFlag::Writeable)) {
-        return modbusAccess_->readHoldingRegister(modbusAddress_, *registerAddress, property->type);
+        result = modbusAccess_->readHoldingRegister(modbusAddress_, *registerAddress, property->type);
     } else {
-        return modbusAccess_->readHoldingRegister(modbusAddress_, *registerAddress, property->type);
+        result = modbusAccess_->readHoldingRegister(modbusAddress_, *registerAddress, property->type);
     }
+    result.id = id;
+    return result;
 }
 
 SIPropertyWriteResult XCom485iDevice::writeProperty_(SIPropertyID id, const QVariant& value, SIPropertyWriteFlags flags) {
@@ -46,9 +49,12 @@ SIPropertyWriteResult XCom485iDevice::writeProperty_(SIPropertyID id, const QVar
     auto registerAddress = modbusRegisterAddresses_.find(id);
     if (registerAddress == modbusRegisterAddresses_.cend()) return {id, SIStatus::NoProperty};
 
+    SIPropertyWriteResult result;
     if (flags.testFlag(SIPropertyWriteFlag::Permanent)) {
-        return modbusAccess_->writeHoldingRegister(modbusAddress_, *registerAddress, value, property->type);
+        result = modbusAccess_->writeHoldingRegister(modbusAddress_, *registerAddress, value, property->type);
     } else {
-        return modbusAccess_->writeHoldingRegister(modbusAddress_ + 6000, *registerAddress, value, property->type);
+        result = modbusAccess_->writeHoldingRegister(modbusAddress_ + 6000, *registerAddress, value, property->type);
     }
+    result.id = id;
+    return result;
 }
