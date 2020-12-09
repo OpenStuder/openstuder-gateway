@@ -34,7 +34,7 @@ SIPropertyReadResult XCom485iDevice::readProperty_(SIPropertyID id) const {
     if (property->flags.testFlag(SIPropertyFlag::Writeable)) {
         result = modbusAccess_->readHoldingRegister(modbusAddress_, *registerAddress, property->type);
     } else {
-        result = modbusAccess_->readHoldingRegister(modbusAddress_, *registerAddress, property->type);
+        result = modbusAccess_->readInputRegister(modbusAddress_, *registerAddress, property->type);
     }
     result.id = id;
     return result;
