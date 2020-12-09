@@ -33,7 +33,7 @@ class SIDevice: public QObject {
     SIPropertyReadResult readProperty(SIPropertyID id) const;
     QVector<SIPropertyReadResult> readProperties(const QVector<SIPropertyID>& ids) const;
 
-    SIPropertyWriteResult writeProperty(SIPropertyID id, const QVariant& value, SIPropertyWriteFlags flags = SIPropertyWriteFlag::Default);
+    SIPropertyWriteResult writeProperty(SIPropertyID id, const QVariant& value = {}, SIPropertyWriteFlags flags = SIPropertyWriteFlag::Default);
     QVector<SIPropertyWriteResult> writeProperties(const QVector<const QPair<SIPropertyID,const QVariant>>& properties, SIPropertyWriteFlags flags = SIPropertyWriteFlag::Default);
 
   protected:
