@@ -44,10 +44,18 @@ SIPropertyWriteResult XCom485iDevice::writeProperty_(SIPropertyID id, const QVar
     // Check if property exists.
     auto property = std::find_if(deviceProperties_.cbegin(), deviceProperties_.cend(), [&id](const SIProperty& p) { return p.id == id; });
     if (property == deviceProperties_.cend()) return {id, SIStatus::NoProperty};
-    if (!property->flags.testFlag(SIPropertyFlag::Writeable)) return {id, SIStatus::Error};
+    if (!property->flags.testFlag(SIPropertyFlag::Writeable)) {
+        return {id, SIStatus::Error};
+    }
 
     auto registerAddress = modbusRegisterAddresses_.find(id);
-    if (registerAddress == modbusRegisterAddresses_.cend()) return {id, SIStatus::NoProperty};
+    if (registerAddress == modbusRegisterAddresses_.cend()) {
+        return {id, SIStatus::NoProperty};
+    }
+
+    if (property->type != SIPropertyType::Signal && !value.isValid()) {
+        return {id, SIStatus::InvalidValue};
+    }
 
     SIPropertyWriteResult result;
     if (flags.testFlag(SIPropertyWriteFlag::Permanent)) {
