@@ -14,7 +14,8 @@ XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModb
     {50, 1125, SIPropertyType::Bool, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Charger allowed", ""},
     {78, 1139, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Temperature compensation", "mV/°C/cell"},
     {212, 1206, SIPropertyType::TimeOfDay, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Start hour (AUX 1)", "hh:mm"},
-    {952, 1576, SIPropertyType::Bool, SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "ON/OFF command", ""}
+    {630, 1415, SIPropertyType::Signal, SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "ON of the Xtenders", ""},
+    {598, 1399, SIPropertyType::Signal, SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "OFF of the Xtenders", ""}
 }) {}
 
 XCom485iXtender::Model XCom485iXtender::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
