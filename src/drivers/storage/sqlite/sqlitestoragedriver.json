@@ -7,7 +7,7 @@
       "name": "file",
       "type": "QString",
       "required": false,
-      "default": "/var/lib/studergateway/storage.sqlite"
+      "default": "/var/lib/sigateway/storage.sqlite"
     }
   ]
 }
