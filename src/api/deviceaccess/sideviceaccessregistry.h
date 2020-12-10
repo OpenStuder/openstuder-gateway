@@ -17,6 +17,8 @@ class SIDeviceAccessRegistry final: QObject {
     SIDeviceAccessRegistry& operator =(const SIDeviceAccessRegistry&) = delete;
     ~SIDeviceAccessRegistry() override;
 
+    int enumerateDevices();
+
     int deviceAccessCount() const;
 
     QPointer<SIDeviceAccess> deviceAccess(int index) const;
@@ -38,10 +40,13 @@ class SIDeviceAccessRegistry final: QObject {
     static SIDeviceAccessRegistry& sharedRegistry();
 
     static bool registerDeviceAccessDriver(const QString& name, const QJsonObject& metaData, SIDeviceAccessDriver* deviceAccessDriver);
-    static bool loadDeviceAccessDriver(const QString& driverFile);
+    static bool loadDeviceAccessDriver(QString driverFile);
+    static bool loadDeviceAccessDriver(const QStringList& driverSearchPaths, QString driverName);
     static int loadDeviceAccessDriversInFolder(const QString& driversFolderPath);
 
   private:
+    static bool hasDeviceAccessDriver_(const QString& name);
+
     struct Private_;
     std::unique_ptr<Private_> priv_;
 };

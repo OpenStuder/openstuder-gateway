@@ -7,9 +7,9 @@ class SIStorageDriver {
   public:
     virtual ~SIStorageDriver() = default;
 
-    virtual SIStorage* createStorageInstance(const QVariantMap& parameters = {}) = 0;
+    virtual SIStorage* createStorageInstance(const QVariantMap& parameters) = 0;
 
-    static SIStorageDriver* loadStorageDriver(const QStringList& driverSearchPaths, QString driverFile);
+    static SIStorageDriver* loadStorageDriver(const QStringList& driverSearchPaths, QString driverName);
 };
 
 #define SIStorageDriver_IID "org.sgw.SIStorageDriver"

@@ -23,6 +23,15 @@ SIDeviceAccessRegistry::SIDeviceAccessRegistry(): priv_(new Private_) {}
 
 SIDeviceAccessRegistry::~SIDeviceAccessRegistry() = default;
 
+int SIDeviceAccessRegistry::enumerateDevices() {
+    int count = 0;
+    for (auto* child: children()) {
+        auto* access = qobject_cast<SIDeviceAccess*>(child);
+        count += access->enumerateDevices();
+    }
+    return count;
+}
+
 int SIDeviceAccessRegistry::deviceAccessCount() const {
     return children().count();
 }
@@ -108,13 +117,37 @@ bool SIDeviceAccessRegistry::registerDeviceAccessDriver(const QString& name, con
     }
 }
 
-bool SIDeviceAccessRegistry::loadDeviceAccessDriver(const QString& driverFile) {
+bool SIDeviceAccessRegistry::loadDeviceAccessDriver(QString driverFile) {
+    if (!driverFile.endsWith(".sdd")) {
+        driverFile.append(".sdd");
+    }
+    auto name = QFileInfo(driverFile).baseName();
+    if (hasDeviceAccessDriver_(name)) {
+        return true;
+    }
     QPluginLoader pluginLoader(driverFile);
     if (pluginLoader.load()) {
         auto metaData = pluginLoader.metaData();
-        auto name = metaData["MetaData"].toObject()["name"].toString();
         auto* driver = qobject_cast<SIDeviceAccessDriver*>(pluginLoader.instance());
-        return registerDeviceAccessDriver(name, metaData["MetaData"].toObject(), driver);
+        if (registerDeviceAccessDriver(name, metaData["MetaData"].toObject(), driver)) {
+            return true;
+        } else {
+            pluginLoader.unload();
+            return false;
+        }
+    }
+    return false;
+}
+
+bool SIDeviceAccessRegistry::loadDeviceAccessDriver(const QStringList& driverSearchPaths, QString driverName) {
+    if (!driverName.endsWith(".sdd")) {
+        driverName.append(".sdd");
+    }
+    for (const auto& driverSearchPath: driverSearchPaths) {
+        QDir directory {driverSearchPath};
+        if (directory.exists() && directory.exists(driverName)) {
+            return loadDeviceAccessDriver(directory.absoluteFilePath(driverName));
+        }
     }
     return false;
 }
@@ -122,10 +155,16 @@ bool SIDeviceAccessRegistry::loadDeviceAccessDriver(const QString& driverFile) {
 int SIDeviceAccessRegistry::loadDeviceAccessDriversInFolder(const QString& driversFolderPath) {
     int driversLoaded = 0;
     QDir driversFolder(driversFolderPath);
-    for (const auto& driverFile: driversFolder.entryList({"*.deviceaccess"})) {
+    for (const auto& driverFile: driversFolder.entryList({"*.sdd"})) {
         if (loadDeviceAccessDriver(driversFolder.filePath(driverFile))) {
             ++driversLoaded;
         }
     }
     return driversLoaded;
+}
+
+bool SIDeviceAccessRegistry::hasDeviceAccessDriver_(const QString& name) {
+    return std::any_of(drivers_.cbegin(), drivers_.cend(), [&name](const SIDeviceAccessDriverElement& driverElement) {
+        return driverElement.name == name;
+    });
 }
