@@ -2,7 +2,7 @@
 #include "xcom485ideviceaccess.h"
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(XCOM485i, "driver.XCom-485i", QtWarningMsg)
+Q_LOGGING_CATEGORY(XCOM485i, "driver.XCom485i", QtWarningMsg)
 
 SIDeviceAccess* XCom485iDriver::createDeviceAccessInstance(const QString& id, const QVariantMap& parameters) {
 
