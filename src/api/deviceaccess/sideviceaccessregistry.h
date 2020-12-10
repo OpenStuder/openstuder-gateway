@@ -37,7 +37,7 @@ class SIDeviceAccessRegistry final: QObject {
 
     static SIDeviceAccessRegistry& sharedRegistry();
 
-    static bool registerDeviceAccessDriver(const QString& driverElement, const QJsonObject& metaData, SIDeviceAccessDriver* deviceAccessDriver);
+    static bool registerDeviceAccessDriver(const QString& name, const QJsonObject& metaData, SIDeviceAccessDriver* deviceAccessDriver);
     static bool loadDeviceAccessDriver(const QString& driverFile);
     static int loadDeviceAccessDriversInFolder(const QString& driversFolderPath);
 

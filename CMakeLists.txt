@@ -29,9 +29,12 @@ target_include_directories(SIDeviceAccess INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/
 target_link_libraries(SIDeviceAccess Qt5::Core)
 
 add_library(SIStorage SHARED
+            src/api/storage/sistorage.h
             src/api/storage/sipropertyhistorystorage.h
             src/api/storage/sipropertyhistorystorage.cpp
-            src/api/storage/sistoragedriver.h)
+            src/api/storage/sistoragedriver.h
+            src/api/storage/sistoragedriver.cpp
+            )
 target_include_directories(SIStorage INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src/api/storage)
 target_link_libraries(SIStorage SIDeviceAccess Qt5::Core)
 
@@ -80,3 +83,5 @@ add_storage_driver(SQLite
                    )
 target_link_libraries(SQLite Qt5::Sql)
 
+add_executable(SIDaemon src/daemon/main.cpp)
+target_link_libraries(SIDaemon SIDeviceAccess SIStorage Qt5::Core)
