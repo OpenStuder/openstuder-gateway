@@ -1,6 +1,5 @@
 #include "sideviceaccess.h"
 #include "sidevice.h"
-#include "sideviceaccessregistry.h"
 #include <QJsonArray>
 
 struct SIDeviceAccess::Private_ {

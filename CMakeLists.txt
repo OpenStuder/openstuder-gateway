@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(StuderGateway)
 find_package(Qt5 COMPONENTS Core SerialPort SerialBus Sql REQUIRED)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 #add_compile_options(-Wall -Wextra -pedantic -Werror)
@@ -83,5 +83,18 @@ add_storage_driver(SQLite
                    )
 target_link_libraries(SQLite Qt5::Sql)
 
-add_executable(SIDaemon src/daemon/main.cpp)
+add_executable(SIDaemon
+               src/daemon/main.cpp
+               src/daemon/sidaemon.h
+               src/daemon/sidaemon.cpp
+               src/daemon/siabstractpropertymanager.cpp
+               src/daemon/siabstractpropertymanager.h
+               src/daemon/siglobalpropertyid.cpp
+               src/daemon/siglobalpropertyid.h
+               src/daemon/sipropertyreadoperation.cpp
+               src/daemon/sipropertyreadoperation.h
+               src/daemon/sipropertywriteoperation.cpp
+               src/daemon/sipropertywriteoperation.h
+               src/daemon/siabstractoperation.cpp
+               src/daemon/siabstractoperation.h src/daemon/sisequentialpropertymanager.cpp src/daemon/sisequentialpropertymanager.h)
 target_link_libraries(SIDaemon SIDeviceAccess SIStorage Qt5::Core)
