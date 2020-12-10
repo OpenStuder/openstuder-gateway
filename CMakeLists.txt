@@ -40,7 +40,7 @@ function(add_device_access_driver name)
     target_link_libraries(${name} SIDeviceAccess)
     set_target_properties(${name} PROPERTIES
                           PREFIX ""
-                          SUFFIX ".deviceaccess"
+                          SUFFIX ".sdd"
                           )
 endfunction()
 
@@ -49,7 +49,7 @@ function(add_storage_driver name)
     target_link_libraries(${name} SIDeviceAccess SIStorage)
     set_target_properties(${name} PROPERTIES
                           PREFIX ""
-                          SUFFIX ".storage"
+                          SUFFIX ".ssd"
                           )
 endfunction()
 
