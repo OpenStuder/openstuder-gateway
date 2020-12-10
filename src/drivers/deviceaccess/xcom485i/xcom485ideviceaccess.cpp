@@ -9,6 +9,8 @@
 #include <QLoggingCategory>
 #include <QTime>
 
+using namespace std;
+
 Q_DECLARE_LOGGING_CATEGORY(XCOM485i)
 
 static QMap<quint64, QString> xcom485iMessages_ =
@@ -23,7 +25,7 @@ class XCom485iDeviceEnumerator {
   public:
     XCom485iDeviceEnumerator(QVector<SIDevice*>& devices, XCom485iModbusAccess* modbus);
 
-    bool enumerateFast(std::array<int, 5> deviceCategoryCounts);
+    bool enumerateFast(std::array<int, 5> numberOfDevicesPerCategory);
     bool enumerateSlow();
 
   private:
@@ -421,11 +423,13 @@ void XCom485iDeviceAccess::completeJsonDescription_(QJsonObject& object, SIJsonF
 SIPropertyReadResult XCom485iDeviceAccess::readInputRegister_(quint8 deviceAddress, unsigned int registerAddress, SIPropertyType type) {
     deviceAddress += deviceOffset_;
 
-    auto reply = modbus_.sendReadRequest({QModbusDataUnit::InputRegisters, static_cast<int>(registerAddress), 2}, deviceAddress);
+    auto reply = unique_ptr<QModbusReply>(modbus_.sendReadRequest({QModbusDataUnit::InputRegisters, static_cast<int>(registerAddress), 2}, deviceAddress));
     while (!reply->isFinished()) {
         QCoreApplication::processEvents();
     }
-    if (reply->error() != QModbusDevice::NoError) { return {registerAddress, SIStatus::Error, {}}; }
+    if (reply->error() != QModbusDevice::NoError) {
+        return {registerAddress, SIStatus::Error, {}};
+    }
 
     union {
         quint16 i[2];
@@ -454,11 +458,13 @@ SIPropertyReadResult XCom485iDeviceAccess::readInputRegister_(quint8 deviceAddre
 SIPropertyReadResult XCom485iDeviceAccess::readHoldingRegister_(quint8 deviceAddress, unsigned int registerAddress, SIPropertyType type) {
     deviceAddress += deviceOffset_;
 
-    auto reply = modbus_.sendReadRequest({QModbusDataUnit::HoldingRegisters, static_cast<int>(registerAddress), 2}, deviceAddress);
+    auto reply = unique_ptr<QModbusReply>(modbus_.sendReadRequest({QModbusDataUnit::HoldingRegisters, static_cast<int>(registerAddress), 2}, deviceAddress));
     while (!reply->isFinished()) {
         QCoreApplication::processEvents();
     }
-    if (reply->error() != QModbusDevice::NoError) { return {registerAddress, SIStatus::Error, {}}; }
+    if (reply->error() != QModbusDevice::NoError) {
+        return {registerAddress, SIStatus::Error, {}};
+    }
 
     union {
         quint16 i[2];
@@ -518,11 +524,13 @@ SIPropertyWriteResult XCom485iDeviceAccess::writeHoldingRegister_(quint8 deviceA
             return {registerAddress, SIStatus::Error};
     }
 
-    auto reply = modbus_.sendWriteRequest({QModbusDataUnit::HoldingRegisters, static_cast<int>(registerAddress), {conv.i[1], conv.i[0]}}, deviceAddress);
+    auto reply = unique_ptr<QModbusReply>(modbus_.sendWriteRequest({QModbusDataUnit::HoldingRegisters, static_cast<int>(registerAddress), {conv.i[1], conv.i[0]}}, deviceAddress));
     while (!reply->isFinished()) {
         QCoreApplication::processEvents();
     }
-    if (reply->error() != QModbusDevice::NoError) { return {registerAddress, SIStatus::Error}; }
+    if (reply->error() != QModbusDevice::NoError) {
+        return {registerAddress, SIStatus::Error};
+    }
 
     return {registerAddress, SIStatus::Success};
 }
