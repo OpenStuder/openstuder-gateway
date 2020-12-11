@@ -1,4 +1,4 @@
-#include "sidevicepropertymanager.h"
+#include "sideviceaccessmanager.h"
 #include "sideviceaccessregistry.h"
 #include "sideviceaccess.h"
 #include "sidevice.h"

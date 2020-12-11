@@ -3,7 +3,7 @@
 #include <sidevice.h>
 #include <sideviceaccess.h>
 #include <sideviceaccessregistry.h>
-#include "deviceaccess/sidevicepropertymanager.h"
+#include "deviceaccess/sideviceaccessmanager.h"
 #include "deviceaccess/sisequentialpropertymanager.h"
 #include "websocket/siwebsocketmanager.h"
 #include <QCommandLineParser>

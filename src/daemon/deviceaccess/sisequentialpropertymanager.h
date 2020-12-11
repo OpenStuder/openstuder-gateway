@@ -1,5 +1,5 @@
 #pragma once
-#include "sidevicepropertymanager.h"
+#include "sideviceaccessmanager.h"
 #include <QQueue>
 
 class SISequentialPropertyManager: public SIDeviceAccessManager {

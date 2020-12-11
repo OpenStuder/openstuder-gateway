@@ -1,6 +1,6 @@
 #pragma once
 #include <QObject>
-#include "../deviceaccess/sidevicepropertymanager.h"
+#include "../deviceaccess/sideviceaccessmanager.h"
 #include <QWebSocket>
 
   class SIWebSocketConnection: public QObject, public SIDeviceAccessManager::PropertySubscriber {
