@@ -5,11 +5,12 @@
 #include <sideviceaccessregistry.h>
 #include "deviceaccess/sidevicepropertymanager.h"
 #include "deviceaccess/sisequentialpropertymanager.h"
-#include <QtCore/QCommandLineParser>
-#include <QtCore/QFile>
+#include "websocket/siwebsocketmanager.h"
+#include <QCommandLineParser>
+#include <QFile>
 #include <QLoggingCategory>
-#include <QtCore/QSettings>
-#include <QtCore/QElapsedTimer>
+#include <QSettings>
+#include <QElapsedTimer>
 #include <memory>
 
 using namespace std;
@@ -112,6 +113,12 @@ bool SIDaemon::initialize() {
     int propertyPollInterval = settings.value("Gateway/propertyPollInterval", 60000).toInt();
     propertyManager_ = make_unique<SISequentialPropertyManager>(this);
     propertyManager_->startPropertyPolling(propertyPollInterval);
+
+    // Create web socket manager.
+    webSocketManager_ = make_unique<SIWebSocketManager>(propertyManager_.get(), this);
+    if (!webSocketManager_->listen(1987)) {
+        qCCritical(DAEMON) << "Failed to start web socket listening";
+    }
 
     return true;
 }

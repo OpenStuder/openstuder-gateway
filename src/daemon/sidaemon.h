@@ -5,6 +5,7 @@
 class SIStorage;
 class QSettings;
 class SIDeviceAccessManager;
+class SIWebSocketManager;
 
 class SIDaemon: public QCoreApplication {
     Q_OBJECT
@@ -21,4 +22,5 @@ class SIDaemon: public QCoreApplication {
 
     std::unique_ptr<SIStorage> storage_;
     std::unique_ptr<SIDeviceAccessManager> propertyManager_;
+    std::unique_ptr<SIWebSocketManager> webSocketManager_;
 };

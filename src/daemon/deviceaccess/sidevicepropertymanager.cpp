@@ -107,6 +107,9 @@ SIPropertyWriteOperation* SIDeviceAccessManager::writeProperty(SIGlobalPropertyI
 }
 
 void SIDeviceAccessManager::subscribeToProperty(SIGlobalPropertyID id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
+
+    // TODO: Check if property exists and return status.
+
     auto subscription = std::find_if(priv_->subscriptions_.begin(), priv_->subscriptions_.end(), [&id](SIPropertySubscriptions* pollOperation) {
         return pollOperation->id() == id;
     });

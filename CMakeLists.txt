@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(StuderGateway)
-find_package(Qt5 COMPONENTS Core SerialPort SerialBus Sql REQUIRED)
+find_package(Qt5 COMPONENTS Core SerialPort SerialBus Sql Network WebSockets REQUIRED)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -100,5 +100,7 @@ add_executable(SIDaemon
                src/daemon/deviceaccess/sisequentialpropertymanager.cpp
                src/daemon/deviceaccess/sisequentialpropertymanager.h
                src/daemon/deviceaccess/operations/sideviceenumerationoperation.cpp
-               src/daemon/deviceaccess/operations/sideviceenumerationoperation.h)
-target_link_libraries(SIDaemon SIDeviceAccess SIStorage Qt5::Core)
+               src/daemon/deviceaccess/operations/sideviceenumerationoperation.h
+               src/daemon/websocket/siwebsocketmanager.cpp
+               src/daemon/websocket/siwebsocketmanager.h src/daemon/websocket/siwebsocketconnection.cpp src/daemon/websocket/siwebsocketconnection.h src/daemon/websocket/siprotocolframe.cpp src/daemon/websocket/siprotocolframe.h)
+target_link_libraries(SIDaemon SIDeviceAccess SIStorage Qt5::Core Qt5::Network Qt5::WebSockets)

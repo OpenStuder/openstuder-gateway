@@ -27,6 +27,14 @@ bool SIGlobalPropertyID::isValid() const {
     return propertyID_ != 0;
 }
 
+QString SIGlobalPropertyID::toString() const {
+    if (deviceID_.isEmpty()) {
+        return QString("%1.%2").arg(accessID_).arg(propertyID_);
+    } else {
+        return QString("%1.%2.%3").arg(accessID_).arg(deviceID_).arg(propertyID_);
+    }
+}
+
 bool SIGlobalPropertyID::operator ==(const SIGlobalPropertyID& other) const {
     return accessID_ == other.accessID_ &&
     deviceID() == other.deviceID_ &&

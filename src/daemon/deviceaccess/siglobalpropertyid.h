@@ -23,6 +23,8 @@ class SIGlobalPropertyID {
         return propertyID_;
     }
 
+    QString toString() const;
+
     bool operator ==(const SIGlobalPropertyID& other) const;
 
   private:
