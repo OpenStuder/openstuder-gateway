@@ -3,16 +3,30 @@
 #include <sidevice.h>
 #include <sideviceaccess.h>
 #include <sideviceaccessregistry.h>
-#include "siabstractpropertymanager.h"
-#include "sisequentialpropertymanager.h"
+#include "deviceaccess/sidevicepropertymanager.h"
+#include "deviceaccess/sisequentialpropertymanager.h"
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QFile>
 #include <QLoggingCategory>
 #include <QtCore/QSettings>
 #include <QtCore/QElapsedTimer>
-#include <unistd.h>
+#include <memory>
 
-Q_LOGGING_CATEGORY(DAEMON, "", QtWarningMsg)
+using namespace std;
+
+Q_LOGGING_CATEGORY(DAEMON, "daemon", QtInfoMsg)
+
+class StdOutSubscriber: public SIDeviceAccessManager::PropertySubscriber {
+  public:
+    inline StdOutSubscriber(): out_(stdout) {}
+
+  private:
+    void propertyChanged(SIGlobalPropertyID id, const QVariant& value) override {
+        out_ << id.propertyID() << " = " << value.toString() << endl;
+    }
+
+    QTextStream out_;
+};
 
 SIDaemon::SIDaemon(int argc, char** argv): QCoreApplication(argc, argv) {
     setApplicationName("sigatewayd");
@@ -36,6 +50,7 @@ bool SIDaemon::initialize() {
         qCCritical(DAEMON) << "Configuration file" << configurationFileLocation << "does not exist";
         return false;
     }
+    qCInfo(DAEMON) << "Using configuration file" << configurationFileLocation;
 
     // Load configuration file.
     QSettings settings(parser.value(configurationFileOption), QSettings::IniFormat);
@@ -48,6 +63,7 @@ bool SIDaemon::initialize() {
     settings.beginGroup("Gateway");
     auto driverSearchPaths = settings.value("driverSearchPaths", "/var/lib/sigatewayd/drivers").toString().split(" ");
     settings.endGroup();
+    qCInfo(DAEMON) << "Driver search locations are" << driverSearchPaths;
 
     // Load Storage driver.
     settings.beginGroup("Storage");
@@ -62,76 +78,40 @@ bool SIDaemon::initialize() {
         qCritical() << "Unable to instantiate storage driver" << storageDriverName;
         return false;
     }
+    qCInfo(DAEMON) << "Successfully loaded storage driver" << storageDriverName;
     settings.endGroup();
 
     // Load and instantiate configured device access drivers.
+    qCInfo(DAEMON) << "Loading device access drivers and instantiating objects...";
     for (const auto& group: filteredChildGroups_(settings, {"Gateway", "Storage"})) {
         settings.beginGroup(group);
         auto deviceAccessDriverName = settings.value("driver").toString();
         if (!SIDeviceAccessRegistry::loadDeviceAccessDriver(driverSearchPaths, deviceAccessDriverName)) {
-            qCritical() << "Error loading device access driver" << deviceAccessDriverName;
+            qCritical() << "  - Error loading device access driver" << deviceAccessDriverName;
         } else {
 
         }if (!SIDeviceAccessRegistry::sharedRegistry().instantiateDeviceAccess(deviceAccessDriverName, group, filteredChildSettings_(settings, {"driver"}))) {
-            qCritical() << "Error creating device access" << group;
+            qCritical() << "  - Error creating device access" << group;
         }
+        qCInfo(DAEMON) << "  - Successfully loaded and instantiated" << group << "with driver" << deviceAccessDriverName;
         settings.endGroup();
     }
 
-    propertyManager_.reset(new SISequentialPropertyManager(this));
-
-    /**********************
-     * TEST, to be removed
-     */
-    storage_->storePropertyValue(22, 1.23);
-    QTextStream out(stdout);
-
-    auto messages = SIDeviceAccessRegistry::sharedRegistry().deviceAccess("xcom")->retrievePendingDeviceMessages();
-    out << "MSG CNT = " << messages.count() << endl;
-    for (const auto& message: messages) {
-        out << "MSG id=" << message.messageID << ", device id=" << message.deviceID << ", message=" << message.message << endl;
+    // Enumerate all devices on startup.
+    qCInfo(DAEMON) << "Enumerating all devices...";
+    QElapsedTimer elapsedTimer;
+    elapsedTimer.start();
+    auto deviceCount = SIDeviceAccessRegistry::sharedRegistry().enumerateDevices();
+    if (deviceCount >= 0) {
+        qCInfo(DAEMON) << "  - Enumerated" << deviceCount << "devices in" << elapsedTimer.elapsed() << "ms.";
+    } else {
+        qCCritical(DAEMON) << "Failed to enumerate devices";
     }
 
-    QElapsedTimer t;
-    t.start();
-    SIDeviceAccessRegistry::sharedRegistry().enumerateDevices();
-    qDebug() << "Enumerated in" << t.elapsed() << "ms.";
-
-    auto readVoltage = propertyManager_->readProperty({"xcom", "10", 3000});
-    QObject::connect(readVoltage, &SIAbstractOperation::finished, [=](SIStatus status) {
-       qDebug() << "ASYNC READ status=" << (int)status << "Value =" << readVoltage->value().toFloat();
-       delete readVoltage;
-    });
-
-    return true;
-
-
-
-
-
-
-
-    auto virtualXtender = SIDeviceAccessRegistry::sharedRegistry().deviceAccess(0)->device("10");
-
-    // Read AC output power.
-    auto result = virtualXtender->readProperty(3023);
-    qDebug() << "Status =" << (int)result.status << "Power =" << (result.value.toFloat() * 1000.f) << "VA";
-
-    // Turn on.
-    virtualXtender->writeProperty(1415, {});
-    sleep(5);
-
-    // Read AC output power in ON state.
-    result = virtualXtender->readProperty(3023);
-    qDebug() << "Status =" << (int)result.status << "Power =" << (result.value.toFloat() * 1000.f) << "VA";
-
-    // Turn off.
-    virtualXtender->writeProperty(1399, {});
-    sleep(5);
-
-    // Read AC output power in OFF state.
-    result = virtualXtender->readProperty(3023);
-    qDebug() << "Status =" << (int)result.status << "Power =" << (result.value.toFloat() * 1000.f) << "VA";
+    // Create property manager and start polling timer.
+    int propertyPollInterval = settings.value("Gateway/propertyPollInterval", 60000).toInt();
+    propertyManager_ = make_unique<SISequentialPropertyManager>(this);
+    propertyManager_->startPropertyPolling(propertyPollInterval);
 
     return true;
 }

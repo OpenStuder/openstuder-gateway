@@ -4,7 +4,7 @@
 
 class SIStorage;
 class QSettings;
-class SIAbstractPropertyManager;
+class SIDeviceAccessManager;
 
 class SIDaemon: public QCoreApplication {
     Q_OBJECT
@@ -20,5 +20,5 @@ class SIDaemon: public QCoreApplication {
     static QStringList filteredChildGroups_(const QSettings& settings, const QStringList& exclude);
 
     std::unique_ptr<SIStorage> storage_;
-    std::unique_ptr<SIAbstractPropertyManager> propertyManager_;
+    std::unique_ptr<SIDeviceAccessManager> propertyManager_;
 };

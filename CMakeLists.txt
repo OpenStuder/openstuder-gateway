@@ -87,14 +87,18 @@ add_executable(SIDaemon
                src/daemon/main.cpp
                src/daemon/sidaemon.h
                src/daemon/sidaemon.cpp
-               src/daemon/siabstractpropertymanager.cpp
-               src/daemon/siabstractpropertymanager.h
-               src/daemon/siglobalpropertyid.cpp
-               src/daemon/siglobalpropertyid.h
-               src/daemon/sipropertyreadoperation.cpp
-               src/daemon/sipropertyreadoperation.h
-               src/daemon/sipropertywriteoperation.cpp
-               src/daemon/sipropertywriteoperation.h
-               src/daemon/siabstractoperation.cpp
-               src/daemon/siabstractoperation.h src/daemon/sisequentialpropertymanager.cpp src/daemon/sisequentialpropertymanager.h)
+               src/daemon/deviceaccess/sidevicepropertymanager.cpp
+               src/daemon/deviceaccess/sidevicepropertymanager.h
+               src/daemon/deviceaccess/siglobalpropertyid.cpp
+               src/daemon/deviceaccess/siglobalpropertyid.h
+               src/daemon/deviceaccess/operations/sipropertyreadoperation.cpp
+               src/daemon/deviceaccess/operations/sipropertyreadoperation.h
+               src/daemon/deviceaccess/operations/sipropertywriteoperation.cpp
+               src/daemon/deviceaccess/operations/sipropertywriteoperation.h
+               src/daemon/deviceaccess/operations/siabstractoperation.cpp
+               src/daemon/deviceaccess/operations/siabstractoperation.h
+               src/daemon/deviceaccess/sisequentialpropertymanager.cpp
+               src/daemon/deviceaccess/sisequentialpropertymanager.h
+               src/daemon/deviceaccess/operations/sideviceenumerationoperation.cpp
+               src/daemon/deviceaccess/operations/sideviceenumerationoperation.h)
 target_link_libraries(SIDaemon SIDeviceAccess SIStorage Qt5::Core)

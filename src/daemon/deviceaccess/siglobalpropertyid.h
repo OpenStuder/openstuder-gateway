@@ -4,7 +4,8 @@
 
 class SIGlobalPropertyID {
   public:
-    SIGlobalPropertyID() = default;
+    inline SIGlobalPropertyID() = default;
+    inline SIGlobalPropertyID(const char* uniqueID): SIGlobalPropertyID(QString(uniqueID)) {}
     SIGlobalPropertyID(const QString& uniqueID);
     SIGlobalPropertyID(QString accessID, QString deviceID, SIPropertyID propertyID);
 
@@ -21,6 +22,8 @@ class SIGlobalPropertyID {
     SIPropertyID propertyID() const {
         return propertyID_;
     }
+
+    bool operator ==(const SIGlobalPropertyID& other) const;
 
   private:
     QString accessID_;

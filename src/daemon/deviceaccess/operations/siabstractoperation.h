@@ -8,8 +8,8 @@ class SIAbstractOperation: public QObject {
     Q_OBJECT
 
   public:
-    inline explicit SIAbstractOperation(QObject* parent = nullptr): QObject(parent) {}
-    ~SIAbstractOperation() override = default;
+    explicit SIAbstractOperation(QObject* parent = nullptr);
+    ~SIAbstractOperation() override;
 
   signals:
     void finished(SIStatus status);
@@ -19,5 +19,5 @@ class SIAbstractOperation: public QObject {
     void execute(SIDeviceAccessRegistry* deviceAccessRegistry);
 
   private:
-    virtual void execute_(SIDeviceAccessRegistry* deviceAccessRegistry) = 0;
+    virtual SIStatus execute_(SIDeviceAccessRegistry* deviceAccessRegistry) = 0;
 };

@@ -1,9 +1,5 @@
 #include "sisequentialpropertymanager.h"
 
-void SISequentialPropertyManager::start() {
-    onFinish_(SIStatus::Error);
-}
-
 void SISequentialPropertyManager::onFinish_(SIStatus status) {
     QMetaObject::invokeMethod(this, &SISequentialPropertyManager::executeNext_, Qt::QueuedConnection);
 }

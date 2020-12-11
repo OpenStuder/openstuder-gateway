@@ -1,18 +1,17 @@
 #pragma once
-#include "siabstractpropertymanager.h"
+#include "sidevicepropertymanager.h"
 #include <QQueue>
 
-class SISequentialPropertyManager: public SIAbstractPropertyManager {
+class SISequentialPropertyManager: public SIDeviceAccessManager {
   public:
-    explicit SISequentialPropertyManager(QObject* parent = nullptr): SIAbstractPropertyManager(parent) {}
-
-    void start();
+    explicit SISequentialPropertyManager(QObject* parent = nullptr): SIDeviceAccessManager(parent) {}
 
   private slots:
     void onFinish_(SIStatus status);
-    void executeNext_();
+
 
   private:
+    Q_INVOKABLE void executeNext_();
     void enqueueOperation_(SIAbstractOperation* operation) override;
 
     QQueue<SIAbstractOperation*> operationQueue_;
