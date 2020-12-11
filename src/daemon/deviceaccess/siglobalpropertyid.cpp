@@ -5,7 +5,7 @@
 using namespace std;
 
 SIGlobalPropertyID::SIGlobalPropertyID(const QString& uniqueID) {
-    auto split = uniqueID.split("/");
+    auto split = uniqueID.split(".");
 
     switch (split.count()) {
         case 2:
