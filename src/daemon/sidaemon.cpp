@@ -85,7 +85,7 @@ bool SIDaemon::initialize() {
 
     // Load and instantiate configured device access drivers.
     qCInfo(DAEMON) << "Loading device access drivers and instantiating objects...";
-    for (const auto& group: filteredChildGroups_(settings, {"Gateway", "Storage"})) {
+    for (const auto& group: filteredChildGroups_(settings, {"Gateway", "Storage", "WebSocket", "Bluetooth"})) {
         settings.beginGroup(group);
         auto deviceAccessDriverName = settings.value("driver").toString();
         if (!SIDeviceAccessRegistry::loadDeviceAccessDriver(driverSearchPaths, deviceAccessDriverName)) {
@@ -112,18 +112,27 @@ bool SIDaemon::initialize() {
 
     // Create property manager and start polling timer.
     int propertyPollInterval = settings.value("Gateway/propertyPollInterval", 60000).toInt();
-    propertyManager_ = make_unique<SISequentialPropertyManager>(this);
+    propertyManager_ = new SISequentialPropertyManager(this);
     propertyManager_->startPropertyPolling(propertyPollInterval);
 
     // Create web socket manager.
-    webSocketManager_ = make_unique<SIWebSocketManager>(propertyManager_.get(), this);
-    if (!webSocketManager_->listen(1987)) {
-        qCCritical(DAEMON) << "Failed to start web socket listening";
+    settings.beginGroup("WebSocket");
+    if (settings.value("enabled", false).toBool()) {
+        webSocketManager_ = new SIWebSocketManager(propertyManager_, this);
+        if (!webSocketManager_->listen(settings.value("port", 1987).toUInt())) {
+            qCCritical(DAEMON) << "Failed to start web socket listening";
+        }
     }
+    settings.endGroup();
 
     // Create bluetooth manager.
-    bluetoothManager_ = make_unique<SIBluetoothManager>(propertyManager_.get(), this);
-    bluetoothManager_->startAdvertise();
+    settings.beginGroup("Bluetooth");
+    if (settings.value("enabled", false).toBool()) {
+        bluetoothManager_ = new SIBluetoothManager(propertyManager_, this);
+        bluetoothManager_->setName(settings.value("name", "SIGateway").toString());
+        bluetoothManager_->startAdvertise();
+    }
+    settings.endGroup();
 
     return true;
 }

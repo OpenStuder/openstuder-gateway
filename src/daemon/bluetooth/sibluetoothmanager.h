@@ -13,7 +13,15 @@ class QLowEnergyService;
   public:
     explicit SIBluetoothManager(SIDeviceAccessManager* deviceAccessManager, QObject* parent = nullptr);
 
-  public slots:
+      const QString& name() const {
+          return name_;
+      }
+
+      void setName(const QString& name) {
+          name_ = name;
+      }
+
+    public slots:
     void startAdvertise();
 
   private slots:
@@ -23,6 +31,7 @@ class QLowEnergyService;
   private:
     void propertyChanged(SIGlobalPropertyID id, const QVariant& value) override;
 
+    QString name_;
     QLowEnergyController* peripheral_;
     QLowEnergyService* service_;
     SIDeviceAccessManager* deviceAccessManager_;

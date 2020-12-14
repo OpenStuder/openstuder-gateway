@@ -37,11 +37,11 @@ SIBluetoothManager::SIBluetoothManager(SIDeviceAccessManager* deviceAccessManage
 void SIBluetoothManager::startAdvertise() {
     QLowEnergyAdvertisingData advertisingData;
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
-    advertisingData.setLocalName("SIGateway");
+    advertisingData.setLocalName(name_);
 
     QLowEnergyAdvertisingData scanResponseData;
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
-    advertisingData.setLocalName("SIGateway");
+    advertisingData.setLocalName(name_);
     advertisingData.setServices({SICharacteristicUUID});
 
     peripheral_->startAdvertising({}, advertisingData, scanResponseData);

@@ -22,7 +22,7 @@ class SIDaemon: public QCoreApplication {
     static QStringList filteredChildGroups_(const QSettings& settings, const QStringList& exclude);
 
     std::unique_ptr<SIStorage> storage_;
-    std::unique_ptr<SIDeviceAccessManager> propertyManager_;
-    std::unique_ptr<SIWebSocketManager> webSocketManager_;
-    std::unique_ptr<SIBluetoothManager> bluetoothManager_;
+    SIDeviceAccessManager* propertyManager_;
+    SIWebSocketManager* webSocketManager_ = nullptr;
+    SIBluetoothManager* bluetoothManager_ = nullptr;
 };
