@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.13)
 project(StuderGateway)
-find_package(Qt5 COMPONENTS Core SerialPort SerialBus Sql Network WebSockets REQUIRED)
+find_package(Qt5 COMPONENTS Core SerialPort SerialBus Sql Network WebSockets Bluetooth REQUIRED)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -102,5 +102,13 @@ add_executable(SIDaemon
                src/daemon/deviceaccess/operations/sideviceenumerationoperation.cpp
                src/daemon/deviceaccess/operations/sideviceenumerationoperation.h
                src/daemon/websocket/siwebsocketmanager.cpp
-               src/daemon/websocket/siwebsocketmanager.h src/daemon/websocket/siwebsocketconnection.cpp src/daemon/websocket/siwebsocketconnection.h src/daemon/websocket/siprotocolframe.cpp src/daemon/websocket/siprotocolframe.h)
-target_link_libraries(SIDaemon SIDeviceAccess SIStorage Qt5::Core Qt5::Network Qt5::WebSockets)
+               src/daemon/websocket/siwebsocketmanager.h
+               src/daemon/websocket/siwebsocketconnection.cpp
+               src/daemon/websocket/siwebsocketconnection.h
+               src/daemon/websocket/siprotocolframe.cpp
+               src/daemon/websocket/siprotocolframe.h
+               src/daemon/bluetooth/sibluetoothmanager.cpp
+               src/daemon/bluetooth/sibluetoothmanager.h
+               src/daemon/bluetooth/sibluetoothprotocolframe.cpp
+               src/daemon/bluetooth/sibluetoothprotocolframe.h)
+target_link_libraries(SIDaemon SIDeviceAccess SIStorage Qt5::Core Qt5::Network Qt5::WebSockets Qt5::Bluetooth)

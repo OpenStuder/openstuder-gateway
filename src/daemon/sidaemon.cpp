@@ -6,6 +6,7 @@
 #include "deviceaccess/sideviceaccessmanager.h"
 #include "deviceaccess/sisequentialpropertymanager.h"
 #include "websocket/siwebsocketmanager.h"
+#include "bluetooth/sibluetoothmanager.h"
 #include <QCommandLineParser>
 #include <QFile>
 #include <QLoggingCategory>
@@ -119,6 +120,10 @@ bool SIDaemon::initialize() {
     if (!webSocketManager_->listen(1987)) {
         qCCritical(DAEMON) << "Failed to start web socket listening";
     }
+
+    // Create bluetooth manager.
+    bluetoothManager_ = make_unique<SIBluetoothManager>(propertyManager_.get(), this);
+    bluetoothManager_->startAdvertise();
 
     return true;
 }
