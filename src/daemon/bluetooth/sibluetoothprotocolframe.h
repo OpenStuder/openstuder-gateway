@@ -21,7 +21,8 @@ class SIBluetoothProtocolFrame {
         PROPERTY_READ = 'R',
         PROPERTY_WRITTEN = 'W',
         PROPERTY_SUBSCRIBED = 'S',
-        PROPERTY_UPDATE = 'U'
+        PROPERTY_UPDATE = 'U',
+        MESSAGE = 'M'
     };
 
     explicit SIBluetoothProtocolFrame(Command command, const QVector<QString>& parameters = {});

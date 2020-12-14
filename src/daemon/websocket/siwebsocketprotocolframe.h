@@ -26,7 +26,8 @@ class SIWebSocketProtocolFrame {
         PROPERTY_READ,
         PROPERTY_WRITTEN,
         PROPERTY_SUBSCRIBED,
-        PROPERTY_UPDATE
+        PROPERTY_UPDATE,
+        MESSAGE
     };
 
     explicit SIWebSocketProtocolFrame(Command command, std::initializer_list<QPair<QString,QString>> headers = {}, const QByteArray& body = {});
