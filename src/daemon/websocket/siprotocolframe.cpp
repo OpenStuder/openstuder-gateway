@@ -44,11 +44,11 @@ SIProtocolFrame SIProtocolFrame::fromMessage(QString message) {
         frame.command_ = ENUMERATE;
     } else if (commandStr == "DESCRIBE") {
         frame.command_ = DESCRIBE;
-    } else if (commandStr == "READPROPERTY") {
+    } else if (commandStr == "READ PROPERTY") {
         frame.command_ = READ_PROPERTY;
-    } else if (commandStr == "WRITEPROPERTY") {
+    } else if (commandStr == "WRITE PROPERTY") {
         frame.command_ = WRITE_PROPERTY;
-    } else if (commandStr == "SUBSCRIBEPROPERTY") {
+    } else if (commandStr == "SUBSCRIBE PROPERTY") {
         frame.command_ = SUBSCRIBE_PROPERTY;
     } else if (commandStr == "ERROR") {
         frame.command_ = ERROR;
@@ -58,13 +58,13 @@ SIProtocolFrame SIProtocolFrame::fromMessage(QString message) {
         frame.command_ = ENUMERATED;
     } else if (commandStr == "DESCRIPTION") {
         frame.command_ = DESCRIPTION;
-    } else if (commandStr == "PROPERTYREAD") {
+    } else if (commandStr == "PROPERTY READ") {
         frame.command_ = PROPERTY_READ;
-    } else if (commandStr == "PROPERTYWRITTEN") {
+    } else if (commandStr == "PROPERTY WRITTEN") {
         frame.command_ = PROPERTY_WRITTEN;
-    } else if (commandStr == "PROPERTYSUBSCRIBED") {
+    } else if (commandStr == "PROPERTY SUBSCRIBED") {
         frame.command_ = PROPERTY_SUBSCRIBED;
-    } else if (commandStr == "PROPERTYUPDATE") {
+    } else if (commandStr == "PROPERTY UPDATE") {
         frame.command_ = PROPERTY_UPDATE;
     }
 
@@ -84,9 +84,6 @@ SIProtocolFrame SIProtocolFrame::fromMessage(QString message) {
 
 QString to_string(SIProtocolFrame::Command command) {
     switch (command) {
-        case SIProtocolFrame::INVALID:
-            return "INVALID";
-
         case SIProtocolFrame::AUTHORIZE:
             return "AUTHORIZE";
 
@@ -97,13 +94,13 @@ QString to_string(SIProtocolFrame::Command command) {
             return "DESCRIBE";
 
         case SIProtocolFrame::READ_PROPERTY:
-            return "READPROPERTY";
+            return "READ PROPERTY";
 
         case SIProtocolFrame::WRITE_PROPERTY:
-            return "WRITEPROPERTY";
+            return "WRITE PROPERTY";
 
         case SIProtocolFrame::SUBSCRIBE_PROPERTY:
-            return "SUBSCRIBEPROPERTY";
+            return "SUBSCRIBE PROPERTY";
 
         case SIProtocolFrame::ERROR:
             return "ERROR";
@@ -118,15 +115,18 @@ QString to_string(SIProtocolFrame::Command command) {
             return "DESCRIPTION";
 
         case SIProtocolFrame::PROPERTY_READ:
-            return "PROPERTYREAD";
+            return "PROPERTY READ";
 
         case SIProtocolFrame::PROPERTY_WRITTEN:
-            return "PROPERTYWRITTEN";
+            return "PROPERTY WRITTEN";
 
         case SIProtocolFrame::PROPERTY_SUBSCRIBED:
-            return "PROPERTYSUBSCRIBED";
+            return "PROPERTY SUBSCRIBED";
 
         case SIProtocolFrame::PROPERTY_UPDATE:
-            return "PROPERTYUPDATE";
+            return "PROPERTY UPDATE";
+
+        default:
+            return "INVALID";
     }
 }
