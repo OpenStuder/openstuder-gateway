@@ -1,5 +1,5 @@
 #include "siwebsocketconnection.h"
-#include "siprotocolframe.h"
+#include "siwebsocketprotocolframe.h"
 
 SIWebSocketConnection::SIWebSocketConnection(QWebSocket* webSocket, SIDeviceAccessManager* deviceAccessManager, QObject* parent)
     : QObject(parent), webSocket_(webSocket), deviceAccessManager_(deviceAccessManager) {
@@ -12,16 +12,16 @@ SIWebSocketConnection::~SIWebSocketConnection() {
 }
 
 void SIWebSocketConnection::onTextMessageReceived(const QString& message) {
-    SIProtocolFrame frame = SIProtocolFrame::fromMessage(message);
+    SIWebSocketProtocolFrame frame = SIWebSocketProtocolFrame::fromMessage(message);
     switch (frame.command()) {
-        case SIProtocolFrame::AUTHORIZE:
+        case SIWebSocketProtocolFrame::AUTHORIZE:
             break;
 
-        case SIProtocolFrame::ENUMERATE: {
+        case SIWebSocketProtocolFrame::ENUMERATE: {
             auto* op = deviceAccessManager_->enumerateDevices();
             connect(op, &SIAbstractOperation::finished, [this, op](SIStatus status) {
-                webSocket_->sendTextMessage(SIProtocolFrame(
-                    SIProtocolFrame::ENUMERATED, {
+                webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
+                    SIWebSocketProtocolFrame::ENUMERATED, {
                         {"status",      QString::number((int)status)},
                         {"deviceCount", QString::number(op->numberOfDevicesPresent())}
                     }).toMessage());
@@ -30,15 +30,15 @@ void SIWebSocketConnection::onTextMessageReceived(const QString& message) {
             break;
         }
 
-        case SIProtocolFrame::DESCRIBE:
+        case SIWebSocketProtocolFrame::DESCRIBE:
             break;
 
-        case SIProtocolFrame::READ_PROPERTY: {
+        case SIWebSocketProtocolFrame::READ_PROPERTY: {
             auto id = SIGlobalPropertyID(frame.headers()["id"]);
             auto* op = deviceAccessManager_->readProperty(id);
             connect(op, &SIAbstractOperation::finished, [this, op](SIStatus status) {
-                webSocket_->sendTextMessage(SIProtocolFrame(
-                    SIProtocolFrame::PROPERTY_READ, {
+                webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
+                    SIWebSocketProtocolFrame::PROPERTY_READ, {
                         {"status", QString::number((int)status)},
                         {"value",  op->value().toString()}
                     }).toMessage());
@@ -47,13 +47,13 @@ void SIWebSocketConnection::onTextMessageReceived(const QString& message) {
             break;
         }
 
-        case SIProtocolFrame::WRITE_PROPERTY: {
+        case SIWebSocketProtocolFrame::WRITE_PROPERTY: {
             auto id = SIGlobalPropertyID(frame.headers()["id"]);
             auto value = frame.headers()["value"];
             auto* op = deviceAccessManager_->writeProperty(id, value);
             connect(op, &SIAbstractOperation::finished, [this, op](SIStatus status) {
-                webSocket_->sendTextMessage(SIProtocolFrame(
-                    SIProtocolFrame::PROPERTY_WRITTEN, {
+                webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
+                    SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
                         {"status", QString::number((int)status)},
                     }).toMessage());
                 delete op;
@@ -61,19 +61,19 @@ void SIWebSocketConnection::onTextMessageReceived(const QString& message) {
             break;
         }
 
-        case SIProtocolFrame::SUBSCRIBE_PROPERTY: {
+        case SIWebSocketProtocolFrame::SUBSCRIBE_PROPERTY: {
             auto id = SIGlobalPropertyID(frame.headers()["id"]);
             deviceAccessManager_->subscribeToProperty(id, this);
-            webSocket_->sendTextMessage(SIProtocolFrame(
-                SIProtocolFrame::PROPERTY_SUBSCRIBED, {
+            webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
+                SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
                     {"id", id.toString()}
                 }).toMessage());
             break;
         }
 
         default:
-            webSocket_->sendTextMessage(SIProtocolFrame(
-                SIProtocolFrame::ERROR, {
+            webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
+                SIWebSocketProtocolFrame::ERROR, {
                     {"error", "Invalid command"}
                 }).toMessage());
             break;
@@ -81,8 +81,8 @@ void SIWebSocketConnection::onTextMessageReceived(const QString& message) {
 }
 
 void SIWebSocketConnection::propertyChanged(SIGlobalPropertyID id, const QVariant& value) {
-    webSocket_->sendTextMessage(SIProtocolFrame(
-        SIProtocolFrame::PROPERTY_UPDATE, {
+    webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
+        SIWebSocketProtocolFrame::PROPERTY_UPDATE, {
             {"id",    id.toString()},
             {"value", value.toString()}
         }).toMessage());

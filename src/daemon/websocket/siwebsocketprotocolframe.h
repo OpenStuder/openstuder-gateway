@@ -5,7 +5,7 @@
 #include <QByteArray>
 #include <QMap>
 
-class SIProtocolFrame {
+class SIWebSocketProtocolFrame {
   public:
     enum Command {
         INVALID,
@@ -29,7 +29,7 @@ class SIProtocolFrame {
         PROPERTY_UPDATE
     };
 
-    explicit SIProtocolFrame(Command command, std::initializer_list<QPair<QString,QString>> headers = {}, const QByteArray& body = {});
+    explicit SIWebSocketProtocolFrame(Command command, std::initializer_list<QPair<QString,QString>> headers = {}, const QByteArray& body = {});
 
     bool isNull() const;
 
@@ -58,14 +58,14 @@ class SIProtocolFrame {
     }
 
     QString toMessage();
-    static SIProtocolFrame fromMessage(QString message);
+    static SIWebSocketProtocolFrame fromMessage(QString message);
 
   private:
-    SIProtocolFrame() = default;
+    SIWebSocketProtocolFrame() = default;
 
     Command command_ = INVALID;
     QMap<QString,QString> headers_;
     QByteArray body_;
 };
 
-QString to_string(SIProtocolFrame::Command command);
+QString to_string(SIWebSocketProtocolFrame::Command command);

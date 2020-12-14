@@ -1,18 +1,18 @@
-#include "siprotocolframe.h"
+#include "siwebsocketprotocolframe.h"
 #include <QTextStream>
 
-SIProtocolFrame::SIProtocolFrame(SIProtocolFrame::Command command, std::initializer_list<QPair<QString, QString>> headers, const QByteArray& body)
+SIWebSocketProtocolFrame::SIWebSocketProtocolFrame(SIWebSocketProtocolFrame::Command command, std::initializer_list<QPair<QString, QString>> headers, const QByteArray& body)
     : command_(command), body_(body) {
     for (const auto& header: headers) {
         headers_[header.first] = header.second;
     }
 }
 
-bool SIProtocolFrame::isNull() const {
+bool SIWebSocketProtocolFrame::isNull() const {
     return command_ == INVALID;
 }
 
-QString SIProtocolFrame::toMessage() {
+QString SIWebSocketProtocolFrame::toMessage() {
     QString encoded;
     QTextStream out(&encoded, QIODevice::WriteOnly);
 
@@ -29,8 +29,8 @@ QString SIProtocolFrame::toMessage() {
     return encoded;
 }
 
-SIProtocolFrame SIProtocolFrame::fromMessage(QString message) {
-    SIProtocolFrame frame;
+SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) {
+    SIWebSocketProtocolFrame frame;
     QTextStream in(&message, QIODevice::ReadOnly);
 
     QString commandStr;
@@ -82,48 +82,48 @@ SIProtocolFrame SIProtocolFrame::fromMessage(QString message) {
     return frame;
 }
 
-QString to_string(SIProtocolFrame::Command command) {
+QString to_string(SIWebSocketProtocolFrame::Command command) {
     switch (command) {
-        case SIProtocolFrame::AUTHORIZE:
+        case SIWebSocketProtocolFrame::AUTHORIZE:
             return "AUTHORIZE";
 
-        case SIProtocolFrame::ENUMERATE:
+        case SIWebSocketProtocolFrame::ENUMERATE:
             return "ENUMERATE";
 
-        case SIProtocolFrame::DESCRIBE:
+        case SIWebSocketProtocolFrame::DESCRIBE:
             return "DESCRIBE";
 
-        case SIProtocolFrame::READ_PROPERTY:
+        case SIWebSocketProtocolFrame::READ_PROPERTY:
             return "READ PROPERTY";
 
-        case SIProtocolFrame::WRITE_PROPERTY:
+        case SIWebSocketProtocolFrame::WRITE_PROPERTY:
             return "WRITE PROPERTY";
 
-        case SIProtocolFrame::SUBSCRIBE_PROPERTY:
+        case SIWebSocketProtocolFrame::SUBSCRIBE_PROPERTY:
             return "SUBSCRIBE PROPERTY";
 
-        case SIProtocolFrame::ERROR:
+        case SIWebSocketProtocolFrame::ERROR:
             return "ERROR";
 
-        case SIProtocolFrame::AUTHORIZED:
+        case SIWebSocketProtocolFrame::AUTHORIZED:
             return "AUTHORIZED";
 
-        case SIProtocolFrame::ENUMERATED:
+        case SIWebSocketProtocolFrame::ENUMERATED:
             return "ENUMERATED";
 
-        case SIProtocolFrame::DESCRIPTION:
+        case SIWebSocketProtocolFrame::DESCRIPTION:
             return "DESCRIPTION";
 
-        case SIProtocolFrame::PROPERTY_READ:
+        case SIWebSocketProtocolFrame::PROPERTY_READ:
             return "PROPERTY READ";
 
-        case SIProtocolFrame::PROPERTY_WRITTEN:
+        case SIWebSocketProtocolFrame::PROPERTY_WRITTEN:
             return "PROPERTY WRITTEN";
 
-        case SIProtocolFrame::PROPERTY_SUBSCRIBED:
+        case SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED:
             return "PROPERTY SUBSCRIBED";
 
-        case SIProtocolFrame::PROPERTY_UPDATE:
+        case SIWebSocketProtocolFrame::PROPERTY_UPDATE:
             return "PROPERTY UPDATE";
 
         default:

@@ -105,8 +105,8 @@ add_executable(SIDaemon
                src/daemon/websocket/siwebsocketmanager.h
                src/daemon/websocket/siwebsocketconnection.cpp
                src/daemon/websocket/siwebsocketconnection.h
-               src/daemon/websocket/siprotocolframe.cpp
-               src/daemon/websocket/siprotocolframe.h
+               src/daemon/websocket/siwebsocketprotocolframe.cpp
+               src/daemon/websocket/siwebsocketprotocolframe.h
                src/daemon/bluetooth/sibluetoothmanager.cpp
                src/daemon/bluetooth/sibluetoothmanager.h
                src/daemon/bluetooth/sibluetoothprotocolframe.cpp
