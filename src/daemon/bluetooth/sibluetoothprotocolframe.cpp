@@ -11,7 +11,7 @@ QByteArray SIBluetoothProtocolFrame::toBytes() const {
     QByteArray frame(1, (quint8)command_);
     for (const auto& parameter: parameters_) {
         frame.append(" ");
-        frame.append(parameter);
+        frame.append(parameter.toUtf8());
     }
     return frame;
 }
