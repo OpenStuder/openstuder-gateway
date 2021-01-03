@@ -112,15 +112,16 @@ bool SIDaemon::initialize() {
 
     // Create property manager and start polling timer.
     int propertyPollInterval = settings.value("Gateway/propertyPollInterval", 60000).toInt();
-    propertyManager_ = new SISequentialPropertyManager(this);
-    propertyManager_->startPropertyPolling(propertyPollInterval);
+    deviceAccessManager_ = new SISequentialPropertyManager(this);
+    deviceAccessManager_->startPropertyPolling(propertyPollInterval);
 
     // Create web socket manager.
     settings.beginGroup("WebSocket");
     if (settings.value("enabled", false).toBool()) {
-        webSocketManager_ = new SIWebSocketManager(propertyManager_, this);
+        webSocketManager_ = new SIWebSocketManager(deviceAccessManager_, this);
         if (!webSocketManager_->listen(settings.value("port", 1987).toUInt())) {
             qCCritical(DAEMON) << "Failed to start web socket listening";
+            delete webSocketManager_;
         }
     }
     settings.endGroup();
@@ -128,7 +129,7 @@ bool SIDaemon::initialize() {
     // Create bluetooth manager.
     settings.beginGroup("Bluetooth");
     if (settings.value("enabled", false).toBool()) {
-        bluetoothManager_ = new SIBluetoothManager(propertyManager_, this);
+        bluetoothManager_ = new SIBluetoothManager(deviceAccessManager_, this);
         bluetoothManager_->setName(settings.value("name", "SIGateway").toString());
         bluetoothManager_->startAdvertise();
     }
