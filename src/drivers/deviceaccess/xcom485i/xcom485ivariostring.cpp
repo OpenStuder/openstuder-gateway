@@ -2,30 +2,30 @@
 #include "xcom485imodbusaccess.h"
 
 XCom485iVarioString::XCom485iVarioString(Model model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess): XCom485iDevice(toString(model), modbusAddress, modbusAccess, {
-    {0, 15000, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
-    {2, 15001, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery current", "Adc"},
+    {0, 15000, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
+    {2, 15001, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery current", "Adc"},
 
-    {432, 14216, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery undervoltage", "Vdc"}
+    {432, 14216, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery undervoltage", "Vdc"}
 }) {
     switch (model) {
         case Invalid:
             break;
         case Multicast:
             addProperties({
-                {2, 14001, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Battery charge current (VS-120)", "Adc"},
-                {434, 14217, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Battery charge current (VS-70)", "Adc"}
+                {2, 14001, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-120)", "Adc"},
+                {434, 14217, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-70)", "Adc"}
             });
             break;
 
         case VS120:
             addProperties({
-                {2, 14001, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Battery charge current", "Adc"}
+                {2, 14001, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current", "Adc"}
             });
             break;
 
         case VS70:
             addProperties({
-                {434, 14217, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Battery charge current", "Adc"}
+                {434, 14217, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current", "Adc"}
             });
             break;
     }

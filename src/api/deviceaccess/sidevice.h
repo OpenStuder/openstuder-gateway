@@ -3,6 +3,7 @@
 #include "sipropertyreadresult.h"
 #include "sipropertywriteflags.h"
 #include "sipropertywriteresult.h"
+#include "siaccesslevel.h"
 #include "sijsonflags.h"
 #include <memory>
 #include <QObject>
@@ -28,7 +29,7 @@ class SIDevice: public QObject {
 
     const QVector<SIProperty>& properties() const;
 
-    const QJsonObject& jsonDescription(SIJsonFlags flags) const;
+    QJsonObject jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const;
 
     SIPropertyReadResult readProperty(SIPropertyID id) const;
     QVector<SIPropertyReadResult> readProperties(const QVector<SIPropertyID>& ids) const;

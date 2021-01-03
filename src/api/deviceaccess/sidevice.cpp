@@ -5,8 +5,6 @@
 struct SIDevice::Private_ {
     QString model;
     QString id;
-    mutable SIJsonFlags cachedJsonFlags = SIJsonFlag::None;
-    mutable QJsonObject cachedJsonDescription;
 };
 
 SIDevice::SIDevice(const QString& model, const QString& id): priv_(new Private_) {
@@ -44,34 +42,30 @@ QVector<SIPropertyWriteResult> SIDevice::writeProperties(const QVector<const QPa
     return writeProperties_(properties, flags);
 }
 
-const QJsonObject& SIDevice::jsonDescription(SIJsonFlags flags) const {
-    if (priv_->cachedJsonFlags != flags) {
-        priv_->cachedJsonDescription = {};
-    }
-    priv_->cachedJsonFlags = flags;
+QJsonObject SIDevice::jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const {
+    QJsonObject description;
 
-    if (priv_->cachedJsonDescription.isEmpty()) {
-        priv_->cachedJsonDescription["model"] = model();
-        priv_->cachedJsonDescription["id"] = id();
-        if (flags.testFlag(SIJsonFlag::IncludeDeviceDetails)) {
-            QJsonArray props;
-            for (const auto& property: properties()) {
-                if (flags.testFlag(SIJsonFlag::IncludeExpertProperties) || !property.flags.testFlag(SIPropertyFlag::Expert)) {
-                    props.append(QJsonObject {
-                        {"id",          (int)property.id},
-                        {"type",        to_string(property.type)},
-                        {"readable",    property.flags.testFlag(SIPropertyFlag::Readable)},
-                        {"writeable",   property.flags.testFlag(SIPropertyFlag::Writeable)},
-                        {"description", property.description},
-                        {"unit",        property.unit}
-                    });
-                }
+    description["model"] = model();
+    description["id"] = id();
+    if (flags.testFlag(SIJsonFlag::IncludeDeviceDetails)) {
+        QJsonArray props;
+        for (const auto& property: properties()) {
+            if (true /* TODO: Check access level */) {
+                props.append(QJsonObject {
+                    {"id",          (int)property.id},
+                    {"type",        to_string(property.type)},
+                    {"readable",    property.flags.testFlag(SIPropertyFlag::Readable)},
+                    {"writeable",   property.flags.testFlag(SIPropertyFlag::Writeable)},
+                    {"description", property.description},
+                    {"unit",        property.unit}
+                });
             }
-            priv_->cachedJsonDescription["properties"] = props;
-            completeJsonDescription_(priv_->cachedJsonDescription, flags);
         }
+        description["properties"] = props;
+        completeJsonDescription_(description, flags);
     }
-    return priv_->cachedJsonDescription;
+
+    return description;
 }
 
 QVector<SIPropertyReadResult> SIDevice::readProperties_(const QVector<SIPropertyID>& ids) const {

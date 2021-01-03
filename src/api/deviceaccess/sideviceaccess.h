@@ -1,4 +1,5 @@
 #pragma once
+#include "siaccesslevel.h"
 #include "sijsonflags.h"
 #include "sidevicemessage.h"
 #include <memory>
@@ -40,7 +41,7 @@ class SIDeviceAccess: public QObject {
         return device(id);
     }
 
-    const QJsonObject& jsonDescription(SIJsonFlags flags) const;
+    QJsonObject jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const;
 
   protected:
     explicit SIDeviceAccess(const QString& id);

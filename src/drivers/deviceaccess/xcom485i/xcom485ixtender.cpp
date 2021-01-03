@@ -2,20 +2,20 @@
 #include "xcom485imodbusaccess.h"
 
 XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess): XCom485iDevice(toString(model), modbusAddress, modbusAccess, {
-    {0, 3000, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
-    {2, 3001, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery temperature", "°C"},
-    {10, 3005, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery charge current", "Adc"},
-    {46, 3023, SIPropertyType::Float, SIPropertyFlag::Readable, "Output power", "kVA"},
+    {0, 3000, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
+    {2, 3001, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery temperature", "°C"},
+    {10, 3005, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery charge current", "Adc"},
+    {46, 3023, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Output power", "kVA"},
 
-    {14, 1107, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Maximum current of AC source (Input limit)", "Aac"},
-    {76, 1138, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current", "Adc"},
-    {48, 1124, SIPropertyType::Bool, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Inverter allowed", ""},
+    {14, 1107, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Maximum current of AC source (Input limit)", "Aac"},
+    {76, 1138, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current", "Adc"},
+    {48, 1124, SIPropertyType::Bool, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Inverter allowed", ""},
 
-    {50, 1125, SIPropertyType::Bool, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Charger allowed", ""},
-    {78, 1139, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Temperature compensation", "mV/°C/cell"},
-    {212, 1206, SIPropertyType::TimeOfDay, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Start hour (AUX 1)", "hh:mm"},
-    {630, 1415, SIPropertyType::Signal, SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "ON of the Xtenders", ""},
-    {598, 1399, SIPropertyType::Signal, SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "OFF of the Xtenders", ""}
+    {50, 1125, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Charger allowed", ""},
+    {78, 1139, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Temperature compensation", "mV/°C/cell"},
+    {212, 1206, SIPropertyType::TimeOfDay, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Start hour (AUX 1)", "hh:mm"},
+    {630, 1415, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "ON of the Xtenders", ""},
+    {598, 1399, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "OFF of the Xtenders", ""}
 }) {}
 
 XCom485iXtender::Model XCom485iXtender::model(quint8 modbusAddress, XCom485iModbusAccess& access) {

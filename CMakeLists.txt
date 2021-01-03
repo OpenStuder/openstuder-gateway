@@ -24,7 +24,7 @@ add_library(SIDeviceAccess SHARED
             src/api/deviceaccess/sideviceaccessregistry.h
             src/api/deviceaccess/sideviceaccessregistry.cpp
             src/api/deviceaccess/sideviceaccessdriver.h
-            )
+            src/api/deviceaccess/siaccesslevel.h)
 target_include_directories(SIDeviceAccess INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src/api/deviceaccess)
 target_link_libraries(SIDeviceAccess Qt5::Core)
 

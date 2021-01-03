@@ -4,8 +4,6 @@
 
 struct SIDeviceAccess::Private_ {
     QString id;
-    mutable SIJsonFlags cachedJsonFlags = SIJsonFlag::None;
-    mutable QJsonObject cachedJsonDescription;
 };
 
 SIDeviceAccess::SIDeviceAccess(const QString& id): priv_(new Private_) {
@@ -25,10 +23,6 @@ QVector<SIDeviceMessage> SIDeviceAccess::retrievePendingDeviceMessages() const {
 }
 
 int SIDeviceAccess::enumerateDevices() {
-
-    // Clear JSON description cache,
-    priv_->cachedJsonDescription = {};
-
     // Populate device list.
     QVector<SIDevice*> devices;
     for (const auto& child: children()) {
@@ -80,25 +74,20 @@ QPointer<SIDevice> SIDeviceAccess::device(const QString& id) const {
     return nullptr;
 }
 
-const QJsonObject& SIDeviceAccess::jsonDescription(SIJsonFlags flags) const {
-    if (priv_->cachedJsonFlags != flags) {
-        priv_->cachedJsonDescription = {};
-    }
-    priv_->cachedJsonFlags = flags;
-
-    if (priv_->cachedJsonDescription.isEmpty()) {
-        priv_->cachedJsonDescription["id"] = id();
+QJsonObject SIDeviceAccess::jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const {
+    QJsonObject description;
+        description["id"] = id();
         if (flags.testFlag(SIJsonFlag::IncludeAccessDetails)) {
             QJsonArray devs;
             for (auto* child: children()) {
                 auto* device = qobject_cast<SIDevice*>(child);
-                devs.append(device->jsonDescription(flags));
+                devs.append(device->jsonDescription(accessLevel, flags));
             }
-            priv_->cachedJsonDescription["devices"] = devs;
-            completeJsonDescription_(priv_->cachedJsonDescription, flags);
+            description["devices"] = devs;
+            completeJsonDescription_(description, flags);
         }
-    }
-    return priv_->cachedJsonDescription;
+
+    return description;
 }
 
 void SIDeviceAccess::retrievePendingDeviceMessages_(QVector<SIDeviceMessage>& messages) const {

@@ -5,8 +5,8 @@
 using namespace std;
 
 XCom485iBatteryManager::XCom485iBatteryManager(Model model, XCom485iModbusAccess* modbusAccess): XCom485iDevice(toString(model), 61, modbusAccess, {
-    {0, 7000, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
-    {2, 7001, SIPropertyType::Float, SIPropertyFlag::Readable, "Battery current", "Adc"}
+    {0, 7000, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
+    {2, 7001, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery current", "Adc"}
 }), model_(model) {
     switch (model) {
         case Invalid:
@@ -14,18 +14,18 @@ XCom485iBatteryManager::XCom485iBatteryManager(Model model, XCom485iModbusAccess
 
         case BSP:
             addProperties({
-                {2, 6001, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Nominal capacity", "Ah"},
-                {4, 6002, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Nominal discharge duration (C-rating)", "h"},
+                {2, 6001, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Nominal capacity", "Ah"},
+                {4, 6002, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Nominal discharge duration (C-rating)", "h"},
 
-                {110, 6055, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Manufacturer SOC for 0% displayed", "%"},
-                {112, 6056, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "Manufacturer SOC for 100% displayed", "%"}
+                {110, 6055, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Manufacturer SOC for 0% displayed", "%"},
+                {112, 6056, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Manufacturer SOC for 100% displayed", "%"}
             });
             break;
 
         case XComCAN_BMS:
             addProperties({
-                {140, 6070, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "SOC level under which battery discharge is stopped", "%"},
-                {124, 6062, SIPropertyType::Float, SIPropertyFlag::Readable | SIPropertyFlag::Writeable | SIPropertyFlag::Expert, "SOC level for backup", "%"}
+                {140, 6070, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "SOC level under which battery discharge is stopped", "%"},
+                {124, 6062, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "SOC level for backup", "%"}
             });
             break;
     }

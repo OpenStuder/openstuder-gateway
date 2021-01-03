@@ -6,8 +6,7 @@ enum class SIJsonFlag: unsigned int {
     IncludeAccessInformation = 1U << 0U,
     IncludeAccessDetails = 1U << 1U,
     IncludeDeviceDetails = 1U << 2U,
-    IncludeExpertProperties = 1U << 3U,
-    IncludeDriverInformation = 1U << 4U,
+    IncludeDriverInformation = 1U << 3U,
     Default = IncludeAccessInformation | IncludeAccessDetails
 };
 
