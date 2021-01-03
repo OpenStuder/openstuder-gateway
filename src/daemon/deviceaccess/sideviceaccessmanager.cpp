@@ -64,7 +64,7 @@ class SIMessagesRetrieveOperation final: public SIAbstractOperation {
         for (int i = 0 ; i < deviceAccessCount; ++i) {
             auto deviceAccess = deviceAccessRegistry->deviceAccess(i);
             for (const auto& message: deviceAccess->retrievePendingDeviceMessages()) {
-                emit manager_->deviceMessageReceived(message);
+                emit manager_->deviceMessageReceived(deviceAccess->id(), message);
             }
         }
 

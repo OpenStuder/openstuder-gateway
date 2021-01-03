@@ -27,6 +27,7 @@ class QLowEnergyService;
   private slots:
     void onCharacteristicChanged_(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
     void onDisconnected_();
+    void onDeviceMessageReceived_(const QString& deviceAccessID, const SIDeviceMessage& message);
 
   private:
     void propertyChanged(SIGlobalPropertyID id, const QVariant& value) override;

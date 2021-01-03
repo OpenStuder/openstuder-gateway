@@ -3,18 +3,20 @@
 
 SIWebSocketConnection::SIWebSocketConnection(QWebSocket* webSocket, SIDeviceAccessManager* deviceAccessManager, QObject* parent)
     : QObject(parent), webSocket_(webSocket), deviceAccessManager_(deviceAccessManager) {
-    connect(webSocket_, &QWebSocket::textMessageReceived, this, &SIWebSocketConnection::onTextMessageReceived);
+    connect(webSocket_, &QWebSocket::textMessageReceived, this, &SIWebSocketConnection::onTextMessageReceived_);
     connect(webSocket_, &QWebSocket::disconnected, this, &QObject::deleteLater);
+    connect(deviceAccessManager_, &SIDeviceAccessManager::deviceMessageReceived, this, &SIWebSocketConnection::onDeviceMessageReceived_);
 }
 
 SIWebSocketConnection::~SIWebSocketConnection() {
     deviceAccessManager_->unsubscribeFromAllProperties(this);
 }
 
-void SIWebSocketConnection::onTextMessageReceived(const QString& message) {
+void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
     SIWebSocketProtocolFrame frame = SIWebSocketProtocolFrame::fromMessage(message);
     switch (frame.command()) {
         case SIWebSocketProtocolFrame::AUTHORIZE:
+            // TODO: Version negotiation.
             break;
 
         case SIWebSocketProtocolFrame::ENUMERATE: {
@@ -23,7 +25,7 @@ void SIWebSocketConnection::onTextMessageReceived(const QString& message) {
                 webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
                     SIWebSocketProtocolFrame::ENUMERATED, {
                         {"status",      QString::number((int)status)},
-                        {"deviceCount", QString::number(op->numberOfDevicesPresent())}
+                        {"device_count", QString::number(op->numberOfDevicesPresent())}
                     }).toMessage());
                 delete op;
             });
@@ -78,6 +80,16 @@ void SIWebSocketConnection::onTextMessageReceived(const QString& message) {
                 }).toMessage());
             break;
     }
+}
+
+void SIWebSocketConnection::onDeviceMessageReceived_(const QString& deviceAccessID, const SIDeviceMessage& message) {
+    webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
+        SIWebSocketProtocolFrame::PROPERTY_UPDATE, {
+            {"access_id", deviceAccessID},
+            {"device_id",    message.deviceID},
+            {"message_id", QString::number(message.messageID)},
+            {"message", message.message}
+        }).toMessage());
 }
 
 void SIWebSocketConnection::propertyChanged(SIGlobalPropertyID id, const QVariant& value) {

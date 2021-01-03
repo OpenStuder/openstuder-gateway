@@ -8,6 +8,7 @@ class SIBluetoothProtocolFrame {
         INVALID = 0x00,
 
         // Client messages.
+        AUTHORIZE = 'a',
         ENUMERATE = 'e',
         DESCRIBE = 'd',
         READ_PROPERTY = 'r',
@@ -16,6 +17,7 @@ class SIBluetoothProtocolFrame {
 
         // Server messages.
         ERROR = 0xFF,
+        AUTHORIZED = 'A',
         ENUMERATED = 'E',
         DESCRIPTION = 'D',
         PROPERTY_READ = 'R',

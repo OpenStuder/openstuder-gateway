@@ -8,10 +8,11 @@
 
   public:
     SIWebSocketConnection(QWebSocket* webSocket, SIDeviceAccessManager* deviceAccessManager, QObject* parent = nullptr);
-    ~SIWebSocketConnection();
+    ~SIWebSocketConnection() override;
 
   private slots:
-    void onTextMessageReceived(const QString& message);
+    void onTextMessageReceived_(const QString& message);
+    void onDeviceMessageReceived_(const QString& deviceAccessID, const SIDeviceMessage& message);
 
   private:
     void propertyChanged(SIGlobalPropertyID id, const QVariant& value) override;

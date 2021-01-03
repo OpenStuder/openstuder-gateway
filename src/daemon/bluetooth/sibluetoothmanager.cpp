@@ -7,7 +7,6 @@
 #include <QLowEnergyAdvertisingParameters>
 #include <QLowEnergyAdvertisingData>
 
-
 const QBluetoothUuid SICharacteristicUUID {QStringLiteral("12345678-1234-0000-1623-123456789ABC")};
 const QBluetoothUuid RXCharacteristicUUID {QStringLiteral("12345678-1234-0001-1623-123456789ABC")};
 const QBluetoothUuid TXCharacteristicUUID {QStringLiteral("12345678-1234-0002-1623-123456789ABC")};
@@ -32,6 +31,7 @@ SIBluetoothManager::SIBluetoothManager(SIDeviceAccessManager* deviceAccessManage
     service_ = peripheral_->addService(siService);
     connect(service_, &QLowEnergyService::characteristicChanged, this, &SIBluetoothManager::onCharacteristicChanged_);
     connect(peripheral_, &QLowEnergyController::disconnected, this, &SIBluetoothManager::onDisconnected_);
+    connect(deviceAccessManager_, &SIDeviceAccessManager::deviceMessageReceived, this, &SIBluetoothManager::onDeviceMessageReceived_);
 }
 
 void SIBluetoothManager::startAdvertise() {
@@ -52,6 +52,10 @@ void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic
     auto parameterCount = frame.parameters().count();
 
     switch (frame.command()) {
+        case SIBluetoothProtocolFrame::AUTHORIZE:
+            // TODO: Version negotiation.
+            break;
+
         case SIBluetoothProtocolFrame::ENUMERATE:
             if (parameterCount == 0) {
                 auto* operation = deviceAccessManager_->enumerateDevices();
@@ -133,6 +137,12 @@ void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic
 void SIBluetoothManager::onDisconnected_() {
     deviceAccessManager_->unsubscribeFromAllProperties(this);
     QMetaObject::invokeMethod(this, &SIBluetoothManager::startAdvertise, Qt::QueuedConnection);
+}
+
+void SIBluetoothManager::onDeviceMessageReceived_(const QString& deviceAccessID, const SIDeviceMessage& message) {
+    service_->writeCharacteristic(service_->characteristic(RXCharacteristicUUID), SIBluetoothProtocolFrame(
+        SIBluetoothProtocolFrame::MESSAGE,
+        {deviceAccessID, message.deviceID, QString::number(message.messageID)}).toBytes());
 }
 
 void SIBluetoothManager::propertyChanged(SIGlobalPropertyID id, const QVariant& value) {
