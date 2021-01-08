@@ -1,5 +1,7 @@
 #include "sibluetoothmanager.h"
 #include "sibluetoothprotocolframe.h"
+#include "sibluetoothprotocolv1.h"
+#include <siaccesslevel.h>
 #include <QLowEnergyController>
 #include <QLowEnergyCharacteristicData>
 #include <QLowEnergyServiceData>
@@ -34,14 +36,18 @@ SIBluetoothManager::SIBluetoothManager(SIDeviceAccessManager* deviceAccessManage
     connect(deviceAccessManager_, &SIDeviceAccessManager::deviceMessageReceived, this, &SIBluetoothManager::onDeviceMessageReceived_);
 }
 
+SIBluetoothManager::~SIBluetoothManager() {
+    delete protocol_;
+}
+
 void SIBluetoothManager::startAdvertise() {
     QLowEnergyAdvertisingData advertisingData;
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
-    advertisingData.setLocalName(name_);
+    advertisingData.setLocalName(peripheralName_);
 
     QLowEnergyAdvertisingData scanResponseData;
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
-    advertisingData.setLocalName(name_);
+    advertisingData.setLocalName(peripheralName_);
     advertisingData.setServices({SICharacteristicUUID});
 
     peripheral_->startAdvertising({}, advertisingData, scanResponseData);
@@ -49,104 +55,69 @@ void SIBluetoothManager::startAdvertise() {
 
 void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic& characteristic, const QByteArray& value) {
     auto frame = SIBluetoothProtocolFrame::fromBytes(value);
-    auto parameterCount = frame.parameters().count();
 
-    switch (frame.command()) {
-        case SIBluetoothProtocolFrame::AUTHORIZE:
-            // TODO: Version negotiation.
-            break;
-
-        case SIBluetoothProtocolFrame::ENUMERATE:
-            if (parameterCount == 0) {
-                auto* operation = deviceAccessManager_->enumerateDevices();
-                connect(operation, &SIAbstractOperation::finished, [this, operation](SIStatus status) {
-                    service_->writeCharacteristic(service_->characteristic(RXCharacteristicUUID), SIBluetoothProtocolFrame(
-                        SIBluetoothProtocolFrame::ENUMERATED,
-                        {QString::number((int)status)}
-                    ).toBytes());
-                    delete operation;
-                });
+    if (protocol_ == nullptr) {
+        if (frame.command() == SIBluetoothProtocolFrame::AUTHORIZE) {
+            if (!frame.isParameterCountInRange(2, 3)) {
+                sendFrame_({SIBluetoothProtocolFrame::ERROR, {"invalid parameter count"}});
                 return;
-            }
-            break;
+            } else {
+                auto user = frame.parameters()[0];
+                auto pass = frame.parameters()[1];
+                auto versionString = frame.parameterCount() == 3 ? frame.parameters()[2] : "1";
 
-        case SIBluetoothProtocolFrame::DESCRIBE:
-            // TODO...
-            break;
+                // TODO: Authenticate user and determine the user's access level.
+                auto accessLevel = SIAccessLevel::Basic;
 
-        case SIBluetoothProtocolFrame::READ_PROPERTY:
-            if (parameterCount == 1) {
-                SIGlobalPropertyID id(frame.parameters().first());
-                if (id.isValid()) {
-                    auto* operation = deviceAccessManager_->readProperty(id);
-                    connect(operation, &SIAbstractOperation::finished, [this, operation, id](SIStatus status) {
-                        service_->writeCharacteristic(service_->characteristic(RXCharacteristicUUID), SIBluetoothProtocolFrame(
-                            SIBluetoothProtocolFrame::PROPERTY_READ,
-                            {QString::number((int)status), id.toString(), operation->value().toString()}
-                        ).toBytes());
-                        delete operation;
-                    });
+                if (accessLevel == SIAccessLevel::None) {
+                    sendFrame_({SIBluetoothProtocolFrame::ERROR, {"authorize failed"}});
                     return;
                 }
-            }
-            break;
 
-        case SIBluetoothProtocolFrame::WRITE_PROPERTY:
-            if (parameterCount >= 1 && parameterCount <= 3) {
-                SIGlobalPropertyID id(frame.parameters().first());
-                QVariant value;
-                if (parameterCount >= 2) {
-                    value = frame.parameters()[1];
-                }
-                SIPropertyWriteFlags writeFlags = SIPropertyWriteFlag::Default;
-                if (parameterCount >= 3) {
-                    // TODO: writeFlags =
-                }
-                if (id.isValid() && value.isValid()) {
-                    auto* operation = deviceAccessManager_->writeProperty(id, value, writeFlags);
-                    connect(operation, &SIAbstractOperation::finished, [this, operation, id](SIStatus status) {
-                        service_->writeCharacteristic(service_->characteristic(RXCharacteristicUUID), SIBluetoothProtocolFrame(
-                            SIBluetoothProtocolFrame::PROPERTY_WRITTEN,
-                            {QString::number((int)status), id.toString()}
-                        ).toBytes());
-                        delete operation;
-                    });
+                bool conversionOk = false;
+                int version = versionString.toInt(&conversionOk);
+                if (!conversionOk) {
+                    sendFrame_({SIBluetoothProtocolFrame::ERROR, {"invalid version"}});
                     return;
                 }
-            }
-            break;
 
-        case SIBluetoothProtocolFrame::SUBSCRIBE_PROPERTY:
-            if (frame.parameters().count() == 1) {
-                SIGlobalPropertyID id(frame.parameters().first());
-                if (id.isValid()) {
-                    deviceAccessManager_->subscribeToProperty(frame.parameters().first(), this);
-                    service_->writeCharacteristic(service_->characteristic(RXCharacteristicUUID), SIBluetoothProtocolFrame(
-                        SIBluetoothProtocolFrame::PROPERTY_SUBSCRIBED,
-                        {QString::number((int)SIStatus::Success), id.toString()} // TODO: Real status.
-                    ).toBytes());
-                    return;
+                switch (version) {
+                    case 1:
+                        protocol_ = new SIBluetoothProtocolV1(accessLevel);
+                        sendFrame_({SIBluetoothProtocolFrame::AUTHORIZED, {QString::number(version)}});
+                        break;
+
+                    default:
+                        sendFrame_({SIBluetoothProtocolFrame::ERROR, {"version not supported"}});
+                        return;
                 }
             }
-            break;
+        } else {
+            sendFrame_({SIBluetoothProtocolFrame::ERROR, {"Invalid state"}});
+        }
+    } else {
+        auto response = protocol_->handleFrame(frame, deviceAccessManager_);
+        if (response.command() != SIBluetoothProtocolFrame::INVALID) {
+            sendFrame_(response);
+        }
     }
-
-    service_->writeCharacteristic(service_->characteristic(RXCharacteristicUUID), SIBluetoothProtocolFrame(SIBluetoothProtocolFrame::ERROR).toBytes());
 }
 
 void SIBluetoothManager::onDisconnected_() {
-    deviceAccessManager_->unsubscribeFromAllProperties(this);
+    if (protocol_ != nullptr) {
+        deviceAccessManager_->unsubscribeFromAllProperties(protocol_);
+        delete protocol_;
+        protocol_ = nullptr;
+    }
     QMetaObject::invokeMethod(this, &SIBluetoothManager::startAdvertise, Qt::QueuedConnection);
 }
 
 void SIBluetoothManager::onDeviceMessageReceived_(const QString& deviceAccessID, const SIDeviceMessage& message) {
-    service_->writeCharacteristic(service_->characteristic(RXCharacteristicUUID), SIBluetoothProtocolFrame(
-        SIBluetoothProtocolFrame::MESSAGE,
-        {deviceAccessID, message.deviceID, QString::number(message.messageID)}).toBytes());
+    if (protocol_ != nullptr) {
+        sendFrame_(protocol_->convertDeviceMessage(deviceAccessID, message));
+    }
 }
 
-void SIBluetoothManager::propertyChanged(SIGlobalPropertyID id, const QVariant& value) {
-    service_->writeCharacteristic(service_->characteristic(RXCharacteristicUUID), SIBluetoothProtocolFrame(
-        SIBluetoothProtocolFrame::PROPERTY_UPDATE,
-        {id.toString(), value.toString()}).toBytes());
+void SIBluetoothManager::sendFrame_(const SIBluetoothProtocolFrame& frame) {
+    service_->writeCharacteristic(service_->characteristic(RXCharacteristicUUID), frame.toBytes());
 }

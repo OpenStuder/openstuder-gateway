@@ -30,4 +30,3 @@ SIBluetoothProtocolFrame SIBluetoothProtocolFrame::fromBytes(const QByteArray& b
     return frame;
 }
 
-SIBluetoothProtocolFrame::SIBluetoothProtocolFrame(): command_(ERROR) {}

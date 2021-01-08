@@ -10,7 +10,6 @@ class SIBluetoothProtocolFrame {
         // Client messages.
         AUTHORIZE = 'a',
         ENUMERATE = 'e',
-        DESCRIBE = 'd',
         READ_PROPERTY = 'r',
         WRITE_PROPERTY = 'w',
         SUBSCRIBE_PROPERTY = 's',
@@ -19,15 +18,14 @@ class SIBluetoothProtocolFrame {
         ERROR = 0xFF,
         AUTHORIZED = 'A',
         ENUMERATED = 'E',
-        DESCRIPTION = 'D',
         PROPERTY_READ = 'R',
         PROPERTY_WRITTEN = 'W',
         PROPERTY_SUBSCRIBED = 'S',
         PROPERTY_UPDATE = 'U',
-        MESSAGE = 'M'
+        DEVICE_MESSAGE = 'M'
     };
 
-    explicit SIBluetoothProtocolFrame(Command command, const QVector<QString>& parameters = {});
+    SIBluetoothProtocolFrame(Command command = INVALID, const QVector<QString>& parameters = {});
 
     bool isNull() const;
 
@@ -47,12 +45,18 @@ class SIBluetoothProtocolFrame {
         parameters_ = parameters;
     }
 
+    inline int parameterCount() const {
+        return parameters_.count();
+    }
+
+    inline bool isParameterCountInRange(int min, int max) const {
+        return parameters_.count() <= min && parameters_.count() >= max;
+    }
+
     QByteArray toBytes() const;
     static SIBluetoothProtocolFrame fromBytes(const QByteArray& bytes);
 
   private:
-    SIBluetoothProtocolFrame();
-
     Command command_;
     QVector<QString> parameters_;
 };

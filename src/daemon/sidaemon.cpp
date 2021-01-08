@@ -130,7 +130,7 @@ bool SIDaemon::initialize() {
     settings.beginGroup("Bluetooth");
     if (settings.value("enabled", false).toBool()) {
         bluetoothManager_ = new SIBluetoothManager(deviceAccessManager_, this);
-        bluetoothManager_->setName(settings.value("name", "SIGateway").toString());
+        bluetoothManager_->setPeripheralName(settings.value("name", "SIGateway").toString());
         bluetoothManager_->startAdvertise();
     }
     settings.endGroup();

@@ -110,5 +110,8 @@ add_executable(SIDaemon
                src/daemon/bluetooth/sibluetoothmanager.cpp
                src/daemon/bluetooth/sibluetoothmanager.h
                src/daemon/bluetooth/sibluetoothprotocolframe.cpp
-               src/daemon/bluetooth/sibluetoothprotocolframe.h)
+               src/daemon/bluetooth/sibluetoothprotocolframe.h
+               src/daemon/bluetooth/siabstractbluetoothprotocol.h
+               src/daemon/bluetooth/sibluetoothprotocolv1.h
+               src/daemon/bluetooth/sibluetoothprotocolv1.cpp)
 target_link_libraries(SIDaemon SIDeviceAccess SIStorage Qt5::Core Qt5::Network Qt5::WebSockets Qt5::Bluetooth)

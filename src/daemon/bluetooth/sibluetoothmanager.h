@@ -1,5 +1,6 @@
 #pragma once
 #include <QObject>
+#include "siabstractbluetoothprotocol.h"
 #include "../deviceaccess/sideviceaccessmanager.h"
 
 class QLowEnergyController;
@@ -7,21 +8,22 @@ class SIDeviceAccessManager;
 class QLowEnergyCharacteristic;
 class QLowEnergyService;
 
-  class SIBluetoothManager: public QObject, public SIDeviceAccessManager::PropertySubscriber {
+  class SIBluetoothManager: public QObject {
   Q_OBJECT
 
   public:
     explicit SIBluetoothManager(SIDeviceAccessManager* deviceAccessManager, QObject* parent = nullptr);
+    ~SIBluetoothManager() override;
 
-      const QString& name() const {
-          return name_;
+      const QString& peripheralName() const {
+          return peripheralName_;
       }
 
-      void setName(const QString& name) {
-          name_ = name;
+      void setPeripheralName(const QString& name) {
+          peripheralName_ = name;
       }
 
-    public slots:
+  public slots:
     void startAdvertise();
 
   private slots:
@@ -30,10 +32,13 @@ class QLowEnergyService;
     void onDeviceMessageReceived_(const QString& deviceAccessID, const SIDeviceMessage& message);
 
   private:
-    void propertyChanged(SIGlobalPropertyID id, const QVariant& value) override;
+    void sendFrame_(const SIBluetoothProtocolFrame& frame);
 
-    QString name_;
+    QString peripheralName_;
     QLowEnergyController* peripheral_;
     QLowEnergyService* service_;
+
+    SIAbstractBluetoothProtocol* protocol_ = nullptr;
+
     SIDeviceAccessManager* deviceAccessManager_;
 };
