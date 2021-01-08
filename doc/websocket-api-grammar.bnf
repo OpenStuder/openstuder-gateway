@@ -1,0 +1,68 @@
+grammar ::= request | response
+
+request ::= authorize_request | enumerate_request | describe_request | read_property_request | write_property_request | subscribe_property_request
+
+authorize_request ::= "AUTHORIZE" nl "user:" authorize_user nl "password:" authorize_password nl ("version:" authorize_version nl)? nl
+authorize_user ::= string
+authorize_password ::= string
+authorize_version ::= integer
+
+enumerate_request ::= "ENUMERATE" nl nl
+
+describe_request ::= "DESCRIBE" nl ("id:" describe_id nl)? ("flags:" describe_flags? nl)? nl
+describe_flags ::= describe_flag ("," describe_flag)*
+describe_flag ::= "IncludeAccessInformation" | "IncludeAccessDetails" | "IncludeDeviceDetails" | "IncludeDriverInformation"
+
+read_property_request ::= "READ PROPERTY" nl "id:" property_id nl nl
+
+write_property_request ::= "WRITE PROPERTY" nl "id:" property_id nl ("value:" property_value nl)? nl
+
+subscribe_property_request ::= "SUBSCRIBE PROPERTY" nl "id:" property_id nl nl
+
+
+response ::= error_response | authorize_response | enumerate_response | describe_response | read_property_response | write_property_response | subscribe_property_response | property_update_indication | message_indication
+
+error_response ::= "ERROR" nl "reason:" error_reason nl nl
+error_reason ::= string
+
+authorize_response ::= "AUTHORIZED" nl "status:" status nl "version:" authorize_version nl nl
+
+enumerate_response ::= "ENUMERATED" nl "status:" status nl "device_count:" enumerate_device_count nl nl
+enumerate_device_count ::= integer
+
+describe_response ::= "DESCRIPTION" nl ("id:" describe_id nl)? nl json
+
+read_property_response ::= "PROPERTY READ" nl "id:" property_id nl "status:" status nl "value:" property_value nl nl
+
+write_property_response ::= "PROPERTY WRITTEN" nl "id:" property_id nl "status:" status nl nl
+
+subscribe_property_response ::= "PROPERTY SUBSCRIBED" nl "id:" property_id nl "status:" status nl nl
+
+property_update_indication ::= "PROPERTY UPDATE" nl "id:" property_id nl "value:" property_value nl nl
+
+message_indication ::= "DEVICE MESSAGE" nl "device_id:" device_id nl "message_id:" message_id nl "message:" message_text nl nl
+message_id ::= integer
+message_text ::= (string | sp)+
+
+
+status ::= integer
+property_value ::= (string | ".")*
+
+describe_id ::= (property_id | device_id | access_id)
+access_id ::= device_access_selector
+device_id ::= device_access_selector "." device_selector
+property_id ::= device_id "." property_selector
+
+device_access_selector ::= (digit | char)+
+device_selector ::= (digit | char)+
+property_selector ::= digit+
+
+json ::= "{" ([.] | nl)* "}"
+string ::= (char | digit | [_-])*
+char ::= lower_char | upper_char
+lower_char ::= [a-z]
+upper_char ::= [A-Z]
+integer ::= "-"? digit+
+digit ::= [0-9]
+nl ::= "\n"
+sp ::= " "

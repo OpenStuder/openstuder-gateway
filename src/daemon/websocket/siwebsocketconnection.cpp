@@ -1,5 +1,7 @@
 #include "siwebsocketconnection.h"
 #include "siwebsocketprotocolframe.h"
+#include "siwebsocketprotocolv1.h"
+#include <siaccesslevel.h>
 
 SIWebSocketConnection::SIWebSocketConnection(QWebSocket* webSocket, SIDeviceAccessManager* deviceAccessManager, QObject* parent)
     : QObject(parent), webSocket_(webSocket), deviceAccessManager_(deviceAccessManager) {
@@ -9,93 +11,80 @@ SIWebSocketConnection::SIWebSocketConnection(QWebSocket* webSocket, SIDeviceAcce
 }
 
 SIWebSocketConnection::~SIWebSocketConnection() {
-    deviceAccessManager_->unsubscribeFromAllProperties(this);
+    deviceAccessManager_->unsubscribeFromAllProperties(protocol_);
+    delete protocol_;
 }
 
 void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
     SIWebSocketProtocolFrame frame = SIWebSocketProtocolFrame::fromMessage(message);
-    switch (frame.command()) {
-        case SIWebSocketProtocolFrame::AUTHORIZE:
-            // TODO: Version negotiation.
-            break;
 
-        case SIWebSocketProtocolFrame::ENUMERATE: {
-            auto* op = deviceAccessManager_->enumerateDevices();
-            connect(op, &SIAbstractOperation::finished, [this, op](SIStatus status) {
-                webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
-                    SIWebSocketProtocolFrame::ENUMERATED, {
-                        {"status",      QString::number((int)status)},
-                        {"device_count", QString::number(op->numberOfDevicesPresent())}
-                    }).toMessage());
-                delete op;
-            });
-            break;
+    if (protocol_ == nullptr) {
+        if (frame.command() == SIWebSocketProtocolFrame::AUTHORIZE) {
+            if (!frame.validateHeaders({"user", "password"}, {"version"}) || frame.hasBody()) {
+                sendFrame_({SIWebSocketProtocolFrame::ERROR, {
+                    {"reason", "invalid request"}
+                }});
+                return;
+            } else {
+                auto user = frame.header("user");
+                auto pass = frame.header("password");
+                auto versionString = frame.header("version", "1");
+
+                // TODO: Authenticate user and determine the user's access level.
+                auto accessLevel = SIAccessLevel::Basic;
+
+                if (accessLevel == SIAccessLevel::None) {
+                    sendFrame_({SIWebSocketProtocolFrame::ERROR, {{
+                        "reason", "authorize failed"}
+                    }});
+                    return;
+                }
+
+                bool conversionOk = false;
+                int version = versionString.toInt(&conversionOk);
+                if (!conversionOk) {
+                    sendFrame_({SIWebSocketProtocolFrame::ERROR, {
+                        {"reason", "invalid version"}
+                    }});
+                    return;
+                }
+
+                switch (version) {
+                    case 1:
+                        protocol_ = new SIWebSocketProtocolV1(accessLevel);
+                        connect(protocol_, &SIAbstractWebSocketProtocol::frameReadyToSend, this, &SIWebSocketConnection::sendFrame_);
+                        sendFrame_({SIWebSocketProtocolFrame::AUTHORIZED, {
+                            {"status", to_string(SIStatus::Success)},
+                            {"version", QString::number(version)}
+                        }});
+                        break;
+
+                    default:
+                        sendFrame_({SIWebSocketProtocolFrame::ERROR, {
+                            {"reason", "version not supported"}
+                        }});
+                        return;
+                }
+            }
+        } else {
+            sendFrame_({SIWebSocketProtocolFrame::ERROR, {
+                {"reason", "Invalid state"}
+            }});
         }
-
-        case SIWebSocketProtocolFrame::DESCRIBE:
-            break;
-
-        case SIWebSocketProtocolFrame::READ_PROPERTY: {
-            auto id = SIGlobalPropertyID(frame.headers()["id"]);
-            auto* op = deviceAccessManager_->readProperty(id);
-            connect(op, &SIAbstractOperation::finished, [this, op](SIStatus status) {
-                webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
-                    SIWebSocketProtocolFrame::PROPERTY_READ, {
-                        {"status", QString::number((int)status)},
-                        {"value",  op->value().toString()}
-                    }).toMessage());
-                delete op;
-            });
-            break;
+    } else {
+        auto response = protocol_->handleFrame(frame, deviceAccessManager_);
+        if (response.command() != SIWebSocketProtocolFrame::INVALID) {
+            sendFrame_(response);
         }
-
-        case SIWebSocketProtocolFrame::WRITE_PROPERTY: {
-            auto id = SIGlobalPropertyID(frame.headers()["id"]);
-            auto value = frame.headers()["value"];
-            auto* op = deviceAccessManager_->writeProperty(id, value);
-            connect(op, &SIAbstractOperation::finished, [this, op](SIStatus status) {
-                webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
-                    SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
-                        {"status", QString::number((int)status)},
-                    }).toMessage());
-                delete op;
-            });
-            break;
-        }
-
-        case SIWebSocketProtocolFrame::SUBSCRIBE_PROPERTY: {
-            auto id = SIGlobalPropertyID(frame.headers()["id"]);
-            deviceAccessManager_->subscribeToProperty(id, this);
-            webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
-                SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
-                    {"id", id.toString()}
-                }).toMessage());
-            break;
-        }
-
-        default:
-            webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
-                SIWebSocketProtocolFrame::ERROR, {
-                    {"error", "Invalid command"}
-                }).toMessage());
-            break;
     }
 }
 
 void SIWebSocketConnection::onDeviceMessageReceived_(const QString& deviceAccessID, const SIDeviceMessage& message) {
-    webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
-        SIWebSocketProtocolFrame::PROPERTY_UPDATE, {
-            {"access_id", deviceAccessID},
-            {"device_id",    message.deviceID},
-            {"message_id", QString::number(message.messageID)},
-            {"message", message.message}
-        }).toMessage());
+    if (protocol_ != nullptr) {
+        sendFrame_(protocol_->convertDeviceMessage(deviceAccessID, message));
+    }
 }
 
-void SIWebSocketConnection::propertyChanged(SIGlobalPropertyID id, const QVariant& value) {
-    webSocket_->sendTextMessage(SIWebSocketProtocolFrame(
-        SIWebSocketProtocolFrame::PROPERTY_UPDATE, {
-            {"id",    id.toString()},
-            {"value", value.toString()}
-        }).toMessage());
+void SIWebSocketConnection::sendFrame_(const SIWebSocketProtocolFrame& frame) {
+    webSocket_->sendTextMessage(frame.toMessage());
 }

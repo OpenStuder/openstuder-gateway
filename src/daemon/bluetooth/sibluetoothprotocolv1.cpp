@@ -56,11 +56,19 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
             deviceAccessManager->subscribeToProperty(frame.parameters().first(), this);
             return {SIBluetoothProtocolFrame::PROPERTY_SUBSCRIBED, {QString::number((int)SIStatus::Success), id.toString()}};   // TODO: Real status.
         }
+
+        default:
+            return {SIBluetoothProtocolFrame::ERROR, {"invalid command"}};
     }
 }
 
 SIBluetoothProtocolFrame SIBluetoothProtocolV1::convertDeviceMessage(const QString& deviceAccessID, const SIDeviceMessage& message) {
     return {SIBluetoothProtocolFrame::DEVICE_MESSAGE,{deviceAccessID, message.deviceID, QString::number(message.messageID)}};
+}
+
+
+void SIBluetoothProtocolV1::propertyChanged(SIGlobalPropertyID id, const QVariant& value) {
+    emit frameReadyToSend({SIBluetoothProtocolFrame::PROPERTY_UPDATE, {id.toString(), value.toString()}});
 }
 
 void SIBluetoothProtocolV1::enumerationOperationFinished_(SIStatus status) {
@@ -79,8 +87,4 @@ void SIBluetoothProtocolV1::writePropertyOperationFinished_(SIStatus status) {
     auto* operation = dynamic_cast<SIPropertyWriteOperation*>(sender());
     emit frameReadyToSend({SIBluetoothProtocolFrame::PROPERTY_WRITTEN, {QString::number((int)status)}});
     delete operation;
-}
-
-void SIBluetoothProtocolV1::propertyChanged(SIGlobalPropertyID id, const QVariant& value) {
-    emit frameReadyToSend({SIBluetoothProtocolFrame::PROPERTY_UPDATE, {id.toString(), value.toString()}});
 }

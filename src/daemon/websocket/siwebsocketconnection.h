@@ -1,9 +1,10 @@
 #pragma once
 #include <QObject>
 #include "../deviceaccess/sideviceaccessmanager.h"
+#include "siabstractwebsocketprotocol.h"
 #include <QWebSocket>
 
-  class SIWebSocketConnection: public QObject, public SIDeviceAccessManager::PropertySubscriber {
+  class SIWebSocketConnection: public QObject {
     Q_OBJECT
 
   public:
@@ -13,10 +14,10 @@
   private slots:
     void onTextMessageReceived_(const QString& message);
     void onDeviceMessageReceived_(const QString& deviceAccessID, const SIDeviceMessage& message);
+    void sendFrame_(const SIWebSocketProtocolFrame& frame);
 
   private:
-    void propertyChanged(SIGlobalPropertyID id, const QVariant& value) override;
-
     QWebSocket* webSocket_;
+    SIAbstractWebSocketProtocol* protocol_ = nullptr;
     SIDeviceAccessManager* deviceAccessManager_;
 };

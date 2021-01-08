@@ -12,7 +12,23 @@ bool SIWebSocketProtocolFrame::isNull() const {
     return command_ == INVALID;
 }
 
-QString SIWebSocketProtocolFrame::toMessage() {
+bool SIWebSocketProtocolFrame::validateHeaders(const std::initializer_list<const char*>& required, const std::initializer_list<const char*>& optional) const {
+    auto keys = headers_.keys();
+
+    // Check that all required headers are present.
+    for (const auto& key: required) {
+        if (!keys.contains(key)) return false;
+        keys.removeOne(key);
+    }
+
+    // Check that no other than option headers are present.
+    for (const auto& key: optional) {
+        keys.removeOne(key);
+    }
+    return keys.isEmpty();
+}
+
+QString SIWebSocketProtocolFrame::toMessage() const {
     QString encoded;
     QTextStream out(&encoded, QIODevice::WriteOnly);
 
@@ -67,7 +83,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
     } else if (commandStr == "PROPERTY UPDATE") {
         frame.command_ = PROPERTY_UPDATE;
     } else if (commandStr == "MESSAGE") {
-        frame.command_ = MESSAGE;
+        frame.command_ = DEVICE_MESSAGE;
     }
 
     QString headerLine;
@@ -128,7 +144,7 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
         case SIWebSocketProtocolFrame::PROPERTY_UPDATE:
             return "PROPERTY UPDATE";
 
-        case SIWebSocketProtocolFrame::MESSAGE:
+        case SIWebSocketProtocolFrame::DEVICE_MESSAGE:
             return "MESSAGE";
 
         default:

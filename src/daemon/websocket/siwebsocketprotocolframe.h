@@ -27,10 +27,10 @@ class SIWebSocketProtocolFrame {
         PROPERTY_WRITTEN,
         PROPERTY_SUBSCRIBED,
         PROPERTY_UPDATE,
-        MESSAGE
+        DEVICE_MESSAGE
     };
 
-    explicit SIWebSocketProtocolFrame(Command command, std::initializer_list<QPair<QString,QString>> headers = {}, const QByteArray& body = {});
+    SIWebSocketProtocolFrame(Command command = INVALID, std::initializer_list<QPair<QString,QString>> headers = {}, const QByteArray& body = {});
 
     bool isNull() const;
 
@@ -50,6 +50,12 @@ class SIWebSocketProtocolFrame {
         headers_ = headers;
     }
 
+    inline QString header(const QString& key, const QString& defaultValue = {}) const {
+        return headers_.value(key, defaultValue);
+    }
+
+    bool validateHeaders(const std::initializer_list<const char*>& required, const std::initializer_list<const char*>& optional = {}) const;
+
     inline const QByteArray& body() const {
         return body_;
     }
@@ -58,12 +64,14 @@ class SIWebSocketProtocolFrame {
         body_ = body;
     }
 
-    QString toMessage();
+    inline bool hasBody() const {
+        return !body_.isEmpty();
+    }
+
+    QString toMessage() const;
     static SIWebSocketProtocolFrame fromMessage(QString message);
 
   private:
-    SIWebSocketProtocolFrame() = default;
-
     Command command_ = INVALID;
     QMap<QString,QString> headers_;
     QByteArray body_;
