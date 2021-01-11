@@ -82,7 +82,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = PROPERTY_SUBSCRIBED;
     } else if (commandStr == "PROPERTY UPDATE") {
         frame.command_ = PROPERTY_UPDATE;
-    } else if (commandStr == "MESSAGE") {
+    } else if (commandStr == "DEVICE MESSAGE") {
         frame.command_ = DEVICE_MESSAGE;
     }
 
@@ -145,7 +145,7 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
             return "PROPERTY UPDATE";
 
         case SIWebSocketProtocolFrame::DEVICE_MESSAGE:
-            return "MESSAGE";
+            return "DEVICE MESSAGE";
 
         default:
             return "INVALID";

@@ -4,7 +4,7 @@
 #include "../deviceaccess/sideviceaccessmanager.h"
 
 class SIAbstractWebSocketProtocol: public QObject, public SIDeviceAccessManager::PropertySubscriber {
-  Q_OBJECT
+    Q_OBJECT
 
   public:
     virtual SIWebSocketProtocolFrame handleFrame(SIWebSocketProtocolFrame& frame, SIDeviceAccessManager* deviceAccessManager) = 0;

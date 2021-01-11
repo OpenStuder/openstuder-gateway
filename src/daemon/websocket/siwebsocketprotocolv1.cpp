@@ -82,7 +82,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             deviceAccessManager->subscribeToProperty(id, this);
             return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
-                {"id", id.toString()}
+                {"id", id.toString()},
+                {"status", to_string(SIStatus::Success)}
             }};
         }
 
@@ -121,6 +122,7 @@ void SIWebSocketProtocolV1::enumerationOperationFinished_(SIStatus status) {
 void SIWebSocketProtocolV1::readPropertyOperationFinished_(SIStatus status) {
     auto* operation = dynamic_cast<SIPropertyReadOperation*>(sender());
     emit frameReadyToSend({SIWebSocketProtocolFrame::PROPERTY_READ, {
+        {"id", operation->id().toString()},
         {"status", to_string(status)},
         {"value", operation->value().toString()}
     }});
@@ -130,6 +132,7 @@ void SIWebSocketProtocolV1::readPropertyOperationFinished_(SIStatus status) {
 void SIWebSocketProtocolV1::writePropertyOperationFinished_(SIStatus status) {
     auto* operation = dynamic_cast<SIPropertyWriteOperation*>(sender());
     emit frameReadyToSend({SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
+        {"id", operation->id().toString()},
         {"status", to_string(status)},
     }});
     delete operation;
