@@ -1,19 +1,25 @@
 #include "siwebsocketprotocolv1.h"
+#include <sijsonflags.h>
+#include <sideviceaccessregistry.h>
+#include <sideviceaccess.h>
+#include <sidevice.h>
+#include <QJsonDocument>
 
 SIWebSocketProtocolV1::SIWebSocketProtocolV1(SIAccessLevel accessLevel): accessLevel_(accessLevel) {}
 
 SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolFrame& frame, SIDeviceAccessManager* deviceAccessManager) {
+    // Frames send from the client can never have a body!
+    if (frame.hasBody()) {
+        return SIWebSocketProtocolFrame::error("invalid frame");
+    }
+
     switch (frame.command()) {
         case SIWebSocketProtocolFrame::AUTHORIZE:
-            return {SIWebSocketProtocolFrame::ERROR, {
-                {"reason", "invalid state"}
-            }};
+            return SIWebSocketProtocolFrame::error("invalid state");
 
         case SIWebSocketProtocolFrame::ENUMERATE: {
-            if (frame.headers().count() != 0 || frame.hasBody()) {
-                return {SIWebSocketProtocolFrame::ERROR, {
-                    {"reason", "invalid request"}
-                }};
+            if (frame.headers().count() != 0) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             auto* operation = deviceAccessManager->enumerateDevices();
@@ -22,21 +28,84 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::DESCRIBE: {
-            // TODO: Implement.
-            return {SIWebSocketProtocolFrame::ERROR, {{"reason", "not implemented"}}};
+            if (!frame.validateHeaders({}, {"id", "flags"})) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            SIJsonFlags jsonFlags = SIJsonFlag::Default;
+            if (frame.hasHeader("flags")) {
+                for (const auto& flag: frame.header("flags").split(",")) {
+                    if (flag == "IncludeAccessInformation") jsonFlags |= SIJsonFlag::IncludeAccessInformation;
+                    else if (flag == "IncludeAccessDetails") jsonFlags |= SIJsonFlag::IncludeAccessDetails;
+                    else if (flag == "IncludeDeviceDetails") jsonFlags |= SIJsonFlag::IncludeDeviceDetails;
+                    else if (flag == "IncludeDriverInformation") jsonFlags |= SIJsonFlag::IncludeDriverInformation;
+                    else {
+                        return SIWebSocketProtocolFrame::error("invalid frame");
+                    }
+                }
+            }
+
+            if (frame.hasHeader("id")) {
+                auto id = frame.header("id").split(".");
+                switch (id.count()) {
+                    case 1: {
+                        auto deviceAccess = SIDeviceAccessRegistry::sharedRegistry().deviceAccess(id[0]);
+                        if (deviceAccess == nullptr) {
+                            return {SIWebSocketProtocolFrame::DESCRIPTION, {
+                                {"status", to_string(SIStatus::NoDeviceAccess)},
+                                {"id", frame.header("id")}
+                            }};
+                        }
+
+                        return {SIWebSocketProtocolFrame::DESCRIPTION, {
+                            {"status", to_string(SIStatus::Success)},
+                            {"id", frame.header("id")}
+                        }, QJsonDocument(deviceAccess->jsonDescription(accessLevel_, jsonFlags)).toJson(QJsonDocument::Compact)};
+                    }
+
+                    case 2: {
+                        auto deviceAccess = SIDeviceAccessRegistry::sharedRegistry().deviceAccess(id[0]);
+                        if (deviceAccess == nullptr) {
+                            return {SIWebSocketProtocolFrame::DESCRIPTION, {
+                                {"status", to_string(SIStatus::NoDeviceAccess)},
+                                {"id", frame.header("id")}
+                            }};
+                        }
+
+                        auto device = deviceAccess->device(id[1]);
+                        if (device == nullptr) {
+                            return {SIWebSocketProtocolFrame::DESCRIPTION, {
+                                {"status", to_string(SIStatus::NoDevice)},
+                                {"id", frame.header("id")}
+                            }};
+                        }
+
+                        return {SIWebSocketProtocolFrame::DESCRIPTION, {
+                            {"status", to_string(SIStatus::Success)},
+                            {"id", frame.header("id")}
+                        }, QJsonDocument(device->jsonDescription(accessLevel_, jsonFlags)).toJson(QJsonDocument::Compact)};
+                    }
+
+                    default:
+                        return SIWebSocketProtocolFrame::error("invalid frame");
+                }
+            } else {
+                auto description = SIDeviceAccessRegistry::sharedRegistry().jsonDescription(accessLevel_, jsonFlags);
+                return {SIWebSocketProtocolFrame::DESCRIPTION, {
+                    {"status", to_string(SIStatus::Success)}
+                }, QJsonDocument(description).toJson(QJsonDocument::Compact)};
+            }
         }
 
         case SIWebSocketProtocolFrame::READ_PROPERTY: {
-            if (!frame.validateHeaders({"id"}) || frame.hasBody()) {
-                return {SIWebSocketProtocolFrame::ERROR, {
-                    {"reason", "invalid request"}
-                }};
+            if (!frame.validateHeaders({"id"})) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             auto id = SIGlobalPropertyID(frame.header("id"));
             if (!id.isValid()) {
-                return {SIWebSocketProtocolFrame::ERROR, {
-                    {"reason", "invalid id"}
+                return {SIWebSocketProtocolFrame::PROPERTY_READ, {
+                    {"status", to_string(SIStatus::NoProperty)}
                 }};
             }
 
@@ -46,16 +115,14 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::WRITE_PROPERTY: {
-            if (!frame.validateHeaders({"id"}, {"value"}) || frame.hasBody()) {
-                return {SIWebSocketProtocolFrame::ERROR, {
-                    {"reason", "invalid request"}
-                }};
+            if (!frame.validateHeaders({"id"}, {"value"})) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             auto id = SIGlobalPropertyID(frame.headers()["id"]);
             if (!id.isValid()) {
-                return {SIWebSocketProtocolFrame::ERROR, {
-                    {"reason", "invalid id"}
+                return {SIWebSocketProtocolFrame::PROPERTY_READ, {
+                    {"status", to_string(SIStatus::NoProperty)}
                 }};
             }
 
@@ -67,19 +134,18 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::SUBSCRIBE_PROPERTY: {
-            if (!frame.validateHeaders({"id"}) || frame.hasBody()) {
-                return {SIWebSocketProtocolFrame::ERROR, {
-                    {"reason", "invalid request"}
-                }};
+            if (!frame.validateHeaders({"id"})) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             auto id = SIGlobalPropertyID(frame.header("id"));
             if (!id.isValid()) {
-                return {SIWebSocketProtocolFrame::ERROR, {
-                    {"reason", "invalid id"}
+                return {SIWebSocketProtocolFrame::PROPERTY_READ, {
+                    {"status", to_string(SIStatus::NoProperty)}
                 }};
             }
 
+            // TODO: Check if subscription was successful.
             deviceAccessManager->subscribeToProperty(id, this);
             return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
                 {"id", id.toString()},
@@ -88,7 +154,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         default:
-            return {SIWebSocketProtocolFrame::ERROR, {{"reason", "invalid command"}}};
+            return SIWebSocketProtocolFrame::error("invalid frame");
     }
 
     return {};

@@ -56,6 +56,10 @@ class SIWebSocketProtocolFrame {
 
     bool validateHeaders(const std::initializer_list<const char*>& required, const std::initializer_list<const char*>& optional = {}) const;
 
+    inline bool hasHeader(const QString& key) {
+        return headers_.contains(key);
+    }
+
     inline const QByteArray& body() const {
         return body_;
     }
@@ -70,6 +74,10 @@ class SIWebSocketProtocolFrame {
 
     QString toMessage() const;
     static SIWebSocketProtocolFrame fromMessage(QString message);
+
+    inline static SIWebSocketProtocolFrame error(const QString& reason) {
+        return {ERROR, {{"reason", reason}}};
+    }
 
   private:
     Command command_ = INVALID;

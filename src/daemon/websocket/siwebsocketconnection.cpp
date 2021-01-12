@@ -21,9 +21,7 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
     if (protocol_ == nullptr) {
         if (frame.command() == SIWebSocketProtocolFrame::AUTHORIZE) {
             if (!frame.validateHeaders({"user", "password"}, {"version"}) || frame.hasBody()) {
-                sendFrame_({SIWebSocketProtocolFrame::ERROR, {
-                    {"reason", "invalid request"}
-                }});
+                sendFrame_(SIWebSocketProtocolFrame::error("invalid frame"));
                 return;
             } else {
                 auto user = frame.header("user");
@@ -31,21 +29,17 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
                 auto versionString = frame.header("version", "1");
 
                 // TODO: Authenticate user and determine the user's access level.
-                auto accessLevel = SIAccessLevel::Basic;
+                auto accessLevel = SIAccessLevel::QualifiedServicePersonnel;
 
                 if (accessLevel == SIAccessLevel::None) {
-                    sendFrame_({SIWebSocketProtocolFrame::ERROR, {{
-                        "reason", "authorize failed"}
-                    }});
+                    sendFrame_(SIWebSocketProtocolFrame::error("authorize failed"));
                     return;
                 }
 
                 bool conversionOk = false;
                 int version = versionString.toInt(&conversionOk);
                 if (!conversionOk) {
-                    sendFrame_({SIWebSocketProtocolFrame::ERROR, {
-                        {"reason", "invalid version"}
-                    }});
+                    sendFrame_(SIWebSocketProtocolFrame::error("invalid version"));
                     return;
                 }
 
@@ -60,16 +54,12 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
                         break;
 
                     default:
-                        sendFrame_({SIWebSocketProtocolFrame::ERROR, {
-                            {"reason", "version not supported"}
-                        }});
+                        sendFrame_(SIWebSocketProtocolFrame::error("version not supported"));
                         return;
                 }
             }
         } else {
-            sendFrame_({SIWebSocketProtocolFrame::ERROR, {
-                {"reason", "Invalid state"}
-            }});
+            sendFrame_(SIWebSocketProtocolFrame::error("invalid state"));
         }
     } else {
         auto response = protocol_->handleFrame(frame, deviceAccessManager_);

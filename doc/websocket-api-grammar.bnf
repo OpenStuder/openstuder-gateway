@@ -30,7 +30,7 @@ authorize_response ::= "AUTHORIZED" nl "status:" status nl "version:" authorize_
 enumerate_response ::= "ENUMERATED" nl "status:" status nl "device_count:" enumerate_device_count nl nl
 enumerate_device_count ::= integer
 
-describe_response ::= "DESCRIPTION" nl ("id:" describe_id nl)? nl json
+describe_response ::= "DESCRIPTION" nl "status:" status nl ("id:" describe_id nl)? nl json
 
 read_property_response ::= "PROPERTY READ" nl "id:" property_id nl "status:" status nl "value:" property_value nl nl
 
@@ -48,7 +48,7 @@ message_text ::= (string | sp)+
 status ::= integer
 property_value ::= (string | ".")*
 
-describe_id ::= (property_id | device_id | access_id)
+describe_id ::= (access_id | device_id)
 access_id ::= device_access_selector
 device_id ::= device_access_selector "." device_selector
 property_id ::= device_id "." property_selector
