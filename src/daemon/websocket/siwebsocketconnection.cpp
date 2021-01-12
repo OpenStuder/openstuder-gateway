@@ -20,16 +20,16 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
 
     if (protocol_ == nullptr) {
         if (frame.command() == SIWebSocketProtocolFrame::AUTHORIZE) {
-            if (!frame.validateHeaders({"user", "password"}, {"version"}) || frame.hasBody()) {
+            if (!frame.validateHeaders({"user", "password"}, {"protocol_version"}) || frame.hasBody()) {
                 sendFrame_(SIWebSocketProtocolFrame::error("invalid frame"));
                 return;
             } else {
                 auto user = frame.header("user");
                 auto pass = frame.header("password");
-                auto versionString = frame.header("version", "1");
+                auto versionString = frame.header("protocol_version", "1");
 
                 // TODO: Authenticate user and determine the user's access level.
-                auto accessLevel = SIAccessLevel::QualifiedServicePersonnel;
+                auto accessLevel = SIAccessLevel::Basic;
 
                 if (accessLevel == SIAccessLevel::None) {
                     sendFrame_(SIWebSocketProtocolFrame::error("authorize failed"));
@@ -48,13 +48,13 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
                         protocol_ = new SIWebSocketProtocolV1(accessLevel);
                         connect(protocol_, &SIAbstractWebSocketProtocol::frameReadyToSend, this, &SIWebSocketConnection::sendFrame_);
                         sendFrame_({SIWebSocketProtocolFrame::AUTHORIZED, {
-                            {"status", to_string(SIStatus::Success)},
-                            {"version", QString::number(version)}
+                            {"access_level", to_string(accessLevel)},
+                            {"protocol_version", QString::number(version)}
                         }});
                         break;
 
                     default:
-                        sendFrame_(SIWebSocketProtocolFrame::error("version not supported"));
+                        sendFrame_(SIWebSocketProtocolFrame::error("protocol version not supported"));
                         return;
                 }
             }

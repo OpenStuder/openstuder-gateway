@@ -7,3 +7,5 @@ enum class SIAccessLevel: unsigned int {
     Expert,
     QualifiedServicePersonnel
 };
+
+const char* to_string(SIAccessLevel accessLevel);

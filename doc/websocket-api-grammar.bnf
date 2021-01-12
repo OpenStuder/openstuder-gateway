@@ -2,7 +2,7 @@ grammar ::= request | response
 
 request ::= authorize_request | enumerate_request | describe_request | read_property_request | write_property_request | subscribe_property_request
 
-authorize_request ::= "AUTHORIZE" nl "user:" authorize_user nl "password:" authorize_password nl ("version:" authorize_version nl)? nl
+authorize_request ::= "AUTHORIZE" nl "user:" authorize_user nl "password:" authorize_password nl ("protocol_version:" authorize_version nl)? nl
 authorize_user ::= string
 authorize_password ::= string
 authorize_version ::= integer
@@ -20,19 +20,20 @@ write_property_request ::= "WRITE PROPERTY" nl "id:" property_id nl ("value:" pr
 subscribe_property_request ::= "SUBSCRIBE PROPERTY" nl "id:" property_id nl nl
 
 
-response ::= error_response | authorize_response | enumerate_response | describe_response | read_property_response | write_property_response | subscribe_property_response | property_update_indication | message_indication
+response ::= error_response | authorize_response | enumerate_response | describe_response | read_property_response | write_property_response | subscribe_property_response | property_update_indication | device_message
 
 error_response ::= "ERROR" nl "reason:" error_reason nl nl
 error_reason ::= string
 
-authorize_response ::= "AUTHORIZED" nl "status:" status nl "version:" authorize_version nl nl
+authorize_response ::= "AUTHORIZED" nl "access_level:" authorize_access_level nl "protocol_version:" authorize_version nl nl
+authorize_access_level ::= "Basic" | "Installer" | "Expert" | "QSP"
 
 enumerate_response ::= "ENUMERATED" nl "status:" status nl "device_count:" enumerate_device_count nl nl
 enumerate_device_count ::= integer
 
-describe_response ::= "DESCRIPTION" nl "status:" status nl ("id:" describe_id nl)? nl json
+describe_response ::= "DESCRIPTION" nl "status:" status nl ("id:" describe_id nl)? nl (json)?
 
-read_property_response ::= "PROPERTY READ" nl "id:" property_id nl "status:" status nl "value:" property_value nl nl
+read_property_response ::= "PROPERTY READ" nl "id:" property_id nl "status:" status nl ("value:" property_value nl)? nl
 
 write_property_response ::= "PROPERTY WRITTEN" nl "id:" property_id nl "status:" status nl nl
 
@@ -40,15 +41,15 @@ subscribe_property_response ::= "PROPERTY SUBSCRIBED" nl "id:" property_id nl "s
 
 property_update_indication ::= "PROPERTY UPDATE" nl "id:" property_id nl "value:" property_value nl nl
 
-message_indication ::= "DEVICE MESSAGE" nl "device_id:" device_id nl "message_id:" message_id nl "message:" message_text nl nl
+device_message ::= "DEVICE MESSAGE" nl "access_id:" access_id nl "device_id:" device_id nl "message_id:" message_id nl "message:" message_text nl nl
 message_id ::= integer
 message_text ::= (string | sp)+
 
 
-status ::= integer
+status ::= "SISuccess" | "InProgress" | "Error" | "NoProperty" | "NoDevice" | "NoDeviceAccess" | "Timeout" | "InvalidValue"
 property_value ::= (string | ".")*
 
-describe_id ::= (access_id | device_id)
+describe_id ::= access_id | device_id
 access_id ::= device_access_selector
 device_id ::= device_access_selector "." device_selector
 property_id ::= device_id "." property_selector
