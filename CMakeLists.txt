@@ -75,6 +75,13 @@ add_device_access_driver(XCom485i
                          )
 target_link_libraries(XCom485i Qt5::SerialPort Qt5::SerialBus)
 
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+add_device_access_driver(Dummy
+                         src/drivers/deviceaccess/dummy/dummydriver.h
+                         src/drivers/deviceaccess/dummy/dummydriver.cpp
+                         )
+endif()
+
 add_storage_driver(SQLite
                    src/drivers/storage/sqlite/sqlitestorage.h
                    src/drivers/storage/sqlite/sqlitestorage.cpp
