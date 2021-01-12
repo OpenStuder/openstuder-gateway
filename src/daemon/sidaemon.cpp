@@ -88,14 +88,16 @@ bool SIDaemon::initialize() {
     for (const auto& group: filteredChildGroups_(settings, {"Gateway", "Storage", "WebSocket", "Bluetooth"})) {
         settings.beginGroup(group);
         auto deviceAccessDriverName = settings.value("driver").toString();
-        if (!SIDeviceAccessRegistry::loadDeviceAccessDriver(driverSearchPaths, deviceAccessDriverName)) {
-            qCritical() << "  - Error loading device access driver" << deviceAccessDriverName;
+        if (SIDeviceAccessRegistry::loadDeviceAccessDriver(driverSearchPaths, deviceAccessDriverName)) {
+            if (SIDeviceAccessRegistry::sharedRegistry().instantiateDeviceAccess(deviceAccessDriverName, group, filteredChildSettings_(settings, {"driver"}))) {
+                qCInfo(DAEMON) << "  - Successfully loaded and instantiated" << group << "with driver" << deviceAccessDriverName;
+            } else {
+                qCritical() << "  - Error creating device access" << group;
+            }
         } else {
-
-        }if (!SIDeviceAccessRegistry::sharedRegistry().instantiateDeviceAccess(deviceAccessDriverName, group, filteredChildSettings_(settings, {"driver"}))) {
-            qCritical() << "  - Error creating device access" << group;
+            qCritical() << "  - Error loading device access driver" << deviceAccessDriverName;
         }
-        qCInfo(DAEMON) << "  - Successfully loaded and instantiated" << group << "with driver" << deviceAccessDriverName;
+
         settings.endGroup();
     }
 
