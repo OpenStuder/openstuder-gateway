@@ -50,7 +50,7 @@ QJsonObject SIDevice::jsonDescription(SIAccessLevel accessLevel, SIJsonFlags fla
     if (flags.testFlag(SIJsonFlag::IncludeDeviceDetails)) {
         QJsonArray props;
         for (const auto& property: properties()) {
-            if (true /* TODO: Check access level */) {
+            if (accessLevel >= property.accessLevel) {
                 props.append(QJsonObject {
                     {"id",          (int)property.id},
                     {"type",        to_string(property.type)},
