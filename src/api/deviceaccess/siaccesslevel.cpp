@@ -2,9 +2,6 @@
 
 const char* to_string(SIAccessLevel accessLevel) {
     switch (accessLevel) {
-        case SIAccessLevel::None:
-            return "None";
-
         case SIAccessLevel::Basic:
             return "Basic";
 
@@ -16,5 +13,9 @@ const char* to_string(SIAccessLevel accessLevel) {
 
         case SIAccessLevel::QualifiedServicePersonnel:
             return "QSP";
+
+        case SIAccessLevel::None:
+        default:
+            return "None";
     }
 }

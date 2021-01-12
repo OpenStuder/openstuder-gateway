@@ -33,11 +33,11 @@ enumerate_device_count ::= integer
 
 describe_response ::= "DESCRIPTION" nl "status:" status nl ("id:" describe_id nl)? nl (json)?
 
-read_property_response ::= "PROPERTY READ" nl "id:" property_id nl "status:" status nl ("value:" property_value nl)? nl
+read_property_response ::= "PROPERTY READ" nl "status:" status nl "id:" property_id nl ("value:" property_value nl)? nl
 
-write_property_response ::= "PROPERTY WRITTEN" nl "id:" property_id nl "status:" status nl nl
+write_property_response ::= "PROPERTY WRITTEN" nl "status:" status nl "id:" property_id nl nl
 
-subscribe_property_response ::= "PROPERTY SUBSCRIBED" nl "id:" property_id nl "status:" status nl nl
+subscribe_property_response ::= "PROPERTY SUBSCRIBED" nl "status:" status nl "id:" property_id nl nl
 
 property_update_indication ::= "PROPERTY UPDATE" nl "id:" property_id nl "value:" property_value nl nl
 

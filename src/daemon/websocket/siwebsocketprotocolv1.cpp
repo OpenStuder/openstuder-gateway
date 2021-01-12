@@ -148,8 +148,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             // TODO: Check if subscription was successful.
             deviceAccessManager->subscribeToProperty(id, this);
             return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
-                {"id", id.toString()},
-                {"status", to_string(SIStatus::Success)}
+                {"status", to_string(SIStatus::Success)},
+                {"id", id.toString()}
             }};
         }
 
@@ -189,14 +189,14 @@ void SIWebSocketProtocolV1::readPropertyOperationFinished_(SIStatus status) {
     auto* operation = dynamic_cast<SIPropertyReadOperation*>(sender());
     if (operation->status() == SIStatus::Success) {
         emit frameReadyToSend({SIWebSocketProtocolFrame::PROPERTY_READ, {
-            {"id", operation->id().toString()},
             {"status", to_string(status)},
+            {"id", operation->id().toString()},
             {"value", operation->value().toString()}
         }});
     } else {
         emit frameReadyToSend({SIWebSocketProtocolFrame::PROPERTY_READ, {
-            {"id", operation->id().toString()},
-            {"status", to_string(status)}
+            {"status", to_string(status)},
+            {"id", operation->id().toString()}
         }});
     }
     delete operation;
@@ -205,8 +205,8 @@ void SIWebSocketProtocolV1::readPropertyOperationFinished_(SIStatus status) {
 void SIWebSocketProtocolV1::writePropertyOperationFinished_(SIStatus status) {
     auto* operation = dynamic_cast<SIPropertyWriteOperation*>(sender());
     emit frameReadyToSend({SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
-        {"id", operation->id().toString()},
         {"status", to_string(status)},
+        {"id", operation->id().toString()}
     }});
     delete operation;
 }
