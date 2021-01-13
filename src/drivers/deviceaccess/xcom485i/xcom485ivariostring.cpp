@@ -4,6 +4,7 @@
 XCom485iVarioString::XCom485iVarioString(Model model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess): XCom485iDevice(toString(model), modbusAddress, modbusAccess, {
     {0, 15000, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
     {2, 15001, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery current", "Adc"},
+    {20, 15010, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "PV power", "kW"},
 
     {432, 14216, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery undervoltage", "Vdc"}
 }) {

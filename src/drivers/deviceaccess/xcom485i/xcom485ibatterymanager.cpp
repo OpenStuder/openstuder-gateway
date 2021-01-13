@@ -16,6 +16,7 @@ XCom485iBatteryManager::XCom485iBatteryManager(Model model, XCom485iModbusAccess
             addProperties({
                 {2, 6001, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Nominal capacity", "Ah"},
                 {4, 6002, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Nominal discharge duration (C-rating)", "h"},
+                {6, 7003, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Power", "W"},
 
                 {110, 6055, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Manufacturer SOC for 0% displayed", "%"},
                 {112, 6056, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Manufacturer SOC for 100% displayed", "%"}
@@ -24,6 +25,7 @@ XCom485iBatteryManager::XCom485iBatteryManager(Model model, XCom485iModbusAccess
 
         case XComCAN_BMS:
             addProperties({
+                {6, 7003, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Power", "W"},
                 {140, 6070, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "SOC level under which battery discharge is stopped", "%"},
                 {124, 6062, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "SOC level for backup", "%"}
             });

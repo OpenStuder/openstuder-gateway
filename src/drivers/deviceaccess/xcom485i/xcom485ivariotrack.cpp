@@ -4,6 +4,7 @@
 XCom485iVarioTrack::XCom485iVarioTrack(Model model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess): XCom485iDevice(toString(model), modbusAddress, modbusAccess,{
     {0, 11000, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
     {2, 11001, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery current", "Adc"},
+    {8, 11004, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Power of the PV generator", "kW"},
 
     {10, 10005, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Floating voltage", "Vdc"},
     {18, 1009, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Absorption voltage", "Vdc"},

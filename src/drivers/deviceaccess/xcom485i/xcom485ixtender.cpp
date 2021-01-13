@@ -6,6 +6,8 @@ XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModb
     {2, 3001, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery temperature", "°C"},
     {10, 3005, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery charge current", "Adc"},
     {46, 3023, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Output power", "kVA"},
+    {274, 3137, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Input active power", "kW"},
+    {272, 3136, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Output active power", "kW"},
 
     {14, 1107, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Maximum current of AC source (Input limit)", "Aac"},
     {76, 1138, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current", "Adc"},
