@@ -17,6 +17,7 @@ class SIWebSocketProtocolFrame {
         READ_PROPERTY,
         WRITE_PROPERTY,
         SUBSCRIBE_PROPERTY,
+        UNSUBSCRIBE_PROPERTY,
 
         // Server messages.
         ERROR,
@@ -26,6 +27,7 @@ class SIWebSocketProtocolFrame {
         PROPERTY_READ,
         PROPERTY_WRITTEN,
         PROPERTY_SUBSCRIBED,
+        PROPERTY_UNSUBSCRIBED,
         PROPERTY_UPDATE,
         DEVICE_MESSAGE
     };

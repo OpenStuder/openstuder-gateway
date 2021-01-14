@@ -140,7 +140,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             auto id = SIGlobalPropertyID(frame.header("id"));
             if (!id.isValid()) {
-                return {SIWebSocketProtocolFrame::PROPERTY_READ, {
+                return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
                     {"status", to_string(SIStatus::NoProperty)}
                 }};
             }
@@ -148,6 +148,26 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             // TODO: Check if subscription was successful.
             deviceAccessManager->subscribeToProperty(id, this);
             return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
+                {"status", to_string(SIStatus::Success)},
+                {"id", id.toString()}
+            }};
+        }
+
+        case SIWebSocketProtocolFrame::UNSUBSCRIBE_PROPERTY: {
+            if (!frame.validateHeaders({"id"})) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            auto id = SIGlobalPropertyID(frame.header("id"));
+            if (!id.isValid()) {
+                return {SIWebSocketProtocolFrame::PROPERTY_UNSUBSCRIBED, {
+                    {"status", to_string(SIStatus::NoProperty)}
+                }};
+            }
+
+            // TODO: Check if unsubscription was successful.
+            deviceAccessManager->unsubscribeFromProperty(id, this);
+            return {SIWebSocketProtocolFrame::PROPERTY_UNSUBSCRIBED, {
                 {"status", to_string(SIStatus::Success)},
                 {"id", id.toString()}
             }};

@@ -66,6 +66,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = WRITE_PROPERTY;
     } else if (commandStr == "SUBSCRIBE PROPERTY") {
         frame.command_ = SUBSCRIBE_PROPERTY;
+    } else if (commandStr == "UNSUBSCRIBE PROPERTY") {
+        frame.command_ = UNSUBSCRIBE_PROPERTY;
     } else if (commandStr == "ERROR") {
         frame.command_ = ERROR;
     } else if (commandStr == "AUTHORIZED") {
@@ -80,6 +82,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = PROPERTY_WRITTEN;
     } else if (commandStr == "PROPERTY SUBSCRIBED") {
         frame.command_ = PROPERTY_SUBSCRIBED;
+    } else if (commandStr == "PROPERTY UNSUBSCRIBED") {
+        frame.command_ = PROPERTY_UNSUBSCRIBED;
     } else if (commandStr == "PROPERTY UPDATE") {
         frame.command_ = PROPERTY_UPDATE;
     } else if (commandStr == "DEVICE MESSAGE") {
@@ -120,6 +124,9 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
         case SIWebSocketProtocolFrame::SUBSCRIBE_PROPERTY:
             return "SUBSCRIBE PROPERTY";
 
+        case SIWebSocketProtocolFrame::UNSUBSCRIBE_PROPERTY:
+            return "UNSUBSCRIBE PROPERTY";
+
         case SIWebSocketProtocolFrame::ERROR:
             return "ERROR";
 
@@ -140,6 +147,9 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
 
         case SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED:
             return "PROPERTY SUBSCRIBED";
+
+        case SIWebSocketProtocolFrame::PROPERTY_UNSUBSCRIBED:
+            return "PROPERTY UNSUBSCRIBED";
 
         case SIWebSocketProtocolFrame::PROPERTY_UPDATE:
             return "PROPERTY UPDATE";

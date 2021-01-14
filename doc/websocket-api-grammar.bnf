@@ -1,6 +1,6 @@
 grammar ::= request | response
 
-request ::= authorize_request | enumerate_request | describe_request | read_property_request | write_property_request | subscribe_property_request
+request ::= authorize_request | enumerate_request | describe_request | read_property_request | write_property_request | subscribe_property_request | unsubscribe_property_request
 
 authorize_request ::= "AUTHORIZE" nl "user:" authorize_user nl "password:" authorize_password nl ("protocol_version:" authorize_version nl)? nl
 authorize_user ::= string
@@ -19,8 +19,10 @@ write_property_request ::= "WRITE PROPERTY" nl "id:" property_id nl ("value:" pr
 
 subscribe_property_request ::= "SUBSCRIBE PROPERTY" nl "id:" property_id nl nl
 
+unsubscribe_property_request ::= "UNSUBSCRIBE PROPERTY" nl "id:" property_id nl nl
 
-response ::= error_response | authorize_response | enumerate_response | describe_response | read_property_response | write_property_response | subscribe_property_response | property_update_indication | device_message
+
+response ::= error_response | authorize_response | enumerate_response | describe_response | read_property_response | write_property_response | subscribe_property_response | unsubscribe_property_response | property_update_indication | device_message
 
 error_response ::= "ERROR" nl "reason:" error_reason nl nl
 error_reason ::= string
@@ -38,6 +40,8 @@ read_property_response ::= "PROPERTY READ" nl "status:" status nl "id:" property
 write_property_response ::= "PROPERTY WRITTEN" nl "status:" status nl "id:" property_id nl nl
 
 subscribe_property_response ::= "PROPERTY SUBSCRIBED" nl "status:" status nl "id:" property_id nl nl
+
+unsubscribe_property_response ::= "PROPERTY UNSUBSCRIBED" nl "status:" status nl "id:" property_id nl nl
 
 property_update_indication ::= "PROPERTY UPDATE" nl "id:" property_id nl "value:" property_value nl nl
 
