@@ -145,10 +145,9 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 }};
             }
 
-            // TODO: Check if subscription was successful.
-            deviceAccessManager->subscribeToProperty(id, this);
+            bool status = deviceAccessManager->subscribeToProperty(id, this);
             return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
-                {"status", to_string(SIStatus::Success)},
+                {"status", to_string(status ? SIStatus::Success : SIStatus::NoProperty)},
                 {"id", id.toString()}
             }};
         }
@@ -165,10 +164,9 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 }};
             }
 
-            // TODO: Check if unsubscription was successful.
-            deviceAccessManager->unsubscribeFromProperty(id, this);
+            bool status = deviceAccessManager->unsubscribeFromProperty(id, this);
             return {SIWebSocketProtocolFrame::PROPERTY_UNSUBSCRIBED, {
-                {"status", to_string(SIStatus::Success)},
+                {"status", to_string(status ? SIStatus::Success : SIStatus::Error)},
                 {"id", id.toString()}
             }};
         }

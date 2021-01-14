@@ -1,6 +1,7 @@
 #include "sisequentialpropertymanager.h"
 
 void SISequentialPropertyManager::onFinish_(SIStatus status) {
+    Q_UNUSED(status)
     QMetaObject::invokeMethod(this, &SISequentialPropertyManager::executeNext_, Qt::QueuedConnection);
 }
 

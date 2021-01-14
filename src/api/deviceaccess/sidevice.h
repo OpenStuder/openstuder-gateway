@@ -31,6 +31,8 @@ class SIDevice: public QObject {
 
     QJsonObject jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const;
 
+    SIProperty property(SIPropertyID id) const;
+
     SIPropertyReadResult readProperty(SIPropertyID id) const;
     QVector<SIPropertyReadResult> readProperties(const QVector<SIPropertyID>& ids) const;
 

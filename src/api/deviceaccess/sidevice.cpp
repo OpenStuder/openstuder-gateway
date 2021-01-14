@@ -26,6 +26,16 @@ const QVector<SIProperty>& SIDevice::properties() const {
     return properties_();
 }
 
+SIProperty SIDevice::property(SIPropertyID id) const {
+    auto& properties = properties_();
+    auto property = std::find_if(properties.cbegin(), properties.cend(), [&id](const SIProperty& p) { return p.id == id; });
+    if (property != properties.cend()) {
+        return *property;
+    } else {
+        return {};
+    }
+}
+
 SIPropertyReadResult SIDevice::readProperty(SIPropertyID id) const {
     return readProperty_(id);
 }

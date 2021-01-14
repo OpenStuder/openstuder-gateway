@@ -7,6 +7,7 @@
 #include <sipropertywriteresult.h>
 #include <sipropertywriteflags.h>
 #include <sidevicemessage.h>
+#include <siproperty.h>
 #include <QObject>
 #include <QVector>
 
@@ -27,8 +28,8 @@ class SIDeviceAccessManager: public QObject {
     SIPropertyReadOperation* readProperty(SIGlobalPropertyID id);
     SIPropertyWriteOperation* writeProperty(SIGlobalPropertyID id, const QVariant& value = {}, SIPropertyWriteFlags flags = SIPropertyWriteFlag::Default);
 
-    void subscribeToProperty(SIGlobalPropertyID id, PropertySubscriber* subscriber);
-    void unsubscribeFromProperty(SIGlobalPropertyID id, PropertySubscriber* subscriber);
+    bool subscribeToProperty(SIGlobalPropertyID id, PropertySubscriber* subscriber);
+    bool unsubscribeFromProperty(SIGlobalPropertyID id, PropertySubscriber* subscriber);
     void unsubscribeFromAllProperties(PropertySubscriber* subscriber);
 
     void startPropertyPolling(int intervalMS);
@@ -38,6 +39,7 @@ class SIDeviceAccessManager: public QObject {
 
   private:
     void timerEvent(QTimerEvent* event) override;
+    SIProperty resolveProperty_(SIGlobalPropertyID id);
     virtual void enqueueOperation_(SIAbstractOperation* operation) = 0;
 
     struct Private;

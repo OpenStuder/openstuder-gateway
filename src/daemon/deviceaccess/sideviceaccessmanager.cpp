@@ -106,9 +106,10 @@ SIPropertyWriteOperation* SIDeviceAccessManager::writeProperty(SIGlobalPropertyI
     return operation;
 }
 
-void SIDeviceAccessManager::subscribeToProperty(SIGlobalPropertyID id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
-
-    // TODO: Check if property exists and return status.
+bool SIDeviceAccessManager::subscribeToProperty(SIGlobalPropertyID id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
+    if (resolveProperty_(id).type == SIPropertyType::Invalid) {
+        return false;
+    }
 
     auto subscription = std::find_if(priv_->subscriptions_.begin(), priv_->subscriptions_.end(), [&id](SIPropertySubscriptions* pollOperation) {
         return pollOperation->id() == id;
@@ -120,9 +121,11 @@ void SIDeviceAccessManager::subscribeToProperty(SIGlobalPropertyID id, SIDeviceA
         subscription->subscriptions().insert(subscriber);
         priv_->subscriptions_.append(subscription);
     }
+
+    return true;
 }
 
-void SIDeviceAccessManager::unsubscribeFromProperty(SIGlobalPropertyID id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
+bool SIDeviceAccessManager::unsubscribeFromProperty(SIGlobalPropertyID id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
     auto subscription = std::find_if(priv_->subscriptions_.begin(), priv_->subscriptions_.end(), [&id](SIPropertySubscriptions* pollOperation) {
         return pollOperation->id() == id;
     });
@@ -131,6 +134,9 @@ void SIDeviceAccessManager::unsubscribeFromProperty(SIGlobalPropertyID id, SIDev
         if ((*subscription)->subscriptions().isEmpty()) {
             delete *priv_->subscriptions_.erase(subscription);
         }
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -154,4 +160,18 @@ void SIDeviceAccessManager::timerEvent(QTimerEvent* event) {
     for (auto* subscription: priv_->subscriptions_) {
         enqueueOperation_(subscription);
     }
+}
+
+SIProperty SIDeviceAccessManager::resolveProperty_(SIGlobalPropertyID id) {
+    auto deviceAccess = SIDeviceAccessRegistry::sharedRegistry().deviceAccess(id.accessID());
+    if (deviceAccess == nullptr) {
+        return {};
+    }
+
+    auto device = deviceAccess->device(id.deviceID());
+    if (device == nullptr) {
+        return {};
+    }
+
+    return device->property(id.propertyID());
 }
