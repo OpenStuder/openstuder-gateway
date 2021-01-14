@@ -96,6 +96,8 @@ add_executable(SIDaemon
                src/daemon/main.cpp
                src/daemon/sidaemon.h
                src/daemon/sidaemon.cpp
+               src/daemon/sisettings.h
+               src/daemon/sisettings.cpp
                src/daemon/deviceaccess/sideviceaccessmanager.cpp
                src/daemon/deviceaccess/sideviceaccessmanager.h
                src/daemon/deviceaccess/siglobalpropertyid.cpp

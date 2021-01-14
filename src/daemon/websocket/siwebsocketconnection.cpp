@@ -1,6 +1,7 @@
 #include "siwebsocketconnection.h"
 #include "siwebsocketprotocolframe.h"
 #include "siwebsocketprotocolv1.h"
+#include "../sisettings.h"
 #include <siaccesslevel.h>
 
 SIWebSocketConnection::SIWebSocketConnection(QWebSocket* webSocket, SIDeviceAccessManager* deviceAccessManager, QObject* parent)
@@ -28,8 +29,14 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
                 auto pass = frame.header("password");
                 auto versionString = frame.header("protocol_version", "1");
 
+                auto accessLevel = SIAccessLevel::None;
+
                 // TODO: Authenticate user and determine the user's access level.
-                auto accessLevel = SIAccessLevel::Basic;
+                if (SISettings::sharedSettings().securityAllowGuest()) {
+                    if (user.toLower() == "guest" && pass.toLower() == "guest") {
+                        accessLevel = SIAccessLevel::Basic;
+                    }
+                }
 
                 if (accessLevel == SIAccessLevel::None) {
                     sendFrame_(SIWebSocketProtocolFrame::error("authorize failed"));

@@ -18,9 +18,6 @@ class SIDaemon: public QCoreApplication {
     bool initialize();
 
   private:
-    static QVariantMap filteredChildSettings_(const QSettings& settings, const QStringList& exclude);
-    static QStringList filteredChildGroups_(const QSettings& settings, const QStringList& exclude);
-
     std::unique_ptr<SIStorage> storage_;
     SIDeviceAccessManager* deviceAccessManager_;
     SIWebSocketManager* webSocketManager_ = nullptr;

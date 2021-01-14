@@ -88,6 +88,24 @@ SIDeviceAccessManager::~SIDeviceAccessManager() {
     delete priv_;
 }
 
+SIProperty SIDeviceAccessManager::resolveProperty(SIGlobalPropertyID id) {
+    if (!id.isValid()) {
+        return {};
+    }
+
+    auto deviceAccess = SIDeviceAccessRegistry::sharedRegistry().deviceAccess(id.accessID());
+    if (deviceAccess == nullptr) {
+        return {};
+    }
+
+    auto device = deviceAccess->device(id.deviceID());
+    if (device == nullptr) {
+        return {};
+    }
+
+    return device->property(id.propertyID());
+}
+
 SIDeviceEnumerationOperation* SIDeviceAccessManager::enumerateDevices() {
     auto* operation = new SIDeviceEnumerationOperation(this);
     enqueueOperation_(operation);
@@ -107,7 +125,7 @@ SIPropertyWriteOperation* SIDeviceAccessManager::writeProperty(SIGlobalPropertyI
 }
 
 bool SIDeviceAccessManager::subscribeToProperty(SIGlobalPropertyID id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
-    if (resolveProperty_(id).type == SIPropertyType::Invalid) {
+    if (resolveProperty(id).type == SIPropertyType::Invalid) {
         return false;
     }
 
@@ -160,18 +178,4 @@ void SIDeviceAccessManager::timerEvent(QTimerEvent* event) {
     for (auto* subscription: priv_->subscriptions_) {
         enqueueOperation_(subscription);
     }
-}
-
-SIProperty SIDeviceAccessManager::resolveProperty_(SIGlobalPropertyID id) {
-    auto deviceAccess = SIDeviceAccessRegistry::sharedRegistry().deviceAccess(id.accessID());
-    if (deviceAccess == nullptr) {
-        return {};
-    }
-
-    auto device = deviceAccess->device(id.deviceID());
-    if (device == nullptr) {
-        return {};
-    }
-
-    return device->property(id.propertyID());
 }

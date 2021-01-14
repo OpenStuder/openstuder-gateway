@@ -24,6 +24,8 @@ class SIDeviceAccessManager: public QObject {
     explicit SIDeviceAccessManager(QObject* parent = nullptr);
     ~SIDeviceAccessManager() override;
 
+    SIProperty resolveProperty(SIGlobalPropertyID id);
+
     SIDeviceEnumerationOperation* enumerateDevices();
     SIPropertyReadOperation* readProperty(SIGlobalPropertyID id);
     SIPropertyWriteOperation* writeProperty(SIGlobalPropertyID id, const QVariant& value = {}, SIPropertyWriteFlags flags = SIPropertyWriteFlag::Default);
@@ -39,7 +41,6 @@ class SIDeviceAccessManager: public QObject {
 
   private:
     void timerEvent(QTimerEvent* event) override;
-    SIProperty resolveProperty_(SIGlobalPropertyID id);
     virtual void enqueueOperation_(SIAbstractOperation* operation) = 0;
 
     struct Private;

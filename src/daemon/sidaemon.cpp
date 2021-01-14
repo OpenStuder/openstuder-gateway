@@ -7,6 +7,7 @@
 #include "deviceaccess/sisequentialpropertymanager.h"
 #include "websocket/siwebsocketmanager.h"
 #include "bluetooth/sibluetoothmanager.h"
+#include "sisettings.h"
 #include <QCommandLineParser>
 #include <QFile>
 #include <QLoggingCategory>
@@ -46,59 +47,50 @@ bool SIDaemon::initialize() {
     parser.addOption(configurationFileOption);
     parser.process(*this);
 
-    // Ensure that configuration file exists.
+    // Load configuration file.
     auto configurationFileLocation = parser.value(configurationFileOption);
-    if (!QFile::exists(configurationFileLocation)) {
-        qCCritical(DAEMON) << "Configuration file" << configurationFileLocation << "does not exist";
+    try {
+        SISettings::loadFromLocation(configurationFileLocation);
+    } catch (std::runtime_error& error) {
+        qCCritical(DAEMON) << error.what();
         return false;
     }
     qCInfo(DAEMON) << "Using configuration file" << configurationFileLocation;
 
     // Load configuration file.
-    QSettings settings(parser.value(configurationFileOption), QSettings::IniFormat);
-    if (settings.status() != QSettings::NoError) {
-        qCritical(DAEMON) << "Configuration file" << configurationFileLocation << "is malformed";
-        return false;
-    }
+    auto& settings = SISettings::sharedSettings();
 
     // Load driver search paths.
-    settings.beginGroup("Gateway");
-    auto driverSearchPaths = settings.value("driverSearchPaths", "/var/lib/sigatewayd/drivers").toString().split(" ");
-    settings.endGroup();
+    auto driverSearchPaths = settings.driverSearchPaths().split(" ");
     qCInfo(DAEMON) << "Driver search locations are" << driverSearchPaths;
 
     // Load Storage driver.
-    settings.beginGroup("Storage");
-    auto storageDriverName = settings.value("driver", "SQLite").toString();
+    auto storageDriverName = settings.storageDriver();
     auto* storageDriver = SIStorageDriver::loadStorageDriver(driverSearchPaths, storageDriverName);
     if (storageDriver == nullptr) {
-        qCritical() << "Unable to load storage driver" << storageDriverName;
+        qCCritical(DAEMON) << "Unable to load storage driver" << storageDriverName;
         return false;
     }
-    storage_.reset(storageDriver->createStorageInstance(filteredChildSettings_(settings, {"driver"})));
+    storage_.reset(storageDriver->createStorageInstance(settings.storageOptions()));
     if (storage_ == nullptr) {
-        qCritical() << "Unable to instantiate storage driver" << storageDriverName;
+        qCCritical(DAEMON) << "Unable to instantiate storage driver" << storageDriverName;
         return false;
     }
     qCInfo(DAEMON) << "Successfully loaded storage driver" << storageDriverName;
-    settings.endGroup();
 
     // Load and instantiate configured device access drivers.
     qCInfo(DAEMON) << "Loading device access drivers and instantiating objects...";
-    for (const auto& group: filteredChildGroups_(settings, {"Gateway", "Storage", "WebSocket", "Bluetooth"})) {
-        settings.beginGroup(group);
-        auto deviceAccessDriverName = settings.value("driver").toString();
+    for (const auto& deviceAccessConfiguration: settings.deviceAccessConfigurationNames()) {
+        auto deviceAccessDriverName = settings.deviceAccessConfigurationDriver(deviceAccessConfiguration);
         if (SIDeviceAccessRegistry::loadDeviceAccessDriver(driverSearchPaths, deviceAccessDriverName)) {
-            if (SIDeviceAccessRegistry::sharedRegistry().instantiateDeviceAccess(deviceAccessDriverName, group, filteredChildSettings_(settings, {"driver"}))) {
-                qCInfo(DAEMON) << "  - Successfully loaded and instantiated" << group << "with driver" << deviceAccessDriverName;
+            if (SIDeviceAccessRegistry::sharedRegistry().instantiateDeviceAccess(deviceAccessDriverName, deviceAccessConfiguration, settings.deviceAccessDriverOptions(deviceAccessConfiguration))) {
+                qCInfo(DAEMON) << "  - Successfully loaded and instantiated" << deviceAccessConfiguration << "with driver" << deviceAccessDriverName;
             } else {
-                qCritical() << "  - Error creating device access" << group;
+                qCritical() << "  - Error creating device access" << deviceAccessConfiguration;
             }
         } else {
             qCritical() << "  - Error loading device access driver" << deviceAccessDriverName;
         }
-
-        settings.endGroup();
     }
 
     // Enumerate all devices on startup.
@@ -113,49 +105,27 @@ bool SIDaemon::initialize() {
     }
 
     // Create property manager and start polling timer.
-    int propertyPollInterval = settings.value("Gateway/propertyPollInterval", 60000).toInt();
+    int propertyPollInterval = settings.propertyPollInterval();
     deviceAccessManager_ = new SISequentialPropertyManager(this);
     deviceAccessManager_->startPropertyPolling(propertyPollInterval);
 
     // Create web socket manager.
-    settings.beginGroup("WebSocket");
-    if (settings.value("enabled", false).toBool()) {
+
+    if (settings.webSocketEnabled()) {
         webSocketManager_ = new SIWebSocketManager(deviceAccessManager_, this);
-        if (!webSocketManager_->listen(settings.value("port", 1987).toUInt())) {
+        if (!webSocketManager_->listen(settings.webSocketPort())) {
             qCCritical(DAEMON) << "Failed to start web socket listening";
             delete webSocketManager_;
         }
     }
-    settings.endGroup();
 
     // Create bluetooth manager.
-    settings.beginGroup("Bluetooth");
-    if (settings.value("enabled", false).toBool()) {
+    if (settings.bluetoothEnabled()) {
         bluetoothManager_ = new SIBluetoothManager(deviceAccessManager_, this);
-        bluetoothManager_->setPeripheralName(settings.value("name", "SIGateway").toString());
+        bluetoothManager_->setPeripheralName(settings.bluetoothName());
         bluetoothManager_->startAdvertise();
     }
-    settings.endGroup();
 
     return true;
 }
 
-QVariantMap SIDaemon::filteredChildSettings_(const QSettings& settings, const QStringList& exclude) {
-    QVariantMap filtered;
-    for (const auto& key: settings.childKeys()) {
-        if (!exclude.contains(key)) {
-            filtered[key] = settings.value(key);
-        }
-    }
-    return filtered;
-}
-
-QStringList SIDaemon::filteredChildGroups_(const QSettings& settings, const QStringList& exclude) {
-    QStringList filtered;
-    for (const auto& group: settings.childGroups()) {
-        if (!exclude.contains(group)) {
-            filtered << group;
-        }
-    }
-    return filtered;
-}

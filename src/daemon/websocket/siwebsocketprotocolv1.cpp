@@ -103,9 +103,15 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }
 
             auto id = SIGlobalPropertyID(frame.header("id"));
-            if (!id.isValid()) {
+            auto property = deviceAccessManager->resolveProperty(id);
+            if (property.type == SIPropertyType::Invalid || accessLevel_ < property.accessLevel) {
                 return {SIWebSocketProtocolFrame::PROPERTY_READ, {
                     {"status", to_string(SIStatus::NoProperty)}
+                }};
+            }
+            if (!property.flags.testFlag(SIPropertyFlag::Readable)) {
+                return {SIWebSocketProtocolFrame::PROPERTY_READ, {
+                    {"status", to_string(SIStatus::Error)}
                 }};
             }
 
@@ -119,15 +125,20 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
-            auto id = SIGlobalPropertyID(frame.headers()["id"]);
-            if (!id.isValid()) {
+            auto id = SIGlobalPropertyID(frame.header("id"));
+            auto property = deviceAccessManager->resolveProperty(id);
+            if (property.type == SIPropertyType::Invalid || accessLevel_ < property.accessLevel) {
                 return {SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
                     {"status", to_string(SIStatus::NoProperty)}
                 }};
             }
+            if (!property.flags.testFlag(SIPropertyFlag::Writeable)) {
+                return {SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
+                    {"status", to_string(SIStatus::Error)}
+                }};
+            }
 
             auto value = frame.header("value");
-
             auto* operation = deviceAccessManager->writeProperty(id, value);
             connect(operation, &SIAbstractOperation::finished, this, &SIWebSocketProtocolV1::writePropertyOperationFinished_);
             break;
@@ -139,15 +150,21 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }
 
             auto id = SIGlobalPropertyID(frame.header("id"));
-            if (!id.isValid()) {
+            auto property = deviceAccessManager->resolveProperty(id);
+            if (property.type == SIPropertyType::Invalid || accessLevel_ < property.accessLevel) {
                 return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
                     {"status", to_string(SIStatus::NoProperty)}
+                }};
+            }
+            if (!property.flags.testFlag(SIPropertyFlag::Readable)) {
+                return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
+                    {"status", to_string(SIStatus::Error)}
                 }};
             }
 
             bool status = deviceAccessManager->subscribeToProperty(id, this);
             return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
-                {"status", to_string(status ? SIStatus::Success : SIStatus::NoProperty)},
+                {"status", to_string(status ? SIStatus::Success : SIStatus::Error)},
                 {"id", id.toString()}
             }};
         }
