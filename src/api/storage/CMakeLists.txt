@@ -7,4 +7,4 @@ si_add_library_sources(SIStorage
                        sipropertyhistorystorage.cpp
                        sistoragedriver.cpp)
 target_include_directories(SIStorage INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(SIStorage SIDeviceAccess Qt5::Core)
+target_link_libraries(SIStorage Qt5::Core SIDeviceAccess)

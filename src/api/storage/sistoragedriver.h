@@ -1,7 +1,8 @@
 #pragma once
 #include "sistorage.h"
 #include <QVariantMap>
-#include <QDateTime>
+#include <QStringList>
+#include <QString>
 
 class SIStorageDriver {
   public:

@@ -1,5 +1,4 @@
 function(si_add_library NAME)
-    message("Adding shared library ${NAME}")
     add_library(${NAME} SHARED)
     install(TARGETS ${NAME} LIBRARY DESTINATION "lib")
 endfunction()

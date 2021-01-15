@@ -35,5 +35,5 @@ add_executable(sigatewayd
                bluetooth/siabstractbluetoothprotocol.h
                bluetooth/sibluetoothprotocolv1.h
                bluetooth/sibluetoothprotocolv1.cpp)
-target_link_libraries(sigatewayd SIDeviceAccess SIStorage Qt5::Core Qt5::Network Qt5::WebSockets Qt5::Bluetooth)
-install(TARGETS sigatewayd RUNTIME DESTINATION bin)
+target_link_libraries(sigatewayd Qt5::Core Qt5::Network Qt5::WebSockets Qt5::Bluetooth SIDeviceAccess SIStorage SIAuthorize)
+install(TARGETS sigatewayd RUNTIME DESTINATION sbin)

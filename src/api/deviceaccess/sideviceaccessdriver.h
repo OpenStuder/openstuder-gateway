@@ -1,6 +1,7 @@
 #pragma once
-#include <QString>
 #include <QVariantMap>
+#include <QStringList>
+#include <QString>
 
 class SIDeviceAccess;
 

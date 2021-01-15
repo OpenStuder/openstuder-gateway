@@ -1,13 +1,18 @@
-# Project settings.
+# Global project settings.
 cmake_minimum_required(VERSION 3.13)
 project(OpenStuderGateway)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 add_compile_options(-Wall -Wextra -pedantic -Werror)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    add_compile_options(-Wno-psabi)
+endif()
 add_compile_definitions(OPENSTUDER_GATEWAY_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")
-add_compile_definitions(OPENSTUDER_GATEWAY_DEFAULT_CONFIG_LOCATION="${OPENSTUDER_GATEWAY_INSTALL_PREFIX}/etc")
-add_compile_definitions(OPENSTUDER_GATEWAY_DEFAULT_DRIVER_LOCATION="${OPENSTUDER_GATEWAY_INSTALL_PREFIX}/var/lib/openstuder/drivers")
+add_compile_definitions(OPENSTUDER_GATEWAY_DEFAULT_CONFIG_LOCATION="${CMAKE_INSTALL_PREFIX}/etc/openstuder")
+add_compile_definitions(OPENSTUDER_GATEWAY_DEFAULT_DRIVER_LOCATION="${CMAKE_INSTALL_PREFIX}/var/lib/openstuder/drivers")
 
 # Import gateway related functions.
 include(cmake/library.cmake)
@@ -20,9 +25,11 @@ find_package(Qt5 5.11 REQUIRED COMPONENTS Core)
 # Libraries.
 add_subdirectory(src/api/deviceaccess)
 add_subdirectory(src/api/storage)
+add_subdirectory(src/api/authorize)
 
 # Executables.
 add_subdirectory(src/daemon)
+add_subdirectory(src/cli)
 
 # Drivers.
 add_subdirectory(src/drivers/storage/sqlite)
@@ -32,7 +39,8 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
 endif()
 
 # Configuration file.
-install(FILES config/sigatewayd.conf DESTINATION "etc/openstuder")
+install(FILES config/gateway.conf DESTINATION "etc/openstuder")
+install(FILES config/drivers.conf DESTINATION "etc/openstuder")
 
 # Install instructions.
 set(CPACK_GENERATOR "DEB")
