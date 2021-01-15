@@ -1,0 +1,39 @@
+find_package(Qt5 5.11 REQUIRED COMPONENTS Network WebSockets Bluetooth)
+add_executable(sigatewayd
+               main.cpp
+               sidaemon.h
+               sidaemon.cpp
+               sisettings.h
+               sisettings.cpp
+               deviceaccess/sideviceaccessmanager.cpp
+               deviceaccess/sideviceaccessmanager.h
+               deviceaccess/siglobalpropertyid.cpp
+               deviceaccess/siglobalpropertyid.h
+               deviceaccess/operations/sipropertyreadoperation.cpp
+               deviceaccess/operations/sipropertyreadoperation.h
+               deviceaccess/operations/sipropertywriteoperation.cpp
+               deviceaccess/operations/sipropertywriteoperation.h
+               deviceaccess/operations/siabstractoperation.cpp
+               deviceaccess/operations/siabstractoperation.h
+               deviceaccess/sisequentialpropertymanager.cpp
+               deviceaccess/sisequentialpropertymanager.h
+               deviceaccess/operations/sideviceenumerationoperation.cpp
+               deviceaccess/operations/sideviceenumerationoperation.h
+               websocket/siwebsocketmanager.cpp
+               websocket/siwebsocketmanager.h
+               websocket/siwebsocketconnection.cpp
+               websocket/siwebsocketconnection.h
+               websocket/siwebsocketprotocolframe.cpp
+               websocket/siwebsocketprotocolframe.h
+               websocket/siabstractwebsocketprotocol.h
+               websocket/siwebsocketprotocolv1.h
+               websocket/siwebsocketprotocolv1.cpp
+               bluetooth/sibluetoothmanager.cpp
+               bluetooth/sibluetoothmanager.h
+               bluetooth/sibluetoothprotocolframe.cpp
+               bluetooth/sibluetoothprotocolframe.h
+               bluetooth/siabstractbluetoothprotocol.h
+               bluetooth/sibluetoothprotocolv1.h
+               bluetooth/sibluetoothprotocolv1.cpp)
+target_link_libraries(sigatewayd SIDeviceAccess SIStorage Qt5::Core Qt5::Network Qt5::WebSockets Qt5::Bluetooth)
+install(TARGETS sigatewayd RUNTIME DESTINATION bin)

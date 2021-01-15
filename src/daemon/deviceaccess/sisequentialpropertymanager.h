@@ -16,5 +16,4 @@ class SISequentialPropertyManager: public SIDeviceAccessManager {
 
     QQueue<SIAbstractOperation*> operationQueue_;
     SIAbstractOperation* currentOperation_ = nullptr;
-    int timerID_ = -1;
 };

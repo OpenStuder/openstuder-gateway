@@ -174,6 +174,8 @@ void SIDeviceAccessManager::startPropertyPolling(int intervalMS) {
 }
 
 void SIDeviceAccessManager::timerEvent(QTimerEvent* event) {
+    Q_UNUSED(event)
+
     enqueueOperation_(priv_->messageRetrieveOperation_);
     for (auto* subscription: priv_->subscriptions_) {
         enqueueOperation_(subscription);

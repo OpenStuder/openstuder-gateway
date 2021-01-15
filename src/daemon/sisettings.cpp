@@ -32,7 +32,7 @@ QVariant SISettings::valueWithDefault_(const QString& key, const QVariant& defau
 
 QVariant SISettings::valueOfThese_(const QString& key, std::initializer_list<QVariant> validValues, const QVariant& defaultValue) const {
     auto value = valueWithDefault_(key, defaultValue);
-    for (const auto validValue: validValues) {
+    for (const auto& validValue: validValues) {
         if (value == validValue) {
             return value;
         }

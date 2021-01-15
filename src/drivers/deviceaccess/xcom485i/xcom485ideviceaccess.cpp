@@ -337,7 +337,7 @@ void XCom485iDeviceEnumerator::updateVirtualVarioString_() {
 XCom485iDeviceAccess::XCom485iDeviceAccess(const QString& id): SIDeviceAccess(id), deviceOffset_(0) {}
 
 bool XCom485iDeviceAccess::open(const QString& port, unsigned int baudRate, quint8 deviceOffset) {
-    qCInfo(XCOM485i) << "Opening modbus on port" << port << ", baudrate =" << baudRate << ", device offset =" << deviceOffset << ", timeout = 1000";
+    qCInfo(XCOM485i,) << "Opening modbus on port" << port << ", baudrate =" << baudRate << ", device offset =" << deviceOffset << ", timeout = 1000";
 
     deviceOffset_ = deviceOffset;
 
@@ -346,7 +346,7 @@ bool XCom485iDeviceAccess::open(const QString& port, unsigned int baudRate, quin
     modbus_.setConnectionParameter(QModbusDevice::SerialParityParameter, QSerialPort::EvenParity);
     modbus_.setTimeout(1000);
     if (!modbus_.connectDevice()) {
-        qCCritical(XCOM485i) << "Failed to open " << port << ":" << modbus_.errorString();
+        qCCritical(XCOM485i,) << "Failed to open " << port << ":" << modbus_.errorString();
         return false;
     }
 
@@ -357,19 +357,19 @@ void XCom485iDeviceAccess::retrievePendingDeviceMessages_(QVector<SIDeviceMessag
     auto reply = modbus_.sendReadRequest({QModbusDataUnit::InputRegisters, 0, 1}, deviceOffset_ + 1);
     while (!reply->isFinished()) { QCoreApplication::processEvents(); }
     if (reply->error() != QModbusDevice::NoError) {
-        qCCritical(XCOM485i) << "Error reading pending messages count:" << reply->errorString();
+        qCCritical(XCOM485i,) << "Error reading pending messages count:" << reply->errorString();
         return;
     }
 
     auto pendingMessagesCount = reply->result().value(0);
 
-    qCInfo(XCOM485i) << "Reading" << pendingMessagesCount << "pending messages";
+    qCInfo(XCOM485i,) << "Reading" << pendingMessagesCount << "pending messages";
 
     while (pendingMessagesCount > 0) {
         reply = modbus_.sendReadRequest({QModbusDataUnit::InputRegisters, 1, 4}, deviceOffset_ + 1);
         while (!reply->isFinished()) { QCoreApplication::processEvents(); }
         if (reply->error() != QModbusDevice::NoError) {
-            qCCritical(XCOM485i) << "Error reading pending message:" << reply->errorString();
+            qCCritical(XCOM485i,) << "Error reading pending message:" << reply->errorString();
             return;
         }
         SIDeviceMessage message;

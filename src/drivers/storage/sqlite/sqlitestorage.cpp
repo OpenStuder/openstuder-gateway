@@ -7,18 +7,18 @@ Q_DECLARE_LOGGING_CATEGORY(SQLite)
 
 bool SQLiteStorage::open(const QString& filename) {
     if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
-        qCCritical(SQLite) << "SQLITE driver not available";
+        qCCritical(SQLite,) << "SQLITE driver not available";
         return false;
     }
 
     db_ = QSqlDatabase::addDatabase("QSQLITE");
     if (!db_.isValid()) {
-        qCCritical(SQLite) << "Unable to create SQLITE database";
+        qCCritical(SQLite,) << "Unable to create SQLITE database";
         return false;
     }
     db_.setDatabaseName(filename);
     if (!db_.open()) {
-        qCCritical(SQLite) << "Unable to open SQLITE database" << filename;
+        qCCritical(SQLite,) << "Unable to open SQLITE database" << filename;
         return false;
     }
 

@@ -7,7 +7,7 @@ class SISettings {
     ~SISettings() = default;
 
     inline QString driverSearchPaths() const {
-        return valueWithDefault_("Gateway/driverSearchPaths", "/var/lib/sigateway/drivers").toString();
+        return valueWithDefault_("Gateway/driverSearchPaths", OPENSTUDER_GATEWAY_DEFAULT_DRIVER_LOCATION).toString();
     }
 
     inline int propertyPollInterval() const {

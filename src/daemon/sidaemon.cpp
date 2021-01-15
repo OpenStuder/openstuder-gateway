@@ -19,18 +19,6 @@ using namespace std;
 
 Q_LOGGING_CATEGORY(DAEMON, "daemon", QtInfoMsg)
 
-class StdOutSubscriber: public SIDeviceAccessManager::PropertySubscriber {
-  public:
-    inline StdOutSubscriber(): out_(stdout) {}
-
-  private:
-    void propertyChanged(SIGlobalPropertyID id, const QVariant& value) override {
-        out_ << id.propertyID() << " = " << value.toString() << endl;
-    }
-
-    QTextStream out_;
-};
-
 SIDaemon::SIDaemon(int argc, char** argv): QCoreApplication(argc, argv) {
     setApplicationName("sigatewayd");
 }
@@ -42,8 +30,8 @@ bool SIDaemon::initialize() {
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addVersionOption();
-    QCommandLineOption configurationFileOption {{"c", "config"}, "Use configuration file <file> instead of default \"/etc/sigateway.conf\"", "file"};
-    configurationFileOption.setDefaultValue("/etc/sigatewayd.conf");
+    QCommandLineOption configurationFileOption {{"c", "config"}, "Use configuration file <file>", "file"};
+    configurationFileOption.setDefaultValue(OPENSTUDER_GATEWAY_DEFAULT_CONFIG_LOCATION "/sigatewayd.conf");
     parser.addOption(configurationFileOption);
     parser.process(*this);
 
@@ -52,39 +40,39 @@ bool SIDaemon::initialize() {
     try {
         SISettings::loadFromLocation(configurationFileLocation);
     } catch (std::runtime_error& error) {
-        qCCritical(DAEMON) << error.what();
+        qCCritical(DAEMON,) << error.what();
         return false;
     }
-    qCInfo(DAEMON) << "Using configuration file" << configurationFileLocation;
+    qCInfo(DAEMON,) << "Using configuration file" << configurationFileLocation;
 
     // Load configuration file.
     auto& settings = SISettings::sharedSettings();
 
     // Load driver search paths.
     auto driverSearchPaths = settings.driverSearchPaths().split(" ");
-    qCInfo(DAEMON) << "Driver search locations are" << driverSearchPaths;
+    qCInfo(DAEMON,) << "Driver search locations are" << driverSearchPaths;
 
     // Load Storage driver.
     auto storageDriverName = settings.storageDriver();
     auto* storageDriver = SIStorageDriver::loadStorageDriver(driverSearchPaths, storageDriverName);
     if (storageDriver == nullptr) {
-        qCCritical(DAEMON) << "Unable to load storage driver" << storageDriverName;
+        qCCritical(DAEMON,) << "Unable to load storage driver" << storageDriverName;
         return false;
     }
     storage_.reset(storageDriver->createStorageInstance(settings.storageOptions()));
     if (storage_ == nullptr) {
-        qCCritical(DAEMON) << "Unable to instantiate storage driver" << storageDriverName;
+        qCCritical(DAEMON,) << "Unable to instantiate storage driver" << storageDriverName;
         return false;
     }
-    qCInfo(DAEMON) << "Successfully loaded storage driver" << storageDriverName;
+    qCInfo(DAEMON,) << "Successfully loaded storage driver" << storageDriverName;
 
     // Load and instantiate configured device access drivers.
-    qCInfo(DAEMON) << "Loading device access drivers and instantiating objects...";
+    qCInfo(DAEMON,) << "Loading device access drivers and instantiating objects...";
     for (const auto& deviceAccessConfiguration: settings.deviceAccessConfigurationNames()) {
         auto deviceAccessDriverName = settings.deviceAccessConfigurationDriver(deviceAccessConfiguration);
         if (SIDeviceAccessRegistry::loadDeviceAccessDriver(driverSearchPaths, deviceAccessDriverName)) {
             if (SIDeviceAccessRegistry::sharedRegistry().instantiateDeviceAccess(deviceAccessDriverName, deviceAccessConfiguration, settings.deviceAccessDriverOptions(deviceAccessConfiguration))) {
-                qCInfo(DAEMON) << "  - Successfully loaded and instantiated" << deviceAccessConfiguration << "with driver" << deviceAccessDriverName;
+                qCInfo(DAEMON,) << "  - Successfully loaded and instantiated" << deviceAccessConfiguration << "with driver" << deviceAccessDriverName;
             } else {
                 qCritical() << "  - Error creating device access" << deviceAccessConfiguration;
             }
@@ -94,14 +82,14 @@ bool SIDaemon::initialize() {
     }
 
     // Enumerate all devices on startup.
-    qCInfo(DAEMON) << "Enumerating all devices...";
+    qCInfo(DAEMON,) << "Enumerating all devices...";
     QElapsedTimer elapsedTimer;
     elapsedTimer.start();
     auto deviceCount = SIDeviceAccessRegistry::sharedRegistry().enumerateDevices();
     if (deviceCount >= 0) {
-        qCInfo(DAEMON) << "  - Enumerated" << deviceCount << "devices in" << elapsedTimer.elapsed() << "ms.";
+        qCInfo(DAEMON,) << "  - Enumerated" << deviceCount << "devices in" << elapsedTimer.elapsed() << "ms.";
     } else {
-        qCCritical(DAEMON) << "Failed to enumerate devices";
+        qCCritical(DAEMON,) << "Failed to enumerate devices";
     }
 
     // Create property manager and start polling timer.
@@ -114,7 +102,7 @@ bool SIDaemon::initialize() {
     if (settings.webSocketEnabled()) {
         webSocketManager_ = new SIWebSocketManager(deviceAccessManager_, this);
         if (!webSocketManager_->listen(settings.webSocketPort())) {
-            qCCritical(DAEMON) << "Failed to start web socket listening";
+            qCCritical(DAEMON,) << "Failed to start web socket listening";
             delete webSocketManager_;
         }
     }

@@ -54,6 +54,8 @@ void SIBluetoothManager::startAdvertise() {
 }
 
 void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic& characteristic, const QByteArray& value) {
+    Q_UNUSED(characteristic)
+
     auto frame = SIBluetoothProtocolFrame::fromBytes(value);
 
     if (protocol_ == nullptr) {

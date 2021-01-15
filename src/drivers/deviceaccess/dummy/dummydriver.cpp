@@ -48,6 +48,8 @@ class DummyDevice: public SIDevice {
     }
 
     SIPropertyWriteResult writeProperty_(SIPropertyID id, const QVariant& value, SIPropertyWriteFlags flags) override {
+        Q_UNUSED(flags)
+
         // Check if property exists and is writable.
         auto property = std::find_if(deviceProperties_.cbegin(), deviceProperties_.cend(), [&id](const SIProperty& p) { return p.id == id; });
         if (property == deviceProperties_.cend()) return {id, SIStatus::NoProperty};
@@ -76,5 +78,7 @@ class DummyDeviceAccess: public SIDeviceAccess {
 };
 
 SIDeviceAccess* DummyDriver::createDeviceAccessInstance(const QString& id, const QVariantMap& parameters) {
+    Q_UNUSED(parameters)
+
     return new DummyDeviceAccess(id);
 }
