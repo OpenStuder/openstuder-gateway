@@ -26,7 +26,11 @@ int SIDeviceAccess::enumerateDevices() {
     // Populate device list.
     QVector<SIDevice*> devices;
     for (const auto& child: children()) {
+#ifdef Q_OS_MACOS
+        devices.append(reinterpret_cast<SIDevice*>(child));
+#else
         devices.append(qobject_cast<SIDevice*>(child));
+#endif
     }
 
     // Let the driver enumerate the devices.
@@ -35,7 +39,11 @@ int SIDeviceAccess::enumerateDevices() {
         // Remove all devices from the devices list that are already present.
         // TODO: might not be needed, moving to the same parent again is no problem.
         for (const auto& child: children()) {
+#ifdef Q_OS_MACOS
+            devices.removeOne(reinterpret_cast<SIDevice*>(child));
+#else
             devices.removeOne(qobject_cast<SIDevice*>(child));
+#endif
         }
 
         // Set parent for all enumerated devices.
@@ -58,7 +66,11 @@ int SIDeviceAccess::deviceCount() const {
 
 QPointer<SIDevice> SIDeviceAccess::device(int index) const {
     if (index < children().count()) {
+#ifdef Q_OS_MACOS
+        return reinterpret_cast<SIDevice*>(children()[index]);
+#else
         return qobject_cast<SIDevice*>(children()[index]);
+#endif
     } else {
         return nullptr;
     }
@@ -66,7 +78,11 @@ QPointer<SIDevice> SIDeviceAccess::device(int index) const {
 
 QPointer<SIDevice> SIDeviceAccess::device(const QString& id) const {
     for (auto* child: children()) {
+#ifdef Q_OS_MACOS
+        auto* device = reinterpret_cast<SIDevice*>(child);
+#else
         auto* device = qobject_cast<SIDevice*>(child);
+#endif
         if (device->id() == id) {
             return device;
         }
@@ -80,7 +96,11 @@ QJsonObject SIDeviceAccess::jsonDescription(SIAccessLevel accessLevel, SIJsonFla
         if (flags.testFlag(SIJsonFlag::IncludeAccessDetails)) {
             QJsonArray devs;
             for (auto* child: children()) {
+#ifdef Q_OS_MACOS
+                auto* device = reinterpret_cast<SIDevice*>(child);
+#else
                 auto* device = qobject_cast<SIDevice*>(child);
+#endif
                 devs.append(device->jsonDescription(accessLevel, flags));
             }
             description["devices"] = devs;

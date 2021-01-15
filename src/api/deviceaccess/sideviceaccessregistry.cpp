@@ -26,7 +26,11 @@ SIDeviceAccessRegistry::~SIDeviceAccessRegistry() = default;
 int SIDeviceAccessRegistry::enumerateDevices() {
     int count = 0;
     for (auto* child: children()) {
+#ifdef Q_OS_MACOS
+        auto* access = reinterpret_cast<SIDeviceAccess*>(child);
+#else
         auto* access = qobject_cast<SIDeviceAccess*>(child);
+#endif
         count += access->enumerateDevices();
     }
     return count;
@@ -38,7 +42,11 @@ int SIDeviceAccessRegistry::deviceAccessCount() const {
 
 QPointer<SIDeviceAccess> SIDeviceAccessRegistry::deviceAccess(int index) const {
     if (index < children().count()) {
+#ifdef Q_OS_MACOS
+        return reinterpret_cast<SIDeviceAccess*>(children()[index]);
+#else
         return qobject_cast<SIDeviceAccess*>(children()[index]);
+#endif
     } else {
         return nullptr;
     }
@@ -46,7 +54,11 @@ QPointer<SIDeviceAccess> SIDeviceAccessRegistry::deviceAccess(int index) const {
 
 QPointer<SIDeviceAccess> SIDeviceAccessRegistry::deviceAccess(const QString& id) const {
     for (auto* child: children()) {
+#ifdef Q_OS_MACOS
+        auto access = reinterpret_cast<SIDeviceAccess*>(child);
+#else
         auto* access = qobject_cast<SIDeviceAccess*>(child);
+#endif
         if (access->id() == id) {
             return access;
         }
