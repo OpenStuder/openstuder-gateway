@@ -28,8 +28,8 @@ bool SIDaemon::initialize() {
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addVersionOption();
-    QCommandLineOption configurationFileOption {{"c", "config"}, "Use configuration file <file>", "file"};
-    configurationFileOption.setDefaultValue(OPENSTUDER_GATEWAY_DEFAULT_CONFIG_LOCATION "/sigatewayd.conf");
+    QCommandLineOption configurationFileOption {{"c", "config"}, "Use configuration location <dir>", "dir"};
+    configurationFileOption.setDefaultValue(OPENSTUDER_GATEWAY_DEFAULT_CONFIG_LOCATION);
     parser.addOption(configurationFileOption);
     parser.process(*this);
 
@@ -41,7 +41,7 @@ bool SIDaemon::initialize() {
         qCCritical(DAEMON,) << error.what();
         return false;
     }
-    qCInfo(DAEMON,) << "Using configuration file" << configurationFileLocation;
+    qCInfo(DAEMON,) << "Using configuration directory" << configurationFileLocation;
 
     // Load configuration file.
     auto& settings = SISettings::sharedSettings();
