@@ -19,7 +19,7 @@ class SIDaemon: public QCoreApplication {
 
   private:
     std::unique_ptr<SIStorage> storage_;
-    SIDeviceAccessManager* deviceAccessManager_;
+    SIDeviceAccessManager* deviceAccessManager_ = nullptr;
     SIWebSocketManager* webSocketManager_ = nullptr;
     SIBluetoothManager* bluetoothManager_ = nullptr;
 };
