@@ -1,5 +1,5 @@
 find_program(GIT_EXECUTABLE git REQUIRED)
-execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE GIT_DESCRIBE_OUTPUT)
+execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE GIT_DESCRIBE_OUTPUT OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 function(si_get_git_version OUTPUT)
     # Try to parse complete version string {MAJ}.{MIN}.{PATCH}-{COMMIT COUNT}-g{HASH}
