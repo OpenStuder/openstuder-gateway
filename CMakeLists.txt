@@ -1,5 +1,6 @@
 # Global project settings.
 cmake_minimum_required(VERSION 3.13)
+include(cmake/GitVersion.cmake)
 project(OpenStuderGateway)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
@@ -15,9 +16,9 @@ add_compile_definitions(OPENSTUDER_GATEWAY_DEFAULT_CONFIG_LOCATION="${CMAKE_INST
 add_compile_definitions(OPENSTUDER_GATEWAY_DEFAULT_DRIVER_LOCATION="${CMAKE_INSTALL_PREFIX}/var/lib/openstuder/drivers")
 
 # Import gateway related functions.
-include(cmake/library.cmake)
-include(cmake/deviceaccessdriver.cmake)
-include(cmake/storagedriver.cmake)
+include(cmake/Library.cmake)
+include(cmake/DeviceAccessDriver.cmake)
+include(cmake/StorageDriver.cmake)
 
 # Resolve required packages.
 find_package(Qt5 5.11 REQUIRED COMPONENTS Core)
