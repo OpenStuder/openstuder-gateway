@@ -2,10 +2,6 @@
 #include <csignal>
 
 int main(int argc, char** argv) {
-    QCoreApplication::setOrganizationDomain("org");
-    QCoreApplication::setOrganizationName("openstuder");
-    QCoreApplication::setApplicationName("sigatewayd");
-
     signal(SIGINT, [](int) {
         QCoreApplication::quit();
     });

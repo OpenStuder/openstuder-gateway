@@ -24,6 +24,11 @@ SIDaemon::SIDaemon(int argc, char** argv): QCoreApplication(argc, argv) {}
 SIDaemon::~SIDaemon() = default;
 
 bool SIDaemon::initialize() {
+    QCoreApplication::setOrganizationDomain("org");
+    QCoreApplication::setOrganizationName("openstuder");
+    QCoreApplication::setApplicationName("sigatewayd");
+    QCoreApplication::setApplicationVersion(OPENSTUDER_GATEWAY_VERSION);
+
     // Parse command line options.
     QCommandLineParser parser;
     parser.addHelpOption();

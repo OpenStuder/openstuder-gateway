@@ -1,9 +1,9 @@
 # Global project settings.
 cmake_minimum_required(VERSION 3.13)
 project(OpenStuderGateway)
-include(cmake/GitVersion.cmake)
-si_get_git_version(GIT_VERSION)
-message("${PROJECT_NAME}, version ${GIT_VERSION}")
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "/usr/" CACHE PATH "..." FORCE)
+endif()
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -13,9 +13,10 @@ add_compile_options(-Wall -Wextra -pedantic -Werror)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_options(-Wno-psabi)
 endif()
-add_compile_definitions(OPENSTUDER_GATEWAY_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")
-add_compile_definitions(OPENSTUDER_GATEWAY_DEFAULT_CONFIG_LOCATION="${CMAKE_INSTALL_PREFIX}/etc/openstuder")
-add_compile_definitions(OPENSTUDER_GATEWAY_DEFAULT_DRIVER_LOCATION="${CMAKE_INSTALL_PREFIX}/var/lib/openstuder/drivers")
+
+# Detect and set version.
+include(cmake/GitVersion.cmake)
+si_get_git_version(GIT_VERSION)
 
 # Import gateway related functions.
 include(cmake/Library.cmake)
@@ -24,6 +25,12 @@ include(cmake/StorageDriver.cmake)
 
 # Resolve required packages.
 find_package(Qt5 5.11 REQUIRED COMPONENTS Core)
+
+# Set global compile definitions.
+add_compile_definitions(OPENSTUDER_GATEWAY_VERSION="${GIT_VERSION}")
+add_compile_definitions(OPENSTUDER_GATEWAY_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")
+add_compile_definitions(OPENSTUDER_GATEWAY_DEFAULT_CONFIG_LOCATION="${CMAKE_INSTALL_PREFIX}/etc/openstuder")
+add_compile_definitions(OPENSTUDER_GATEWAY_DEFAULT_DRIVER_LOCATION="${CMAKE_INSTALL_PREFIX}/var/lib/openstuder/drivers")
 
 # Libraries.
 add_subdirectory(src/api/deviceaccess)
@@ -44,6 +51,10 @@ endif()
 # Configuration file.
 install(FILES config/gateway.conf DESTINATION "etc/openstuder")
 install(FILES config/drivers.conf DESTINATION "etc/openstuder")
+
+# Service (systemd).
+configure_file(config/sigatewayd.service.in ${CMAKE_BINARY_DIR}/sigatewayd.service @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/sigatewayd.service DESTINATION "/lib/systemd/system")
 
 # Install instructions.
 set(CPACK_GENERATOR "DEB")

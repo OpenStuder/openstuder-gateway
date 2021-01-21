@@ -1,0 +1,9 @@
+[Unit]
+Description=OpenStuder Gateway Daemon
+
+[Service]
+User=root
+ExecStart=@CMAKE_INSTALL_PREFIX@/sbin/sigatewayd
+
+[Install]
+WantedBy=multi-user.target
