@@ -44,6 +44,7 @@ install(FILES config/drivers.conf DESTINATION "etc/openstuder")
 
 # Install instructions.
 set(CPACK_GENERATOR "DEB")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5core5a,libqt5serialport5,libqt5serialbus5,libqt5sql5,libqt5network5,libqt5websockets5,libqt5connectivity5")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5core5a,libqt5serialport5,libqt5serialbus5,libqt5sql5,libqt5network5,libqt5websockets5,libqt5bluetooth5")
 set(CPACK_PACKAGE_DESCRIPTION "OpenStuder Gateway")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "michel.clausen@hevs.ch")
 include(CPack)
