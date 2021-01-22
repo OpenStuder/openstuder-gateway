@@ -5,7 +5,7 @@ class SIHelpCommand: public SIAbstractCommand {
     SIHelpCommand(): SIAbstractCommand("help") {}
 
   private:
-    int run(const QStringList& arguments, QTextStream& input, QTextStream& output) override {
+    int run(QStringList arguments, QTextStream& input, QTextStream& output) override {
         Q_UNUSED(input)
 
         if (arguments.count() != 1) {
@@ -24,7 +24,11 @@ class SIHelpCommand: public SIAbstractCommand {
     }
 
     void usage(QTextStream& output) override {
-        output << "Usage: sigwctl help <command>" << endl;
+        output << "Usage: sigwctl help <command>" << endl << endl;
+        output << "<command>:" << endl;
+        for (const auto& command: SIAbstractCommand::allCommands().keys()) {
+            output << "  " << command << endl;
+        }
     }
 };
 

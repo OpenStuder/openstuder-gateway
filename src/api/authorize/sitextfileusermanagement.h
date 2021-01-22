@@ -16,7 +16,8 @@ class SITextFileUserManagement: public SIUserAuthorizer {
         filename_ = filename;
     }
 
-    QMap<QString, SIAccessLevel> listUsers() const;
+    QMap<QString, SIAccessLevel> listUsers(bool* status = nullptr) const;
+    bool hasUser(const QString& username) const;
     bool addUser(const QString& username, const QString& password, SIAccessLevel accessLevel);
     bool changeUserPassword(const QString& username, const QString& password);
     bool changeUserAccessLevel(const QString& username, SIAccessLevel accessLevel);
@@ -40,7 +41,7 @@ class SITextFileUserManagement: public SIUserAuthorizer {
 
     SIAccessLevel authorizeUser_(const QString& username, const QString& password) const override;
 
-    bool load_(Users& users) const;
+    bool load_(Users& users, bool checkFileExist = false) const;
     bool save_(const Users& users);
 
     QString filename_;

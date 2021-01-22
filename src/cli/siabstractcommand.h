@@ -14,7 +14,7 @@ class SIAbstractCommand {
   public:
     virtual ~SIAbstractCommand() = default;
 
-    virtual int run(const QStringList& arguments, QTextStream& input, QTextStream& output) = 0;
+    virtual int run(QStringList arguments, QTextStream& input, QTextStream& output) = 0;
     virtual void usage(QTextStream& output) = 0;
 
     static SIAbstractCommand* command(const QString& name);
