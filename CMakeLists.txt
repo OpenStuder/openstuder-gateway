@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.13)
 project(OpenStuderGateway)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "/usr/" CACHE PATH "..." FORCE)
+    set(CMAKE_INSTALL_PREFIX "" CACHE PATH "..." FORCE)
 endif()
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
