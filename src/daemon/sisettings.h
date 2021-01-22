@@ -30,12 +30,16 @@ class SISettings {
         return valueWithDefault_("Bluetooth/name", "SIGateway", gatewaySettings_.get()).toString();
     }
 
+    inline bool securityEnabled() const {
+        return valueWithDefault_("Security/enabled", false, gatewaySettings_.get()).toBool();
+    }
+
     inline bool securityAllowGuest() const {
         return valueWithDefault_("Security/allowGuest", false, gatewaySettings_.get()).toBool();
     }
 
     inline QString storageDriver() const {
-        return valueWithDefault_("driver", "SQLite", gatewaySettings_.get()).toString();
+        return valueWithDefault_("Storage/driver", "SQLite", gatewaySettings_.get()).toString();
     }
 
     inline QVariantMap storageOptions() const {
