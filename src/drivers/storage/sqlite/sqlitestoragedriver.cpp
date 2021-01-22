@@ -5,7 +5,7 @@
 Q_LOGGING_CATEGORY(SQLite, "driver.storage.SQLite", QtWarningMsg)
 
 SIStorage* SQLiteStorageDriver::createStorageInstance(const QVariantMap& parameters) {
-    auto filename = parameters.value("file", "/var/lib/studergateway/storage.sqlite").toString();
+    auto filename = parameters.value("file", OPENSTUDER_GATEWAY_INSTALL_PREFIX "/var/lib/studergateway/storage.sqlite").toString();
 
     // TODO: Create folder.
 
