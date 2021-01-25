@@ -91,7 +91,11 @@ QJsonObject SIDeviceAccessRegistry::jsonDescription(SIAccessLevel accessLevel, S
     if (flags.testFlag(SIJsonFlag::IncludeAccessInformation)) {
         QJsonArray instances;
         for (auto* child: children()) {
+#ifdef Q_OS_MACOS
+            auto access = reinterpret_cast<SIDeviceAccess*>(child);
+#else
             auto* access = qobject_cast<SIDeviceAccess*>(child);
+#endif
             QJsonObject description = access->jsonDescription(accessLevel, flags);
             description["driver"] = priv_->instanceDriverNames[access];
             instances.append(description);
