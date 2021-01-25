@@ -12,7 +12,7 @@ class SIDaemon: public QCoreApplication {
     Q_OBJECT
 
   public:
-    SIDaemon(int argc, char** args);
+    SIDaemon(int& argc, char** args);
     ~SIDaemon() override;
 
     bool initialize();

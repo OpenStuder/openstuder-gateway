@@ -19,7 +19,7 @@ using namespace std;
 
 Q_LOGGING_CATEGORY(DAEMON, "daemon", QtInfoMsg)
 
-SIDaemon::SIDaemon(int argc, char** argv): QCoreApplication(argc, argv) {}
+SIDaemon::SIDaemon(int& argc, char** argv): QCoreApplication(argc, argv) {}
 
 SIDaemon::~SIDaemon() = default;
 
