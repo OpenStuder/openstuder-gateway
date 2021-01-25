@@ -215,9 +215,11 @@ class SIUserManagementCommand: public SIAbstractCommand {
 
         enableEcho_(false);
 
-        output << "Enter password for user \"" << username << "\": " << flush;
+        output << "Enter password for user \"" << username << "\": ";
+        output.flush();
         input >> password;
-        output << endl << "Repeat password: " << flush;
+        output << endl << "Repeat password: ";
+        output.flush();
         input >> verify;
         output << endl;
 
@@ -243,7 +245,8 @@ class SIUserManagementCommand: public SIAbstractCommand {
                << "  2 -> Installer" << endl
                << "  3 -> Expert" << endl
                << "  4 -> Qualified service personnel" << endl
-               << "Your choice: " << flush;
+               << "Your choice: ";
+        output.flush();
         input >> accessLevelChoice;
 
         if (ok != nullptr) {
