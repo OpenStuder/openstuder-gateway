@@ -14,7 +14,8 @@ const QBluetoothUuid SICharacteristicUUID {QStringLiteral("12345678-1234-0000-16
 const QBluetoothUuid RXCharacteristicUUID {QStringLiteral("12345678-1234-0001-1623-123456789ABC")};
 const QBluetoothUuid TXCharacteristicUUID {QStringLiteral("12345678-1234-0002-1623-123456789ABC")};
 
-SIBluetoothManager::SIBluetoothManager(SIDeviceAccessManager* deviceAccessManager, QObject* parent): QObject(parent), deviceAccessManager_(deviceAccessManager) {
+SIBluetoothManager::SIBluetoothManager(SIDeviceAccessManager* deviceAccessManager, SIUserAuthorizer* userAuthorizer, QObject* parent):
+    QObject(parent), deviceAccessManager_(deviceAccessManager), userAuthorizer_(userAuthorizer) {
     QLowEnergyCharacteristicData rxCharacteristic;
     rxCharacteristic.setUuid(RXCharacteristicUUID);
     rxCharacteristic.setProperties(QLowEnergyCharacteristic::Notify);
@@ -71,7 +72,9 @@ void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic
                     auto user = frame.parameters()[0];
                     auto pass = frame.parameters()[1];
 
-                    // TODO: Authorize user!
+                    if (userAuthorizer_ != nullptr) {
+                        accessLevel = userAuthorizer_->authorizeUser(user, pass);
+                    }
                 } else {
                     accessLevel = SISettings::sharedSettings().authorizeGuestAccessLevel();
                 }

@@ -4,8 +4,8 @@
 #include "../sisettings.h"
 #include <siaccesslevel.h>
 
-SIWebSocketConnection::SIWebSocketConnection(QWebSocket* webSocket, SIDeviceAccessManager* deviceAccessManager, QObject* parent)
-    : QObject(parent), webSocket_(webSocket), deviceAccessManager_(deviceAccessManager) {
+SIWebSocketConnection::SIWebSocketConnection(QWebSocket* webSocket, SIDeviceAccessManager* deviceAccessManager, SIUserAuthorizer* userAuthorizer, QObject* parent)
+    : QObject(parent), webSocket_(webSocket), deviceAccessManager_(deviceAccessManager), userAuthorizer_(userAuthorizer) {
     connect(webSocket_, &QWebSocket::textMessageReceived, this, &SIWebSocketConnection::onTextMessageReceived_);
     connect(webSocket_, &QWebSocket::disconnected, this, &QObject::deleteLater);
     connect(deviceAccessManager_, &SIDeviceAccessManager::deviceMessageReceived, this, &SIWebSocketConnection::onDeviceMessageReceived_);
@@ -31,7 +31,9 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
                     auto user = frame.header("user");
                     auto pass = frame.header("password");
 
-                    // TODO: Authorize user!
+                    if (userAuthorizer_ != nullptr) {
+                        accessLevel = userAuthorizer_->authorizeUser(user, pass);
+                    }
                 } else {
                     accessLevel = SISettings::sharedSettings().authorizeGuestAccessLevel();
                 }

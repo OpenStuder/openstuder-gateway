@@ -77,7 +77,9 @@ bool SIDaemon::initialize() {
 
         auto authorizerDriverName = settings.authorizeDriver();
         if (authorizerDriverName == "Internal") {
-            authorizer_ = std::make_unique<SITextFileUserManagement>();
+            auto textFileAuthorizer = new SITextFileUserManagement();
+            textFileAuthorizer->setFilename(configurationFileLocation + "/users.txt");
+            authorizer_.reset(textFileAuthorizer);
             qCInfo(DAEMON,) << "Using internal text file authorize driver";
         } else {
             auto* authorizeDriver = SIUserAuthorizeDriver::loadUserAuthorizeDriver(driverSearchPaths, authorizerDriverName);
@@ -129,7 +131,7 @@ bool SIDaemon::initialize() {
 
     // Create web socket manager.
     if (settings.webSocketEnabled()) {
-        webSocketManager_ = new SIWebSocketManager(deviceAccessManager_, this);
+        webSocketManager_ = new SIWebSocketManager(deviceAccessManager_, authorizer_.get(), this);
         if (!webSocketManager_->listen(settings.webSocketPort())) {
             qCCritical(DAEMON,) << "Failed to start web socket listening";
             delete webSocketManager_;
@@ -138,7 +140,7 @@ bool SIDaemon::initialize() {
 
     // Create bluetooth manager.
     if (settings.bluetoothEnabled()) {
-        bluetoothManager_ = new SIBluetoothManager(deviceAccessManager_, this);
+        bluetoothManager_ = new SIBluetoothManager(deviceAccessManager_, authorizer_.get(), this);
         bluetoothManager_->setPeripheralName(settings.bluetoothName());
         bluetoothManager_->startAdvertise();
     }

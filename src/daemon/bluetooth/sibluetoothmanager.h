@@ -2,6 +2,7 @@
 #include <QObject>
 #include "siabstractbluetoothprotocol.h"
 #include "../deviceaccess/sideviceaccessmanager.h"
+#include <siuserauthorizer.h>
 
 class QLowEnergyController;
 class SIDeviceAccessManager;
@@ -12,7 +13,7 @@ class QLowEnergyService;
   Q_OBJECT
 
   public:
-    explicit SIBluetoothManager(SIDeviceAccessManager* deviceAccessManager, QObject* parent = nullptr);
+    explicit SIBluetoothManager(SIDeviceAccessManager* deviceAccessManager, SIUserAuthorizer* userAuthorizer, QObject* parent = nullptr);
     ~SIBluetoothManager() override;
 
       const QString& peripheralName() const {
@@ -41,4 +42,5 @@ class QLowEnergyService;
     SIAbstractBluetoothProtocol* protocol_ = nullptr;
 
     SIDeviceAccessManager* deviceAccessManager_;
+    SIUserAuthorizer* userAuthorizer_;
 };
