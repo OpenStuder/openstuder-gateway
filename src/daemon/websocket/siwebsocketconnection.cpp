@@ -41,7 +41,7 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
                 auto versionString = frame.header("protocol_version", "1");
 
                 if (accessLevel == SIAccessLevel::None) {
-                    sendFrame_(SIWebSocketProtocolFrame::error("authorize failed"));
+                    sendFrame_(SIWebSocketProtocolFrame::error("authorization failed"));
                     return;
                 }
 

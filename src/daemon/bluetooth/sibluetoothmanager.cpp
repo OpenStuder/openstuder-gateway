@@ -82,7 +82,7 @@ void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic
                 auto versionString = frame.parameterCount() == 3 ? frame.parameters()[2] : "1";
 
                 if (accessLevel == SIAccessLevel::None) {
-                    sendFrame_({SIBluetoothProtocolFrame::ERROR, {"authorize failed"}});
+                    sendFrame_({SIBluetoothProtocolFrame::ERROR, {"authorization failed"}});
                     return;
                 }
 
