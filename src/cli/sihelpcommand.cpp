@@ -1,4 +1,3 @@
-#include <__hash_table>
 #include "siabstractcommand.h"
 
 class SIHelpCommand: public SIAbstractCommand {
@@ -34,4 +33,4 @@ class SIHelpCommand: public SIAbstractCommand {
     }
 };
 
-__unused static SIHelpCommand help;
+static SIHelpCommand help;

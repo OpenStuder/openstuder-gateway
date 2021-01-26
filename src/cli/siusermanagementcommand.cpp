@@ -1,4 +1,3 @@
-#include <__hash_table>
 #include "siabstractcommand.h"
 #include <sitextfileusermanagement.h>
 #ifdef Q_OS_WINDOWS
@@ -300,4 +299,4 @@ class SIUserManagementCommand: public SIAbstractCommand {
     }
 };
 
-__unused static SIUserManagementCommand userManagement;
+static SIUserManagementCommand userManagement;
