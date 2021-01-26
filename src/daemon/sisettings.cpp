@@ -2,6 +2,16 @@
 #include <stdexcept>
 #include <QFile>
 
+SIAccessLevel SISettings::authorizeGuestAccessLevel() const {
+    auto value = valueOfThese_("Authorize/guestAccessLevel", {"None", "Basic", "Installer", "Expert", "QSP"}, "Basic", gatewaySettings_.get());
+    if (value == "None") return SIAccessLevel::None;
+    else if (value == "Basic") return SIAccessLevel::Basic;
+    else if (value == "Installer") return SIAccessLevel::Installer;
+    else if (value == "Expert") return SIAccessLevel::Expert;
+    else if (value == "QSP") return SIAccessLevel::QualifiedServicePersonnel;
+    return SIAccessLevel::None;
+}
+
 void SISettings::loadFromLocation(const QString& location) {
     auto gatewaySettingsFile = location + "/gateway.conf";
     if (!QFile::exists(gatewaySettingsFile)) {

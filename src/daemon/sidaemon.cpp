@@ -3,6 +3,8 @@
 #include <sidevice.h>
 #include <sideviceaccess.h>
 #include <sideviceaccessregistry.h>
+#include <siuserauthorizedriver.h>
+#include <sitextfileusermanagement.h>
 #include "deviceaccess/sideviceaccessmanager.h"
 #include "deviceaccess/sisequentialpropertymanager.h"
 #include "websocket/siwebsocketmanager.h"
@@ -69,6 +71,31 @@ bool SIDaemon::initialize() {
     }
     qCInfo(DAEMON,) << "Successfully loaded storage driver" << storageDriverName;
 
+    // Load or instantiate Authorize driver.
+    if (settings.authorizeEnabled()) {
+        qCInfo(DAEMON,) << "User authorization is enabled";
+
+        auto authorizerDriverName = settings.authorizeDriver();
+        if (authorizerDriverName == "Internal") {
+            authorizer_ = std::make_unique<SITextFileUserManagement>();
+            qCInfo(DAEMON,) << "Using internal text file authorize driver";
+        } else {
+            auto* authorizeDriver = SIUserAuthorizeDriver::loadUserAuthorizeDriver(driverSearchPaths, authorizerDriverName);
+            if (authorizeDriver == nullptr) {
+                qCCritical(DAEMON,) << "Unable to load authorize driver" << authorizerDriverName;
+                return false;
+            }
+            authorizer_.reset(authorizeDriver->createUserAuthorizerInstance(settings.authorizeOptions()));
+            if (authorizer_ == nullptr) {
+                qCCritical(DAEMON,) << "Unable to instantiate authorize driver" << authorizerDriverName;
+                return false;
+            }
+            qCInfo(DAEMON,) << "Successfully loaded authorize driver" << authorizeDriver;
+        }
+    } else {
+        qCInfo(DAEMON,) << "User authorization is disabled, all users have" << to_string(settings.authorizeGuestAccessLevel()) << "access level";
+    }
+
     // Load and instantiate configured device access drivers.
     qCInfo(DAEMON,) << "Loading device access drivers and instantiating objects...";
     for (const auto& deviceAccessConfiguration: settings.deviceAccessConfigurationNames()) {
@@ -101,7 +128,6 @@ bool SIDaemon::initialize() {
     deviceAccessManager_->startPropertyPolling(propertyPollInterval);
 
     // Create web socket manager.
-
     if (settings.webSocketEnabled()) {
         webSocketManager_ = new SIWebSocketManager(deviceAccessManager_, this);
         if (!webSocketManager_->listen(settings.webSocketPort())) {
@@ -119,4 +145,3 @@ bool SIDaemon::initialize() {
 
     return true;
 }
-

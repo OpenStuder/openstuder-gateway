@@ -1,6 +1,7 @@
 #include "sibluetoothmanager.h"
 #include "sibluetoothprotocolframe.h"
 #include "sibluetoothprotocolv1.h"
+#include "../sisettings.h"
 #include <siaccesslevel.h>
 #include <QLowEnergyController>
 #include <QLowEnergyCharacteristicData>
@@ -60,16 +61,22 @@ void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic
 
     if (protocol_ == nullptr) {
         if (frame.command() == SIBluetoothProtocolFrame::AUTHORIZE) {
-            if (!frame.isParameterCountInRange(2, 3)) {
+            if (!frame.isParameterCountInRange(0, 3)) {
                 sendFrame_({SIBluetoothProtocolFrame::ERROR, {"invalid parameter count"}});
                 return;
             } else {
-                auto user = frame.parameters()[0];
-                auto pass = frame.parameters()[1];
-                auto versionString = frame.parameterCount() == 3 ? frame.parameters()[2] : "1";
-
-                // TODO: Authenticate user and determine the user's access level.
                 auto accessLevel = SIAccessLevel::Basic;
+
+                if (SISettings::sharedSettings().authorizeEnabled() && frame.parameterCount() >= 2) {
+                    auto user = frame.parameters()[0];
+                    auto pass = frame.parameters()[1];
+
+                    // TODO: Authorize user!
+                } else {
+                    accessLevel = SISettings::sharedSettings().authorizeGuestAccessLevel();
+                }
+
+                auto versionString = frame.parameterCount() == 3 ? frame.parameters()[2] : "1";
 
                 if (accessLevel == SIAccessLevel::None) {
                     sendFrame_({SIBluetoothProtocolFrame::ERROR, {"authorize failed"}});
@@ -95,7 +102,7 @@ void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic
                 }
             }
         } else {
-            sendFrame_({SIBluetoothProtocolFrame::ERROR, {"Invalid state"}});
+            sendFrame_({SIBluetoothProtocolFrame::ERROR, {"authorization required"}});
         }
     } else {
         auto response = protocol_->handleFrame(frame, deviceAccessManager_);

@@ -1,4 +1,5 @@
 #pragma once
+#include <siaccesslevel.h>
 #include <QSettings>
 #include <memory>
 
@@ -14,6 +15,14 @@ class SISettings {
         return valueWithDefault_("Gateway/propertyPollInterval", 10000, gatewaySettings_.get()).toInt();
     }
 
+    inline QString storageDriver() const {
+        return valueWithDefault_("Storage/driver", "SQLite", gatewaySettings_.get()).toString();
+    }
+
+    inline QVariantMap storageOptions() const {
+        return filteredChildSettings_("Storage", {"driver"}, gatewaySettings_.get());
+    }
+
     inline bool webSocketEnabled() const {
         return valueWithDefault_("WebSocket/enabled", true, gatewaySettings_.get()).toBool();
     }
@@ -27,23 +36,21 @@ class SISettings {
     }
 
     inline QString bluetoothName() const {
-        return valueWithDefault_("Bluetooth/name", "SIGateway", gatewaySettings_.get()).toString();
+        return valueWithDefault_("Bluetooth/name", "StuderGW", gatewaySettings_.get()).toString();
     }
 
-    inline bool securityEnabled() const {
-        return valueWithDefault_("Security/enabled", false, gatewaySettings_.get()).toBool();
+    inline bool authorizeEnabled() const {
+        return valueWithDefault_("Authorize/enabled", false, gatewaySettings_.get()).toBool();
     }
 
-    inline bool securityAllowGuest() const {
-        return valueWithDefault_("Security/allowGuest", false, gatewaySettings_.get()).toBool();
+    inline QString authorizeDriver() const {
+        return valueWithDefault_("Authorize/driver", "Internal", gatewaySettings_.get()).toString();
     }
 
-    inline QString storageDriver() const {
-        return valueWithDefault_("Storage/driver", "SQLite", gatewaySettings_.get()).toString();
-    }
+    SIAccessLevel authorizeGuestAccessLevel() const;
 
-    inline QVariantMap storageOptions() const {
-        return filteredChildSettings_("Storage", {"driver"}, gatewaySettings_.get());
+    inline QVariantMap authorizeOptions() const {
+        return filteredChildSettings_("Authorize", {"enabled", "driver", "guestAccessLevel"}, gatewaySettings_.get());
     }
 
     inline QStringList deviceAccessConfigurationNames() const {

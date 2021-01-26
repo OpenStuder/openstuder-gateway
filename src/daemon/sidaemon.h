@@ -3,6 +3,7 @@
 #include <memory>
 
 class SIStorage;
+class SIUserAuthorizer;
 class QSettings;
 class SIDeviceAccessManager;
 class SIWebSocketManager;
@@ -19,6 +20,7 @@ class SIDaemon: public QCoreApplication {
 
   private:
     std::unique_ptr<SIStorage> storage_;
+    std::unique_ptr<SIUserAuthorizer> authorizer_;
     SIDeviceAccessManager* deviceAccessManager_ = nullptr;
     SIWebSocketManager* webSocketManager_ = nullptr;
     SIBluetoothManager* bluetoothManager_ = nullptr;

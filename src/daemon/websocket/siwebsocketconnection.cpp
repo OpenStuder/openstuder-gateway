@@ -21,22 +21,22 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
 
     if (protocol_ == nullptr) {
         if (frame.command() == SIWebSocketProtocolFrame::AUTHORIZE) {
-            if (!frame.validateHeaders({"user", "password"}, {"protocol_version"}) || frame.hasBody()) {
+            if (!frame.validateHeaders({}, {"user", "password", "protocol_version"}) || frame.hasBody()) {
                 sendFrame_(SIWebSocketProtocolFrame::error("invalid frame"));
                 return;
             } else {
-                auto user = frame.header("user");
-                auto pass = frame.header("password");
-                auto versionString = frame.header("protocol_version", "1");
-
                 auto accessLevel = SIAccessLevel::None;
 
-                // TODO: Authenticate user and determine the user's access level.
-                if (SISettings::sharedSettings().securityAllowGuest()) {
-                    if (user.toLower() == "guest" && pass.toLower() == "guest") {
-                        accessLevel = SIAccessLevel::Basic;
-                    }
+                if (SISettings::sharedSettings().authorizeEnabled() && frame.hasHeader("user") && frame.hasHeader("password")) {
+                    auto user = frame.header("user");
+                    auto pass = frame.header("password");
+
+                    // TODO: Authorize user!
+                } else {
+                    accessLevel = SISettings::sharedSettings().authorizeGuestAccessLevel();
                 }
+
+                auto versionString = frame.header("protocol_version", "1");
 
                 if (accessLevel == SIAccessLevel::None) {
                     sendFrame_(SIWebSocketProtocolFrame::error("authorize failed"));
@@ -66,7 +66,7 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
                 }
             }
         } else {
-            sendFrame_(SIWebSocketProtocolFrame::error("invalid state"));
+            sendFrame_(SIWebSocketProtocolFrame::error("authorization required"));
         }
     } else {
         auto response = protocol_->handleFrame(frame, deviceAccessManager_);
