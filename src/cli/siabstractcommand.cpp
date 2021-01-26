@@ -1,7 +1,7 @@
 #include "siabstractcommand.h"
 
 SIAbstractCommand* SIAbstractCommand::command(const QString& name) {
-    return commands_[name];
+    return commands_.value(name);
 }
 
 SIAbstractCommand::SIAbstractCommand(const QString& name) {

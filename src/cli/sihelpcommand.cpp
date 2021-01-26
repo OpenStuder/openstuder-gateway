@@ -1,3 +1,4 @@
+#include <__hash_table>
 #include "siabstractcommand.h"
 
 class SIHelpCommand: public SIAbstractCommand {
@@ -5,8 +6,9 @@ class SIHelpCommand: public SIAbstractCommand {
     SIHelpCommand(): SIAbstractCommand("help") {}
 
   private:
-    int run(QStringList arguments, QTextStream& input, QTextStream& output) override {
+    int run(QStringList arguments, QTextStream& input, QTextStream& output, const QVariantMap& options) override {
         Q_UNUSED(input)
+        Q_UNUSED(options)
 
         if (arguments.count() != 1) {
             usage(output);
@@ -32,4 +34,4 @@ class SIHelpCommand: public SIAbstractCommand {
     }
 };
 
-static SIHelpCommand help;
+__unused static SIHelpCommand help;

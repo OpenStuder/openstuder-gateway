@@ -1,3 +1,4 @@
+#include <__hash_table>
 #include "siabstractcommand.h"
 #include <sitextfileusermanagement.h>
 #ifdef Q_OS_WINDOWS
@@ -11,9 +12,12 @@ class SIUserManagementCommand: public SIAbstractCommand {
     SIUserManagementCommand(): SIAbstractCommand("user") {}
 
   private:
-    int run(QStringList arguments, QTextStream& input, QTextStream& output) override {
-        Q_UNUSED(input)
-        Q_UNUSED(output)
+    int run(QStringList arguments, QTextStream& input, QTextStream& output, const QVariantMap& options) override {
+
+        SITextFileUserManagement userManagement;
+        if (options.contains("c")) {
+            userManagement.setFilename(options["c"].toString() + "/users.txt");
+        }
 
         if (arguments.count() == 0) {
             usage(output);
@@ -22,28 +26,28 @@ class SIUserManagementCommand: public SIAbstractCommand {
 
         if (arguments[0] == "list") {
             arguments.removeFirst();
-            return listUsers(arguments, input, output);
+            return listUsers(arguments, input, output, userManagement);
         }
 
         if (arguments[0] == "add") {
             arguments.removeFirst();
-            return addUser(arguments, input, output);
+            return addUser(arguments, input, output, userManagement);
         }
 
         if (arguments[0] == "pw") {
             arguments.removeFirst();
-            return changeUserPassword(arguments, input, output);
+            return changeUserPassword(arguments, input, output, userManagement);
         }
 
 
         if (arguments[0] == "al") {
             arguments.removeFirst();
-            return changeUserAccessLevel(arguments, input, output);
+            return changeUserAccessLevel(arguments, input, output, userManagement);
         }
 
         if (arguments[0] == "rm") {
             arguments.removeFirst();
-            return removeUser(arguments, input, output);
+            return removeUser(arguments, input, output, userManagement);
         }
 
         usage(output);
@@ -51,7 +55,7 @@ class SIUserManagementCommand: public SIAbstractCommand {
         return 0;
     }
 
-    int listUsers(const QStringList& arguments, QTextStream& input, QTextStream& output) {
+    int listUsers(const QStringList& arguments, QTextStream& input, QTextStream& output, SITextFileUserManagement& userManagement) {
         Q_UNUSED(input)
 
         if (arguments.count() != 0) {
@@ -60,7 +64,7 @@ class SIUserManagementCommand: public SIAbstractCommand {
         }
 
         bool ok;
-        SITextFileUserManagement userManagement;
+
         auto users = userManagement.listUsers(&ok);
         if (!ok) {
             output << "Error: Unable to read user file \"" << userManagement.filename() << "\"." << endl;
@@ -74,7 +78,7 @@ class SIUserManagementCommand: public SIAbstractCommand {
         return 0;
     }
 
-    int addUser(const QStringList& arguments, QTextStream& input, QTextStream& output) {
+    int addUser(const QStringList& arguments, QTextStream& input, QTextStream& output, SITextFileUserManagement& userManagement) {
         if (arguments.count() != 1) {
             usage(output);
             return 1;
@@ -82,8 +86,6 @@ class SIUserManagementCommand: public SIAbstractCommand {
 
         bool ok;
         auto username = arguments[0];
-
-        SITextFileUserManagement userManagement;
 
         if (userManagement.hasUser(username)) {
             output << "Error: User already exists." << endl;
@@ -110,7 +112,7 @@ class SIUserManagementCommand: public SIAbstractCommand {
         }
     }
 
-    int changeUserPassword(const QStringList& arguments, QTextStream& input, QTextStream& output) {
+    int changeUserPassword(const QStringList& arguments, QTextStream& input, QTextStream& output, SITextFileUserManagement& userManagement) {
         if (arguments.count() != 1) {
             usage(output);
             return 1;
@@ -118,8 +120,6 @@ class SIUserManagementCommand: public SIAbstractCommand {
 
         bool ok;
         auto username = arguments[0];
-
-        SITextFileUserManagement userManagement;
 
         if (!userManagement.hasUser(username)) {
             output << "Error: User does not exists." << endl;
@@ -140,7 +140,7 @@ class SIUserManagementCommand: public SIAbstractCommand {
         }
     }
 
-    int changeUserAccessLevel(const QStringList& arguments, QTextStream& input, QTextStream& output) {
+    int changeUserAccessLevel(const QStringList& arguments, QTextStream& input, QTextStream& output, SITextFileUserManagement& userManagement) {
         if (arguments.count() != 1) {
             usage(output);
             return 1;
@@ -148,8 +148,6 @@ class SIUserManagementCommand: public SIAbstractCommand {
 
         bool ok;
         auto username = arguments[0];
-
-        SITextFileUserManagement userManagement;
 
         if (!userManagement.hasUser(username)) {
             output << "Error: User does not exists." << endl;
@@ -170,7 +168,7 @@ class SIUserManagementCommand: public SIAbstractCommand {
         }
     }
 
-    int removeUser(const QStringList& arguments, QTextStream& input, QTextStream& output) {
+    int removeUser(const QStringList& arguments, QTextStream& input, QTextStream& output, SITextFileUserManagement& userManagement) {
         Q_UNUSED(input)
 
         if (arguments.count() != 1) {
@@ -179,8 +177,6 @@ class SIUserManagementCommand: public SIAbstractCommand {
         }
 
         auto username = arguments[0];
-
-        SITextFileUserManagement userManagement;
 
         if (!userManagement.hasUser(username)) {
             output << "Error: User does not exists." << endl;
@@ -304,4 +300,4 @@ class SIUserManagementCommand: public SIAbstractCommand {
     }
 };
 
-static SIUserManagementCommand userManagement;
+__unused static SIUserManagementCommand userManagement;

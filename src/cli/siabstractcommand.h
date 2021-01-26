@@ -3,6 +3,7 @@
 #include <QTextStream>
 #include <QString>
 #include <QMap>
+#include <QVariantMap>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
 #define endl Qt::endl
@@ -14,7 +15,7 @@ class SIAbstractCommand {
   public:
     virtual ~SIAbstractCommand() = default;
 
-    virtual int run(QStringList arguments, QTextStream& input, QTextStream& output) = 0;
+    virtual int run(QStringList arguments, QTextStream& input, QTextStream& output, const QVariantMap& options) = 0;
     virtual void usage(QTextStream& output) = 0;
 
     static SIAbstractCommand* command(const QString& name);
