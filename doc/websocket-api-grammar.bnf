@@ -2,7 +2,7 @@ grammar ::= request | response
 
 request ::= authorize_request | enumerate_request | describe_request | read_property_request | write_property_request | subscribe_property_request | unsubscribe_property_request
 
-authorize_request ::= "AUTHORIZE" nl "user:" authorize_user nl "password:" authorize_password nl ("protocol_version:" authorize_version nl)? nl
+authorize_request ::= "AUTHORIZE" nl ("user:" authorize_user nl "password:" authorize_password nl)? ("protocol_version:" authorize_version nl)? nl
 authorize_user ::= string
 authorize_password ::= string
 authorize_version ::= integer
