@@ -1,5 +1,5 @@
 #pragma once
-#include <sipropertyid.h>
+#include "sipropertyid.h"
 #include <QString>
 
 class SIGlobalPropertyID {

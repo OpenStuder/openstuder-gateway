@@ -7,8 +7,6 @@ add_executable(sigatewayd
                sisettings.cpp
                deviceaccess/sideviceaccessmanager.cpp
                deviceaccess/sideviceaccessmanager.h
-               deviceaccess/siglobalpropertyid.cpp
-               deviceaccess/siglobalpropertyid.h
                deviceaccess/operations/sipropertyreadoperation.cpp
                deviceaccess/operations/sipropertyreadoperation.h
                deviceaccess/operations/sipropertywriteoperation.cpp

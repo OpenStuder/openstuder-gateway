@@ -1,6 +1,6 @@
 #pragma once
 #include "siabstractoperation.h"
-#include "../siglobalpropertyid.h"
+#include <siglobalpropertyid.h>
 #include <sipropertywriteflags.h>
 #include <sistatus.h>
 #include <QVariant>

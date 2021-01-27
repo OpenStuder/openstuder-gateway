@@ -2,6 +2,7 @@ si_add_library(SIDeviceAccess)
 si_add_library_public_headers(SIDeviceAccess deviceaccess
                               sistatus.h
                               sipropertyid.h
+                              siglobalpropertyid.h
                               sipropertytype.h
                               sipropertyflags.h
                               sipropertyreadresult.h
@@ -15,6 +16,7 @@ si_add_library_public_headers(SIDeviceAccess deviceaccess
                               siaccesslevel.h)
 si_add_library_sources(SIDeviceAccess
                        sistatus.cpp
+                       siglobalpropertyid.cpp
                        sipropertytype.cpp
                        sidevice.cpp
                        sideviceaccess.cpp
