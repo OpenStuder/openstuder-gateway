@@ -26,6 +26,7 @@ class SIGlobalPropertyID {
     QString toString() const;
 
     bool operator ==(const SIGlobalPropertyID& other) const;
+    bool operator <(const SIGlobalPropertyID& other) const;
 
   private:
     QString accessID_;
