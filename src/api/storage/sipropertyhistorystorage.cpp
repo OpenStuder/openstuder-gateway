@@ -1,9 +1,9 @@
 #include "sipropertyhistorystorage.h"
 
-bool SIPropertyHistoryStorage::storePropertyValues(const QMap<SIPropertyID, QVariant>& properties, QDateTime timestamp) {
+bool SIPropertyHistoryStorage::storePropertyValues(const QMap<SIGlobalPropertyID, QVariant>& properties, const QDateTime& timestamp) {
     return storePropertyValues_(properties, timestamp);
 }
 
-QVector<SIPropertyHistoryStorage::TimestampedProperty> SIPropertyHistoryStorage::retrievePropertyValues(SIPropertyID id, QDateTime from, QDateTime to) {
-    return retrievePropertyValues_(id, std::move(from), std::move(to));
+QVector<SIPropertyHistoryStorage::TimestampedProperty> SIPropertyHistoryStorage::retrievePropertyValues(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to) {
+    return retrievePropertyValues_(id, from, to);
 }

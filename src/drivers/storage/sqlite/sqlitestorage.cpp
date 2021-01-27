@@ -23,7 +23,7 @@ bool SQLiteStorage::open(const QString& filename) {
     }
 
     auto query = QSqlQuery(db_);
-    if (!query.exec("CREATE TABLE IF NOT EXISTS property_history (id INTEGER, timestamp INTEGER, value BLOB)") ||
+    if (!query.exec("CREATE TABLE IF NOT EXISTS property_history (id STRING, timestamp INTEGER, value BLOB)") ||
         !query.exec("CREATE UNIQUE INDEX IF NOT EXISTS property_history_index ON property_history (id, timestamp)") ||
         !query.exec("CREATE TABLE IF NOT EXISTS device_message (timestamp INTEGER, access_id STRING, device_id STRING, message_id INTEGER, message STRING)")) {
         return false;
@@ -32,12 +32,12 @@ bool SQLiteStorage::open(const QString& filename) {
     return true;
 }
 
-bool SQLiteStorage::storePropertyValues_(const QMap<SIPropertyID, QVariant>& properties, QDateTime timestamp) {
+bool SQLiteStorage::storePropertyValues_(const QMap<SIGlobalPropertyID, QVariant>& properties, const QDateTime& timestamp) {
     db_.transaction();
     for (const auto& propertyID: properties.keys()) {
         auto query = QSqlQuery(db_);
         query.prepare("INSERT OR REPLACE INTO property_history (id, timestamp, value) VALUES (?, ?, ?)");
-        query.addBindValue(propertyID);
+        query.addBindValue(propertyID.toString());
         query.addBindValue(timestamp);
         query.addBindValue(properties[propertyID]);
         if (!query.exec()) {
@@ -49,12 +49,12 @@ bool SQLiteStorage::storePropertyValues_(const QMap<SIPropertyID, QVariant>& pro
     return true;
 }
 
-QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(SIPropertyID id, QDateTime from, QDateTime to) {
+QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to) {
     QVector<TimestampedProperty> result;
 
     auto query = QSqlQuery(db_);
     query.prepare("SELECT timestamp, value FROM property_history WHERE id = ? AND timestamp BETWEEN ? AND ?");
-    query.addBindValue(id);
+    query.addBindValue(id.toString());
     query.addBindValue(from);
     query.addBindValue(to);
 
