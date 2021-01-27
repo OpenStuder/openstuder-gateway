@@ -106,12 +106,14 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             auto property = deviceAccessManager->resolveProperty(id);
             if (property.type == SIPropertyType::Invalid || accessLevel_ < property.accessLevel) {
                 return {SIWebSocketProtocolFrame::PROPERTY_READ, {
-                    {"status", to_string(SIStatus::NoProperty)}
+                    {"status", to_string(SIStatus::NoProperty)},
+                    {"id", frame.header("id")}
                 }};
             }
             if (!property.flags.testFlag(SIPropertyFlag::Readable)) {
                 return {SIWebSocketProtocolFrame::PROPERTY_READ, {
-                    {"status", to_string(SIStatus::Error)}
+                    {"status", to_string(SIStatus::Error)},
+                    {"id", frame.header("id")}
                 }};
             }
 
@@ -153,12 +155,14 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             auto property = deviceAccessManager->resolveProperty(id);
             if (property.type == SIPropertyType::Invalid || accessLevel_ < property.accessLevel) {
                 return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
-                    {"status", to_string(SIStatus::NoProperty)}
+                    {"status", to_string(SIStatus::NoProperty)},
+                    {"id", frame.header("id")}
                 }};
             }
             if (!property.flags.testFlag(SIPropertyFlag::Readable)) {
                 return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
-                    {"status", to_string(SIStatus::Error)}
+                    {"status", to_string(SIStatus::Error)},
+                    {"id", frame.header("id")}
                 }};
             }
 
@@ -177,7 +181,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             auto id = SIGlobalPropertyID(frame.header("id"));
             if (!id.isValid()) {
                 return {SIWebSocketProtocolFrame::PROPERTY_UNSUBSCRIBED, {
-                    {"status", to_string(SIStatus::NoProperty)}
+                    {"status", to_string(SIStatus::NoProperty)},
+                    {"id", frame.header("id")}
                 }};
             }
 
