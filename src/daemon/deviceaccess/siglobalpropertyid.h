@@ -1,6 +1,6 @@
 #pragma once
 #include <sipropertyid.h>
-#include <QtCore/QString>
+#include <QString>
 
 class SIGlobalPropertyID {
   public:
