@@ -10,6 +10,6 @@ SIAbstractCommand::SIAbstractCommand(const QString& name) {
 
 QMap<QString,SIAbstractCommand*> SIAbstractCommand::commands_;
 
-const QMap<QString, SIAbstractCommand*>& SIAbstractCommand::allCommands() {
-    return commands_;
+QStringList SIAbstractCommand::commandNames() {
+    return commands_.keys();
 }

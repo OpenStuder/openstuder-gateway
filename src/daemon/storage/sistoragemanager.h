@@ -1,0 +1,14 @@
+//
+// Created by Michael on 28.01.21.
+//
+
+#ifndef OPENSTUDERGATEWAY_SISTORAGEMANAGER_H
+#define OPENSTUDERGATEWAY_SISTORAGEMANAGER_H
+
+
+class SIStorageManager {
+
+};
+
+
+#endif //OPENSTUDERGATEWAY_SISTORAGEMANAGER_H

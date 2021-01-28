@@ -39,7 +39,7 @@ add_subdirectory(src/api/authorize)
 
 # Executables.
 add_subdirectory(src/daemon)
-add_subdirectory(src/cli)
+add_subdirectory(src/sigwctl)
 
 # Drivers.
 add_subdirectory(src/drivers/storage/sqlite)

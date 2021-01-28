@@ -6,4 +6,4 @@ target_sources(sigwctl PRIVATE
                siusermanagementcommand.cpp
                main.cpp)
 target_link_libraries(sigwctl Qt5::Core SIAuthorize)
-install(TARGETS sigwctl RUNTIME DESTINATION sbin)
+install(TARGETS sigwctl RUNTIME DESTINATION bin)
