@@ -16,8 +16,16 @@ class SIPropertySubscriptions final: public SIAbstractOperation {
         return id_;
     }
 
-    inline QSet<SIDeviceAccessManager::PropertySubscriber*>& subscriptions() {
-        return subscriptions_;
+    inline bool hasSubscribers() const {
+        return !subscriptions_.isEmpty();
+    }
+
+    inline void addSubscriber(SIDeviceAccessManager::PropertySubscriber* subscriber) {
+        subscriptions_.insert(subscriber);
+    }
+
+    inline void removeSubscriber(SIDeviceAccessManager::PropertySubscriber* subscriber) {
+        subscriptions_.remove(subscriber);
     }
 
   private:
@@ -85,6 +93,7 @@ SIDeviceAccessManager::SIDeviceAccessManager(QObject* parent): QObject(parent), 
 
 SIDeviceAccessManager::~SIDeviceAccessManager() {
     qDeleteAll(priv_->subscriptions_);
+    delete priv_->messageRetrieveOperation_;
     delete priv_;
 }
 
@@ -129,29 +138,26 @@ bool SIDeviceAccessManager::subscribeToProperty(SIGlobalPropertyID id, SIDeviceA
         return false;
     }
 
-    auto subscription = std::find_if(priv_->subscriptions_.begin(), priv_->subscriptions_.end(), [&id](SIPropertySubscriptions* pollOperation) {
-        return pollOperation->id() == id;
+    auto subscription = std::find_if(priv_->subscriptions_.begin(), priv_->subscriptions_.end(), [&id](SIPropertySubscriptions* sub) {
+        return sub->id() == id;
     });
     if (subscription != priv_->subscriptions_.end()) {
-        (*subscription)->subscriptions().insert(subscriber);
+        (*subscription)->addSubscriber(subscriber);
     } else {
-        auto* subscription = new SIPropertySubscriptions(id);
-        subscription->subscriptions().insert(subscriber);
-        priv_->subscriptions_.append(subscription);
+        auto* newSubscription = new SIPropertySubscriptions(id);
+        newSubscription->addSubscriber(subscriber);
+        priv_->subscriptions_.append(newSubscription);
     }
 
     return true;
 }
 
 bool SIDeviceAccessManager::unsubscribeFromProperty(SIGlobalPropertyID id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
-    auto subscription = std::find_if(priv_->subscriptions_.begin(), priv_->subscriptions_.end(), [&id](SIPropertySubscriptions* pollOperation) {
-        return pollOperation->id() == id;
+    auto subscription = std::find_if(priv_->subscriptions_.begin(), priv_->subscriptions_.end(), [&id](SIPropertySubscriptions* sub) {
+        return sub->id() == id;
     });
     if (subscription != priv_->subscriptions_.end()) {
-        (*subscription)->subscriptions().remove(subscriber);
-        if ((*subscription)->subscriptions().isEmpty()) {
-            delete *priv_->subscriptions_.erase(subscription);
-        }
+        (*subscription)->removeSubscriber(subscriber);
         return true;
     } else {
         return false;
@@ -159,13 +165,8 @@ bool SIDeviceAccessManager::unsubscribeFromProperty(SIGlobalPropertyID id, SIDev
 }
 
 void SIDeviceAccessManager::unsubscribeFromAllProperties(SIDeviceAccessManager::PropertySubscriber* subscriber) {
-    for (auto i = priv_->subscriptions_.begin(); i != priv_->subscriptions_.end();) {
-        if ((*i)->subscriptions().remove(subscriber) && (*i)->subscriptions().isEmpty()) {
-            delete *i;
-            i = priv_->subscriptions_.erase(i);
-        } else {
-            ++i;
-        }
+    for (auto subscription: priv_->subscriptions_) {
+        subscription->removeSubscriber(subscriber);
     }
 }
 
@@ -176,7 +177,20 @@ void SIDeviceAccessManager::startPropertyPolling(int intervalMS) {
 void SIDeviceAccessManager::timerEvent(QTimerEvent* event) {
     Q_UNUSED(event)
 
+    // Remove unused subscriptions.
+    for (auto i = priv_->subscriptions_.begin(); i != priv_->subscriptions_.end();) {
+        if ((*i)->hasSubscribers()) {
+            ++i;
+        } else {
+            delete *i;
+            i = priv_->subscriptions_.erase(i);
+        }
+    }
+
+    // Enqueue device message retrieve operation.
     enqueueOperation_(priv_->messageRetrieveOperation_);
+
+    // Enqueue all subscriptions.
     for (auto* subscription: priv_->subscriptions_) {
         enqueueOperation_(subscription);
     }
