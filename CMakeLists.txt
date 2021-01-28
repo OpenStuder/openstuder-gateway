@@ -44,9 +44,7 @@ add_subdirectory(src/cli)
 # Drivers.
 add_subdirectory(src/drivers/storage/sqlite)
 add_subdirectory(src/drivers/deviceaccess/xcom485i)
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-    add_subdirectory(src/drivers/deviceaccess/dummy)
-endif()
+add_subdirectory(src/drivers/deviceaccess/demo)
 
 # Configuration file.
 install(FILES config/gateway.conf DESTINATION "etc/openstuder")

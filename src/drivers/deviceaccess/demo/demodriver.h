@@ -2,9 +2,9 @@
 #include <QObject>
 #include <sideviceaccessdriver.h>
 
-class DummyDriver: public QObject, public SIDeviceAccessDriver {
+class DemoDriver: public QObject, public SIDeviceAccessDriver {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID SIDeviceAccessDriverPlugin_IID FILE "dummydriver.json")
+    Q_PLUGIN_METADATA(IID SIDeviceAccessDriverPlugin_IID FILE "demodriver.json")
     Q_INTERFACES(SIDeviceAccessDriver)
 
   public:
