@@ -28,6 +28,14 @@ class SIPropertySubscriptions final: public SIAbstractOperation {
         subscriptions_.remove(subscriber);
     }
 
+    inline bool isPending() const {
+        return pending_;
+    }
+
+    inline void setPending() {
+        pending_ = true;
+    }
+
   private:
     SIStatus execute_(SIDeviceAccessRegistry* deviceAccessRegistry) override {
         if (deviceAccessRegistry == nullptr) {
@@ -51,11 +59,14 @@ class SIPropertySubscriptions final: public SIAbstractOperation {
            }
         }
 
+        pending_ = false;
+
         return SIStatus::Success;
     }
 
     SIGlobalPropertyID id_;
     QSet<SIDeviceAccessManager::PropertySubscriber*> subscriptions_;
+    bool pending_ = false;
 };
 
 class SIMessagesRetrieveOperation final: public SIAbstractOperation {
@@ -179,7 +190,7 @@ void SIDeviceAccessManager::timerEvent(QTimerEvent* event) {
 
     // Remove unused subscriptions.
     for (auto i = priv_->subscriptions_.begin(); i != priv_->subscriptions_.end();) {
-        if ((*i)->hasSubscribers()) {
+        if ((*i)->isPending() ||( *i)->hasSubscribers()) {
             ++i;
         } else {
             delete *i;
@@ -190,8 +201,11 @@ void SIDeviceAccessManager::timerEvent(QTimerEvent* event) {
     // Enqueue device message retrieve operation.
     enqueueOperation_(priv_->messageRetrieveOperation_);
 
-    // Enqueue all subscriptions.
+    // Enqueue all subscriptions that are not pending.
     for (auto* subscription: priv_->subscriptions_) {
-        enqueueOperation_(subscription);
+        if (!subscription->isPending()) {
+            subscription->setPending();
+            enqueueOperation_(subscription);
+        }
     }
 }
