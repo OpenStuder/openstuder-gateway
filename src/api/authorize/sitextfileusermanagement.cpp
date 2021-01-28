@@ -1,6 +1,7 @@
 #include "sitextfileusermanagement.h"
 #include <algorithm>
 #include <QCryptographicHash>
+#include <QRandomGenerator>
 #include <QTextStream>
 #include <QFile>
 
@@ -48,7 +49,7 @@ bool SITextFileUserManagement::addUser(const QString& username, const QString& p
     Users users;
     if (!load_(users, false)) return false;
     if (users.hasByUserName(username)) return false;
-    users.append({username, QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha512).toHex(), accessLevel});
+    users.append({username, encodePassword_(password), accessLevel});
     return save_(users);
 }
 
@@ -57,7 +58,7 @@ bool SITextFileUserManagement::changeUserPassword(const QString& username, const
     if (!load_(users)) return false;
     auto user = users.findByUsername(username);
     if (user == users.end()) return false;
-    user->passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha512).toHex();
+    user->passwordHash = encodePassword_(password);
     return save_(users);
 }
 
@@ -84,7 +85,7 @@ SIAccessLevel SITextFileUserManagement::authorizeUser_(const QString& username, 
     if (!load_(users)) return SIAccessLevel::None;
     auto user = users.findByUsername(username);
     if (user == users.end()) return SIAccessLevel::None;
-    if (user->passwordHash != QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha512).toHex())  return SIAccessLevel::None;
+    if (!checkPassword(password, user->passwordHash)) return SIAccessLevel::None;
     return user->accessLevel;
 }
 
@@ -134,4 +135,15 @@ bool SITextFileUserManagement::save_(const Users& users) {
     file.close();
 
     return true;
+}
+
+QString SITextFileUserManagement::encodePassword_(const QString& password) {
+    auto salt = QByteArray(16, 0);
+    QRandomGenerator::system()->generate(salt.begin(), salt.end());
+    return (salt + QCryptographicHash::hash(password.toUtf8() + salt, QCryptographicHash::Sha512)).toBase64();
+}
+
+bool SITextFileUserManagement::checkPassword(const QString& password, const QString& encoded) {
+    auto saltAndHash = QByteArray::fromBase64(encoded.toUtf8());
+    return QCryptographicHash::hash(password.toUtf8() + saltAndHash.left(16), QCryptographicHash::Sha512) == saltAndHash.mid(16);
 }

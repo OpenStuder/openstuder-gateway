@@ -44,5 +44,8 @@ class SITextFileUserManagement: public SIUserAuthorizer {
     bool load_(Users& users, bool checkFileExist = false) const;
     bool save_(const Users& users);
 
+    static QString encodePassword_(const QString& password);
+    static bool checkPassword(const QString& password, const QString& encoded);
+
     QString filename_;
 };
