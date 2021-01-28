@@ -2,6 +2,7 @@
 #include <sidevice.h>
 #include <sideviceaccess.h>
 #include <QElapsedTimer>
+#include <QTime>
 #include <random>
 
 class DemoModel: QObject {
