@@ -32,5 +32,5 @@ function(si_get_git_version OUTPUT)
         return()
     endif()
 
-    set(${OUTPUT} "UNKNOWN VERSION" PARENT_SCOPE)
+    set(${OUTPUT} "NO_VERSION" PARENT_SCOPE)
 endfunction()
