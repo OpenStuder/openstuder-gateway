@@ -56,6 +56,7 @@ install(FILES ${CMAKE_BINARY_DIR}/sigatewayd.service DESTINATION "/lib/systemd/s
 
 # Install instructions.
 set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/")
 set(CPACK_PACKAGE_DESCRIPTION "OpenStuder Gateway")
 set(CPACK_PACKAGE_VERSION ${GIT_VERSION})
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "michel.clausen@hevs.ch")
