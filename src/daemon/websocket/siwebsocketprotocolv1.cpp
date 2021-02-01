@@ -34,6 +34,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             SIJsonFlags jsonFlags = SIJsonFlag::Default;
             if (frame.hasHeader("flags")) {
+                jsonFlags = SIJsonFlag::None;
                 for (const auto& flag: frame.header("flags").split(",")) {
                     if (flag == "IncludeAccessInformation") jsonFlags |= SIJsonFlag::IncludeAccessInformation;
                     else if (flag == "IncludeAccessDetails") jsonFlags |= SIJsonFlag::IncludeAccessDetails;
@@ -123,7 +124,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::WRITE_PROPERTY: {
-            if (!frame.validateHeaders({"id"}, {"value"})) {
+            if (!frame.validateHeaders({"id"}, {"value", "flags"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
@@ -140,8 +141,19 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 }};
             }
 
+            SIPropertyWriteFlags writeFlags = SIPropertyWriteFlag::Default;
+            if (frame.hasHeader("flags")) {
+                writeFlags = SIPropertyWriteFlag::None;
+                for (const auto& flag: frame.header("flags").split(",")) {
+                    if (flag == "Permanent") writeFlags |= SIPropertyWriteFlag::Permanent;
+                    else {
+                        return SIWebSocketProtocolFrame::error("invalid frame");
+                    }
+                }
+            }
+
             auto value = frame.header("value");
-            auto* operation = deviceAccessManager->writeProperty(id, value);
+            auto* operation = deviceAccessManager->writeProperty(id, value, writeFlags);
             connect(operation, &SIAbstractOperation::finished, this, &SIWebSocketProtocolV1::writePropertyOperationFinished_);
             break;
         }
