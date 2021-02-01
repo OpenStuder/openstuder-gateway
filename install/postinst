@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+systemctl daemon-reload
+systemctl enable sigatewayd.service
+systemctl start sigatewayd.service

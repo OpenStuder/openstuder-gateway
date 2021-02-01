@@ -6,4 +6,5 @@ User=root
 ExecStart=@CMAKE_INSTALL_PREFIX@/sbin/sigatewayd
 
 [Install]
+Alias=sigatewayd
 WantedBy=multi-user.target
