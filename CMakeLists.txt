@@ -49,6 +49,7 @@ add_subdirectory(src/drivers/deviceaccess/demo)
 # Configuration file.
 install(FILES config/gateway.conf DESTINATION "etc/openstuder")
 install(FILES config/drivers.conf DESTINATION "etc/openstuder")
+install(FILES config/datalog.conf DESTINATION "etc/openstuder")
 
 # Service (systemd).
 configure_file(install/sigatewayd.service.in ${CMAKE_BINARY_DIR}/sigatewayd.service @ONLY)
