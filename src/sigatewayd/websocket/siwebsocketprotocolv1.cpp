@@ -208,7 +208,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::READ_MESSAGES: {
-            if (!frame.validateHeaders({}, {"from", "to"})) {
+            if (!frame.validateHeaders({}, {"from", "to", "limit"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
@@ -216,10 +216,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             if (frame.hasHeader("from")) {
                 from = QDateTime::fromString(frame.header("from"), Qt::ISODate);
                 if (!from.isValid()) {
-                    return {SIWebSocketProtocolFrame::MESSAGES_READ, {
-                        {"status", to_string(SIStatus::Error)},
-                        {"count", 0}
-                    }};
+                    return SIWebSocketProtocolFrame::error("invalid frame");
                 }
             }
 
@@ -227,14 +224,23 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             if (frame.hasHeader("to")) {
                 to = QDateTime::fromString(frame.header("to"), Qt::ISODate);
                 if (!from.isValid()) {
-                    return {SIWebSocketProtocolFrame::MESSAGES_READ, {
-                        {"status", to_string(SIStatus::Error)},
-                        {"count", 0}
-                    }};
+                    return SIWebSocketProtocolFrame::error("invalid frame");
                 }
             }
 
-            auto messages = context.storage().retrieveDeviceMessages(from, to);
+            auto limit = std::numeric_limits<unsigned int>::max();
+            if (frame.hasHeader("limit")) {
+                bool conversionOk = false;
+                limit = frame.header("limit").toUInt(&conversionOk);
+                if (!conversionOk) {
+                    return SIWebSocketProtocolFrame::error("invalid frame");
+                }
+            }
+
+            // TODO:
+            // - Add documentation to openstuder.io
+
+            auto messages = context.storage().retrieveDeviceMessages(from, to, limit);
 
             // Encode JSON messages array
             QJsonArray jsonMessages;

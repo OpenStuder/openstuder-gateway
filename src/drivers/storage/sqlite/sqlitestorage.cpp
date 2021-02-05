@@ -88,13 +88,14 @@ bool SQLiteStorage::storeDeviceMessages_(const QVector<SIDeviceMessage>& message
     return true;
 }
 
-QVector<SIStorage::TimestampedDeviceMessage> SQLiteStorage::retrieveDeviceMessages_(const QDateTime& from, const QDateTime& to) {
+QVector<SIStorage::TimestampedDeviceMessage> SQLiteStorage::retrieveDeviceMessages_(const QDateTime& from, const QDateTime& to, unsigned int limit) {
     QVector<TimestampedDeviceMessage> result;
 
     auto query = QSqlQuery(db_);
-    query.prepare("SELECT timestamp, access_id, device_id, message_id, message FROM device_message WHERE timestamp BETWEEN ? AND ?");
+    query.prepare("SELECT timestamp, access_id, device_id, message_id, message FROM device_message WHERE timestamp BETWEEN ? AND ? ORDER BY timestamp DESC limit ?");
     query.addBindValue(from.toSecsSinceEpoch());
     query.addBindValue(to.toSecsSinceEpoch());
+    query.addBindValue(limit);
 
     if (!query.exec()) {
         return result;

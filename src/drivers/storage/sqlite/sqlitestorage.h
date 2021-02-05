@@ -13,5 +13,5 @@ class SQLiteStorage: public SIStorage {
     QVector<TimestampedProperty> retrievePropertyValues_(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to) override;
 
     bool storeDeviceMessages_(const QVector<SIDeviceMessage>& messages, const QDateTime& timestamp) override;
-    QVector<TimestampedDeviceMessage> retrieveDeviceMessages_(const QDateTime& from, const QDateTime& to) override;
+    QVector<TimestampedDeviceMessage> retrieveDeviceMessages_(const QDateTime& from, const QDateTime& to, unsigned int limit) override;
 };
