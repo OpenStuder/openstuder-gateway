@@ -97,10 +97,10 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
     QString headerLine;
     while (in.readLineInto(&headerLine) && headerLine != "") {
         auto components = headerLine.split(':');
-        if (components.count() != 2) {
+        if (components.count() < 2) {
             return {};
         }
-        frame.headers_.insert(components[0].trimmed(), components[1].trimmed());
+        frame.headers_.insert(components[0].trimmed(), components.mid(1).join(':').trimmed());
     }
 
     in >> frame.body_;
