@@ -1,5 +1,6 @@
 #pragma once
 #include <QObject>
+#include "../sicontext.h"
 #include "siabstractbluetoothprotocol.h"
 #include "../deviceaccess/sideviceaccessmanager.h"
 #include <siuserauthorizer.h>
@@ -13,7 +14,7 @@ class QLowEnergyService;
   Q_OBJECT
 
   public:
-    explicit SIBluetoothManager(SIDeviceAccessManager* deviceAccessManager, SIUserAuthorizer* userAuthorizer, QObject* parent = nullptr);
+    explicit SIBluetoothManager(SIContext* context, QObject* parent = nullptr);
     ~SIBluetoothManager() override;
 
       const QString& peripheralName() const {
@@ -30,7 +31,7 @@ class QLowEnergyService;
   private slots:
     void onCharacteristicChanged_(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
     void onDisconnected_();
-    void onDeviceMessageReceived_(const QString& deviceAccessID, const SIDeviceMessage& message);
+    void onDeviceMessageReceived_(const SIDeviceMessage& message);
 
   private:
     void sendFrame_(const SIBluetoothProtocolFrame& frame);
@@ -41,6 +42,5 @@ class QLowEnergyService;
 
     SIAbstractBluetoothProtocol* protocol_ = nullptr;
 
-    SIDeviceAccessManager* deviceAccessManager_;
-    SIUserAuthorizer* userAuthorizer_;
+    SIContext* context_;
 };

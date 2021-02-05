@@ -4,15 +4,15 @@
 #include "../sisettings.h"
 #include <siaccesslevel.h>
 
-SIWebSocketConnection::SIWebSocketConnection(QWebSocket* webSocket, SIDeviceAccessManager* deviceAccessManager, SIUserAuthorizer* userAuthorizer, QObject* parent)
-    : QObject(parent), webSocket_(webSocket), deviceAccessManager_(deviceAccessManager), userAuthorizer_(userAuthorizer) {
+SIWebSocketConnection::SIWebSocketConnection(QWebSocket* webSocket, SIContext* context, QObject* parent)
+    : QObject(parent), webSocket_(webSocket), context_(context) {
     connect(webSocket_, &QWebSocket::textMessageReceived, this, &SIWebSocketConnection::onTextMessageReceived_);
     connect(webSocket_, &QWebSocket::disconnected, this, &QObject::deleteLater);
-    connect(deviceAccessManager_, &SIDeviceAccessManager::deviceMessageReceived, this, &SIWebSocketConnection::onDeviceMessageReceived_);
+    connect(&context_->deviceAccessManager(), &SIDeviceAccessManager::deviceMessageReceived, this, &SIWebSocketConnection::onDeviceMessageReceived_);
 }
 
 SIWebSocketConnection::~SIWebSocketConnection() {
-    deviceAccessManager_->unsubscribeFromAllProperties(protocol_);
+    context_->deviceAccessManager().unsubscribeFromAllProperties(protocol_);
     delete protocol_;
 }
 
@@ -31,8 +31,8 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
                     auto user = frame.header("user");
                     auto pass = frame.header("password");
 
-                    if (userAuthorizer_ != nullptr) {
-                        accessLevel = userAuthorizer_->authorizeUser(user, pass);
+                    if (context_->userAuthorizer() != nullptr) {
+                        accessLevel = context_->userAuthorizer()->authorizeUser(user, pass);
                     }
                 } else {
                     accessLevel = SISettings::sharedSettings().authorizeGuestAccessLevel();
@@ -71,16 +71,16 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
             sendFrame_(SIWebSocketProtocolFrame::error("authorization required"));
         }
     } else {
-        auto response = protocol_->handleFrame(frame, deviceAccessManager_);
+        auto response = protocol_->handleFrame(frame, *context_);
         if (response.command() != SIWebSocketProtocolFrame::INVALID) {
             sendFrame_(response);
         }
     }
 }
 
-void SIWebSocketConnection::onDeviceMessageReceived_(const QString& deviceAccessID, const SIDeviceMessage& message) {
+void SIWebSocketConnection::onDeviceMessageReceived_(const SIDeviceMessage& message) {
     if (protocol_ != nullptr) {
-        sendFrame_(protocol_->convertDeviceMessage(deviceAccessID, message));
+        sendFrame_(protocol_->convertDeviceMessage(message));
     }
 }
 

@@ -75,7 +75,7 @@ bool SQLiteStorage::storeDeviceMessages_(const QVector<SIDeviceMessage>& message
         auto query = QSqlQuery(db_);
         query.prepare("INSERT INTO device_message (timestamp, access_id, device_id, message_id, message) VALUES (?, ?, ?, ?, ?)");
         query.addBindValue(timestamp);
-        query.addBindValue("todo");
+        query.addBindValue(message.accessID);
         query.addBindValue(message.deviceID);
         query.addBindValue(message.messageID);
         query.addBindValue(message.message);
@@ -104,6 +104,7 @@ QVector<SIStorage::TimestampedDeviceMessage> SQLiteStorage::retrieveDeviceMessag
         result.append({
             query.value(0).toDateTime(), {
                 query.value(1).toString(),
+                query.value(2).toString(),
                 query.value(3).toUInt(),
                 query.value(4).toString()
             }

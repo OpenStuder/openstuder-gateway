@@ -1,5 +1,6 @@
 #pragma once
 #include <QObject>
+#include "../sicontext.h"
 #include <QWebSocketServer>
 
 class SIDeviceAccessManager;
@@ -9,7 +10,7 @@ class SIWebSocketManager: public QObject {
     Q_OBJECT
 
   public:
-    explicit SIWebSocketManager(SIDeviceAccessManager* deviceAccessManager, SIUserAuthorizer* userAuthorizer, QObject* parent = nullptr);
+    explicit SIWebSocketManager(SIContext* context, QObject* parent = nullptr);
 
   public slots:
     bool listen(quint16 port);
@@ -19,6 +20,5 @@ class SIWebSocketManager: public QObject {
 
   private:
     QWebSocketServer server_;
-    SIDeviceAccessManager* deviceAccessManager_;
-    SIUserAuthorizer* userAuthorizer_;
+    SIContext* context_;
 };

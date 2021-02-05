@@ -8,8 +8,8 @@ class SIBluetoothProtocolV1: public SIAbstractBluetoothProtocol {
   public:
     SIBluetoothProtocolV1(SIAccessLevel accessLevel);
 
-    SIBluetoothProtocolFrame handleFrame(SIBluetoothProtocolFrame& frame, SIDeviceAccessManager* deviceAccessManager) override;
-    SIBluetoothProtocolFrame convertDeviceMessage(const QString& deviceAccessID, const SIDeviceMessage& message) override;
+    SIBluetoothProtocolFrame handleFrame(SIBluetoothProtocolFrame& frame, SIContext& context) override;
+    SIBluetoothProtocolFrame convertDeviceMessage(const SIDeviceMessage& message) override;
 
     void propertyChanged(SIGlobalPropertyID id, const QVariant& value) override;
 

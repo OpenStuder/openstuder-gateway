@@ -7,7 +7,7 @@
 
 SIWebSocketProtocolV1::SIWebSocketProtocolV1(SIAccessLevel accessLevel): accessLevel_(accessLevel) {}
 
-SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolFrame& frame, SIDeviceAccessManager* deviceAccessManager) {
+SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolFrame& frame, SIContext& context) {
     // Frames send from the client can never have a body!
     if (frame.hasBody()) {
         return SIWebSocketProtocolFrame::error("invalid frame");
@@ -22,7 +22,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
-            auto* operation = deviceAccessManager->enumerateDevices();
+            auto* operation = context.deviceAccessManager().enumerateDevices();
             connect(operation, &SIAbstractOperation::finished, this, &SIWebSocketProtocolV1::enumerationOperationFinished_);
             return {};
         }
@@ -104,7 +104,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }
 
             auto id = SIGlobalPropertyID(frame.header("id"));
-            auto property = deviceAccessManager->resolveProperty(id);
+            auto property = context.deviceAccessManager().resolveProperty(id);
             if (property.type == SIPropertyType::Invalid || accessLevel_ < property.accessLevel) {
                 return {SIWebSocketProtocolFrame::PROPERTY_READ, {
                     {"status", to_string(SIStatus::NoProperty)},
@@ -118,7 +118,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 }};
             }
 
-            auto* operation = deviceAccessManager->readProperty(id);
+            auto* operation = context.deviceAccessManager().readProperty(id);
             connect(operation, &SIAbstractOperation::finished, this, &SIWebSocketProtocolV1::readPropertyOperationFinished_);
             return {};
         }
@@ -129,7 +129,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }
 
             auto id = SIGlobalPropertyID(frame.header("id"));
-            auto property = deviceAccessManager->resolveProperty(id);
+            auto property = context.deviceAccessManager().resolveProperty(id);
             if (property.type == SIPropertyType::Invalid || accessLevel_ < property.accessLevel) {
                 return {SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
                     {"status", to_string(SIStatus::NoProperty)}
@@ -153,7 +153,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }
 
             auto value = frame.header("value");
-            auto* operation = deviceAccessManager->writeProperty(id, value, writeFlags);
+            auto* operation = context.deviceAccessManager().writeProperty(id, value, writeFlags);
             connect(operation, &SIAbstractOperation::finished, this, &SIWebSocketProtocolV1::writePropertyOperationFinished_);
             break;
         }
@@ -164,7 +164,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }
 
             auto id = SIGlobalPropertyID(frame.header("id"));
-            auto property = deviceAccessManager->resolveProperty(id);
+            auto property = context.deviceAccessManager().resolveProperty(id);
             if (property.type == SIPropertyType::Invalid || accessLevel_ < property.accessLevel) {
                 return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
                     {"status", to_string(SIStatus::NoProperty)},
@@ -178,7 +178,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 }};
             }
 
-            bool status = deviceAccessManager->subscribeToProperty(id, this);
+            bool status = context.deviceAccessManager().subscribeToProperty(id, this);
             return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
                 {"status", to_string(status ? SIStatus::Success : SIStatus::Error)},
                 {"id", id.toString()}
@@ -198,7 +198,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 }};
             }
 
-            bool status = deviceAccessManager->unsubscribeFromProperty(id, this);
+            bool status = context.deviceAccessManager().unsubscribeFromProperty(id, this);
             return {SIWebSocketProtocolFrame::PROPERTY_UNSUBSCRIBED, {
                 {"status", to_string(status ? SIStatus::Success : SIStatus::Error)},
                 {"id", id.toString()}
@@ -212,9 +212,9 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
     return {};
 }
 
-SIWebSocketProtocolFrame SIWebSocketProtocolV1::convertDeviceMessage(const QString& deviceAccessID, const SIDeviceMessage& message) {
+SIWebSocketProtocolFrame SIWebSocketProtocolV1::convertDeviceMessage(const SIDeviceMessage& message) {
     return {SIWebSocketProtocolFrame::DEVICE_MESSAGE, {
-        {"access_id", deviceAccessID},
+        {"access_id", message.accessID},
         {"device_id", message.deviceID},
         {"message_id", QString::number(message.messageID)},
         {"message", message.message}

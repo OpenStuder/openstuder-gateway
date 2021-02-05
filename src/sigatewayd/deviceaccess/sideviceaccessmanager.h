@@ -37,7 +37,7 @@ class SIDeviceAccessManager: public QObject {
     void startPropertyPolling(int intervalMS);
 
   signals:
-    void deviceMessageReceived(const QString& deviceAccessID, const SIDeviceMessage& message);
+    void deviceMessageReceived(const SIDeviceMessage& message);
 
   private:
     void timerEvent(QTimerEvent* event) override;

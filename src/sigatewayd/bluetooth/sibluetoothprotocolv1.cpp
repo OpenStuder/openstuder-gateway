@@ -2,7 +2,7 @@
 
 SIBluetoothProtocolV1::SIBluetoothProtocolV1(SIAccessLevel accessLevel): accessLevel_(accessLevel) {}
 
-SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolFrame& frame, SIDeviceAccessManager* deviceAccessManager) {
+SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolFrame& frame, SIContext& context) {
     switch (frame.command()) {
         case SIBluetoothProtocolFrame::AUTHORIZE:
             return {SIBluetoothProtocolFrame::ERROR, {"invalid state"}};
@@ -10,7 +10,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
         case SIBluetoothProtocolFrame::ENUMERATE: {
             if (frame.parameterCount() != 0) return {SIBluetoothProtocolFrame::ERROR, {"invalid parameter count"}};
 
-            auto* operation = deviceAccessManager->enumerateDevices();
+            auto* operation = context.deviceAccessManager().enumerateDevices();
             connect(operation, &SIAbstractOperation::finished, this, &SIBluetoothProtocolV1::enumerationOperationFinished_);
             return {};
         }
@@ -21,7 +21,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
             SIGlobalPropertyID id(frame.parameters().first());
             if (!id.isValid()) return {SIBluetoothProtocolFrame::ERROR, {"invalid property id"}};
 
-            auto* operation = deviceAccessManager->readProperty(id);
+            auto* operation = context.deviceAccessManager().readProperty(id);
             connect(operation, &SIAbstractOperation::finished, this, &SIBluetoothProtocolV1::readPropertyOperationFinished_);
             return {};
         }
@@ -42,7 +42,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
                 // TODO: writeFlags =
             }
 
-            auto* operation = deviceAccessManager->writeProperty(id, value, writeFlags);
+            auto* operation = context.deviceAccessManager().writeProperty(id, value, writeFlags);
             connect(operation, &SIAbstractOperation::finished, this, &SIBluetoothProtocolV1::writePropertyOperationFinished_);
             return {};
         }
@@ -53,7 +53,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
             SIGlobalPropertyID id(frame.parameters().first());
             if (!id.isValid()) return {SIBluetoothProtocolFrame::ERROR, {"invalid property id"}};
 
-            deviceAccessManager->subscribeToProperty(frame.parameters().first(), this);
+            context.deviceAccessManager().subscribeToProperty(frame.parameters().first(), this);
             return {SIBluetoothProtocolFrame::PROPERTY_SUBSCRIBED, {QString::number((int)SIStatus::Success), id.toString()}};   // TODO: Real status.
         }
 
@@ -62,8 +62,8 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
     }
 }
 
-SIBluetoothProtocolFrame SIBluetoothProtocolV1::convertDeviceMessage(const QString& deviceAccessID, const SIDeviceMessage& message) {
-    return {SIBluetoothProtocolFrame::DEVICE_MESSAGE,{deviceAccessID, message.deviceID, QString::number(message.messageID)}};
+SIBluetoothProtocolFrame SIBluetoothProtocolV1::convertDeviceMessage(const SIDeviceMessage& message) {
+    return {SIBluetoothProtocolFrame::DEVICE_MESSAGE,{message.accessID, message.deviceID, QString::number(message.messageID)}};
 }
 
 

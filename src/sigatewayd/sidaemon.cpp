@@ -5,6 +5,7 @@
 #include "bluetooth/sibluetoothmanager.h"
 #include "sisettings.h"
 #include "datalog/sidatalogconfiguration.h"
+#include "datalog/sidatalogmanager.h"
 #include <sistoragedriver.h>
 #include <sidevice.h>
 #include <sideviceaccess.h>
@@ -55,8 +56,9 @@ bool SIDaemon::initialize() {
 
     // Load datalog configuration.
     QFile dataLogConfigurationFile(configurationFileLocation + "/datalog.conf");
+    SIDataLogConfiguration dataLogConfiguration;
     try {
-        auto dataLogConfiguration = SIDataLogConfiguration::parse(dataLogConfigurationFile);
+        dataLogConfiguration = SIDataLogConfiguration::parse(dataLogConfigurationFile);
     } catch (std::runtime_error& error) {
         qCCritical(DAEMON,) << "Error parsing datalog configuration file" << dataLogConfigurationFile.fileName() << ":" << error.what();
         return false;
@@ -133,14 +135,17 @@ bool SIDaemon::initialize() {
         qCCritical(DAEMON,) << "Failed to enumerate devices";
     }
 
-    // Create property manager and start polling timer.
+    // Create device access manager and start polling timer.
     int propertyPollInterval = settings.propertyPollInterval();
     deviceAccessManager_ = new SISequentialPropertyManager(this);
     deviceAccessManager_->startPropertyPolling(propertyPollInterval);
 
+    // Create data log manager.
+    dataLogManager_ = new SIDataLogManager(dataLogConfiguration, this, this);
+
     // Create web socket manager.
     if (settings.webSocketEnabled()) {
-        webSocketManager_ = new SIWebSocketManager(deviceAccessManager_, authorizer_.get(), this);
+        webSocketManager_ = new SIWebSocketManager(this, this);
         if (!webSocketManager_->listen(settings.webSocketPort())) {
             qCCritical(DAEMON,) << "Failed to start web socket listening";
             delete webSocketManager_;
@@ -149,10 +154,26 @@ bool SIDaemon::initialize() {
 
     // Create bluetooth manager.
     if (settings.bluetoothEnabled()) {
-        bluetoothManager_ = new SIBluetoothManager(deviceAccessManager_, authorizer_.get(), this);
+        bluetoothManager_ = new SIBluetoothManager(this, this);
         bluetoothManager_->setPeripheralName(settings.bluetoothName());
         bluetoothManager_->startAdvertise();
     }
 
     return true;
+}
+
+const SISettings& SIDaemon::settings() const {
+    return SISettings::sharedSettings();
+}
+
+SIDeviceAccessManager& SIDaemon::deviceAccessManager() {
+    return *deviceAccessManager_;
+}
+
+const SIUserAuthorizer* SIDaemon::userAuthorizer() {
+    return authorizer_.get();
+}
+
+SIStorage& SIDaemon::storage() {
+    return *storage_;
 }

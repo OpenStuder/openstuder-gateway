@@ -373,6 +373,7 @@ void XCom485iDeviceAccess::retrievePendingDeviceMessages_(QVector<SIDeviceMessag
             return;
         }
         SIDeviceMessage message;
+        message.accessID = id();
         message.deviceID = QString::number(reply->result().value(0));
         message.messageID = reply->result().value(1);
         message.message = xcom485iMessages_.value(message.messageID, "Unknown Message");

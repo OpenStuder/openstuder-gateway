@@ -8,8 +8,8 @@ class SIWebSocketProtocolV1: public SIAbstractWebSocketProtocol {
   public:
     SIWebSocketProtocolV1(SIAccessLevel accessLevel);
 
-    SIWebSocketProtocolFrame handleFrame(SIWebSocketProtocolFrame& frame, SIDeviceAccessManager* deviceAccessManager) override;
-    SIWebSocketProtocolFrame convertDeviceMessage(const QString& deviceAccessID, const SIDeviceMessage& message) override;
+    SIWebSocketProtocolFrame handleFrame(SIWebSocketProtocolFrame& frame, SIContext& context) override;
+    SIWebSocketProtocolFrame convertDeviceMessage(const SIDeviceMessage& message) override;
 
     void propertyChanged(SIGlobalPropertyID id, const QVariant& value) override;
 

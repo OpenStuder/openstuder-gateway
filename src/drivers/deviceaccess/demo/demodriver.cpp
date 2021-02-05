@@ -31,6 +31,10 @@ class DemoModel: QObject {
         return acInputPower_;
     }
 
+    inline bool acOutputOn() const {
+        return acInputOn_;
+    }
+
     inline void setAcOutputOn(bool on) {
         acOutputOn_ = on;
     }
@@ -57,6 +61,18 @@ class DemoModel: QObject {
 
     inline double batteryTemperature() const {
         return batteryTemperature_;
+    }
+
+    inline void addMessage(const SIDeviceMessage& message) {
+        pendingMessages_.append(message);
+    }
+
+    inline const QVector<SIDeviceMessage>& pendingMessages() const {
+        return pendingMessages_;
+    }
+
+    inline void clearPendingMessages() {
+        pendingMessages_.clear();
     }
 
   private:
@@ -134,6 +150,8 @@ class DemoModel: QObject {
     double batteryChargePower_ = 0.; // W
     double batteryCharge_ = batteryCapacity_ / 2.; // C
     double batteryTemperature_ = 20; // degree celsius
+
+    QVector<SIDeviceMessage> pendingMessages_;
 };
 
 class DemoInverter: public SIDevice {
@@ -181,9 +199,18 @@ class DemoInverter: public SIDevice {
 
         switch (id) {
             case 1415:
-            case 1399:
-                model_.setAcOutputOn(id == 1415);
+            case 1399: {
+                auto on = id == 1415;
+                if (model_.acOutputOn() != on) {
+                    if (on) {
+                        model_.addMessage({"", this->id(), 209, "AUX2 relay activation"});
+                    } else {
+                        model_.addMessage({"", this->id(), 210, "AUX2 relay deactivation"});
+                    }
+                }
+                model_.setAcOutputOn(on);
                 return {id, SIStatus::Success};
+            }
 
             default:
                 return {id, SIStatus::NoProperty};
@@ -300,7 +327,15 @@ class DemoDeviceAccess: public SIDeviceAccess {
     }
 
   private:
-    DemoModel model_;
+    void retrievePendingDeviceMessages_(QVector<SIDeviceMessage>& messages) const override {
+        auto msgs = model_.pendingMessages();
+        model_.clearPendingMessages();
+        for (auto& msg: msgs) msg.accessID = id();
+        messages.append(msgs);
+    }
+
+  private:
+    mutable DemoModel model_;
 };
 
 SIDeviceAccess* DemoDriver::createDeviceAccessInstance(const QString& id, const QVariantMap& parameters) {
