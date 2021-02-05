@@ -103,7 +103,7 @@ QVector<SIStorage::TimestampedDeviceMessage> SQLiteStorage::retrieveDeviceMessag
 
     while (query.next()) {
         result.append({
-            query.value(0).toDateTime(), {
+            QDateTime::fromSecsSinceEpoch(query.value(0).toULongLong()), {
                 query.value(1).toString(),
                 query.value(2).toString(),
                 query.value(3).toUInt(),
