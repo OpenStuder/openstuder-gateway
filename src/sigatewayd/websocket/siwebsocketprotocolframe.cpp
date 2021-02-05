@@ -68,7 +68,9 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = SUBSCRIBE_PROPERTY;
     } else if (commandStr == "UNSUBSCRIBE PROPERTY") {
         frame.command_ = UNSUBSCRIBE_PROPERTY;
-    } else if (commandStr == "ERROR") {
+    } else if (commandStr == "READ MESSAGES") {
+        frame.command_ = READ_MESSAGES;
+    }else if (commandStr == "ERROR") {
         frame.command_ = ERROR;
     } else if (commandStr == "AUTHORIZED") {
         frame.command_ = AUTHORIZED;
@@ -88,6 +90,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = PROPERTY_UPDATE;
     } else if (commandStr == "DEVICE MESSAGE") {
         frame.command_ = DEVICE_MESSAGE;
+    } else if (commandStr == "MESSAGES_READ") {
+        frame.command_ = MESSAGES_READ;
     }
 
     QString headerLine;
@@ -127,6 +131,9 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
         case SIWebSocketProtocolFrame::UNSUBSCRIBE_PROPERTY:
             return "UNSUBSCRIBE PROPERTY";
 
+        case SIWebSocketProtocolFrame::READ_MESSAGES:
+            return "READ MESSAGES";
+
         case SIWebSocketProtocolFrame::ERROR:
             return "ERROR";
 
@@ -156,6 +163,9 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
 
         case SIWebSocketProtocolFrame::DEVICE_MESSAGE:
             return "DEVICE MESSAGE";
+
+        case SIWebSocketProtocolFrame::MESSAGES_READ:
+            return "MESSAGES READ";
 
         default:
             return "INVALID";

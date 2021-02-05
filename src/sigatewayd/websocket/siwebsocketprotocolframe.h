@@ -18,6 +18,7 @@ class SIWebSocketProtocolFrame {
         WRITE_PROPERTY,
         SUBSCRIBE_PROPERTY,
         UNSUBSCRIBE_PROPERTY,
+        READ_MESSAGES,
 
         // Server messages.
         ERROR,
@@ -29,7 +30,8 @@ class SIWebSocketProtocolFrame {
         PROPERTY_SUBSCRIBED,
         PROPERTY_UNSUBSCRIBED,
         PROPERTY_UPDATE,
-        DEVICE_MESSAGE
+        DEVICE_MESSAGE,
+        MESSAGES_READ
     };
 
     SIWebSocketProtocolFrame(Command command = INVALID, std::initializer_list<QPair<QString,QString>> headers = {}, const QByteArray& body = {});

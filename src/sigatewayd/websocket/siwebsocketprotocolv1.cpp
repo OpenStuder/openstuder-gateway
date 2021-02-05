@@ -1,9 +1,11 @@
 #include "siwebsocketprotocolv1.h"
+#include "sistorage.h"
 #include <sijsonflags.h>
 #include <sideviceaccessregistry.h>
 #include <sideviceaccess.h>
 #include <sidevice.h>
 #include <QJsonDocument>
+#include <QJsonArray>
 
 SIWebSocketProtocolV1::SIWebSocketProtocolV1(SIAccessLevel accessLevel): accessLevel_(accessLevel) {}
 
@@ -203,6 +205,53 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 {"status", to_string(status ? SIStatus::Success : SIStatus::Error)},
                 {"id", id.toString()}
             }};
+        }
+
+        case SIWebSocketProtocolFrame::READ_MESSAGES: {
+            if (!frame.validateHeaders({}, {"from", "to"})) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            auto from = QDateTime::fromMSecsSinceEpoch(0);
+            if (frame.hasHeader("from")) {
+                from = QDateTime::fromString(frame.header("from"), Qt::ISODate);
+                if (!from.isValid()) {
+                    return {SIWebSocketProtocolFrame::MESSAGES_READ, {
+                        {"status", to_string(SIStatus::Error)},
+                        {"count", 0}
+                    }};
+                }
+            }
+
+            auto to = QDateTime::currentDateTime();
+            if (frame.hasHeader("to")) {
+                to = QDateTime::fromString(frame.header("to"), Qt::ISODate);
+                if (!from.isValid()) {
+                    return {SIWebSocketProtocolFrame::MESSAGES_READ, {
+                        {"status", to_string(SIStatus::Error)},
+                        {"count", 0}
+                    }};
+                }
+            }
+
+            auto messages = context.storage().retrieveDeviceMessages(from, to);
+
+            // Encode JSON messages array
+            QJsonArray jsonMessages;
+            for (const auto& message: messages) {
+                QJsonObject jsonMessage;
+                jsonMessage["timestamp"] = message.timestamp.toString(Qt::ISODate);
+                jsonMessage["access_id"] = message.message.accessID;
+                jsonMessage["device_id"] = message.message.deviceID;
+                jsonMessage["message_id"] = (qlonglong)message.message.messageID;
+                jsonMessage["message"] = message.message.message;
+                jsonMessages.append(jsonMessage);
+            }
+
+            return {SIWebSocketProtocolFrame::MESSAGES_READ, {
+                {"status", to_string(SIStatus::Success)},
+                {"count", QString::number(messages.count())}
+            }, QJsonDocument(jsonMessages).toJson(QJsonDocument::Compact)};
         }
 
         default:
