@@ -4,6 +4,8 @@
 
 class SQLiteStorage: public SIStorage {
   public:
+    ~SQLiteStorage();
+
     bool open(const QString& filename);
 
   private:

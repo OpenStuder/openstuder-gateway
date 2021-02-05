@@ -5,6 +5,10 @@
 
 Q_DECLARE_LOGGING_CATEGORY(SQLite)
 
+SQLiteStorage::~SQLiteStorage() {
+    db_.close();
+}
+
 bool SQLiteStorage::open(const QString& filename) {
     if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
         qCCritical(SQLite,) << "SQLITE driver not available";
