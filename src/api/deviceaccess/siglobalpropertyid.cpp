@@ -37,7 +37,7 @@ bool SIGlobalPropertyID::operator ==(const SIGlobalPropertyID& other) const {
 }
 
 bool SIGlobalPropertyID::operator <(const SIGlobalPropertyID& other) const {
-    return accessID_ < other.accessID_ &&
-           deviceID_ < other.deviceID_ &&
+    return accessID_ != other.accessID_ ? accessID_ < other.accessID_ :
+           deviceID_ != other.deviceID_ ? deviceID_ < other.deviceID_ :
            propertyID_ < other.propertyID_;
 }

@@ -6,6 +6,7 @@ class SIGlobalPropertyID {
   public:
     inline SIGlobalPropertyID() = default;
     inline SIGlobalPropertyID(const char* uniqueID): SIGlobalPropertyID(QString(uniqueID)) {}
+    inline SIGlobalPropertyID(const QByteArray& uniqueID): SIGlobalPropertyID(QString(uniqueID)) {}
     SIGlobalPropertyID(const QString& uniqueID);
     SIGlobalPropertyID(QString accessID, QString deviceID, SIPropertyID propertyID);
 
