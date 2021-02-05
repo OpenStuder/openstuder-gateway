@@ -1,21 +1,23 @@
 #include "sidaemon.h"
+#include "deviceaccess/sideviceaccessmanager.h"
+#include "deviceaccess/sisequentialpropertymanager.h"
+#include "websocket/siwebsocketmanager.h"
+#include "bluetooth/sibluetoothmanager.h"
+#include "sisettings.h"
+#include "datalog/sidatalogconfiguration.h"
 #include <sistoragedriver.h>
 #include <sidevice.h>
 #include <sideviceaccess.h>
 #include <sideviceaccessregistry.h>
 #include <siuserauthorizedriver.h>
 #include <sitextfileusermanagement.h>
-#include "deviceaccess/sideviceaccessmanager.h"
-#include "deviceaccess/sisequentialpropertymanager.h"
-#include "websocket/siwebsocketmanager.h"
-#include "bluetooth/sibluetoothmanager.h"
-#include "sisettings.h"
 #include <QCommandLineParser>
 #include <QFile>
 #include <QLoggingCategory>
 #include <QSettings>
 #include <QElapsedTimer>
 #include <memory>
+
 
 using namespace std;
 
@@ -48,10 +50,17 @@ bool SIDaemon::initialize() {
         qCCritical(DAEMON,) << error.what();
         return false;
     }
+    auto& settings = SISettings::sharedSettings();
     qCInfo(DAEMON,) << "Using configuration directory" << configurationFileLocation;
 
-    // Load configuration file.
-    auto& settings = SISettings::sharedSettings();
+    // Load datalog configuration.
+    QFile dataLogConfigurationFile(configurationFileLocation + "/datalog.conf");
+    try {
+        auto dataLogConfiguration = SIDataLogConfiguration::parse(dataLogConfigurationFile);
+    } catch (std::runtime_error& error) {
+        qCCritical(DAEMON,) << "Error parsing datalog configuration file" << dataLogConfigurationFile.fileName() << ":" << error.what();
+        return false;
+    }
 
     // Load driver search paths.
     auto driverSearchPaths = settings.driverSearchPaths().split(" ");

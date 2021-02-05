@@ -80,5 +80,6 @@ class SISettings {
 
     std::shared_ptr<QSettings> gatewaySettings_;
     std::shared_ptr<QSettings> driverSettings_;
+
     static SISettings sharedSettings_;
 };

@@ -38,7 +38,7 @@ add_subdirectory(src/api/storage)
 add_subdirectory(src/api/authorize)
 
 # Executables.
-add_subdirectory(src/daemon)
+add_subdirectory(src/sigatewayd)
 add_subdirectory(src/sigwctl)
 
 # Drivers.
