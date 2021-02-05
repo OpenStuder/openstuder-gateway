@@ -32,7 +32,7 @@ class DemoModel: QObject {
     }
 
     inline bool acOutputOn() const {
-        return acInputOn_;
+        return acOutputOn_;
     }
 
     inline void setAcOutputOn(bool on) {

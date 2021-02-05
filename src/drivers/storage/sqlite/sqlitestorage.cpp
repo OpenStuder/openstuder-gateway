@@ -74,7 +74,7 @@ bool SQLiteStorage::storeDeviceMessages_(const QVector<SIDeviceMessage>& message
     for (const auto& message: messages) {
         auto query = QSqlQuery(db_);
         query.prepare("INSERT INTO device_message (timestamp, access_id, device_id, message_id, message) VALUES (?, ?, ?, ?, ?)");
-        query.addBindValue(timestamp);
+        query.addBindValue(timestamp.toSecsSinceEpoch());
         query.addBindValue(message.accessID);
         query.addBindValue(message.deviceID);
         query.addBindValue(message.messageID);
@@ -92,9 +92,9 @@ QVector<SIStorage::TimestampedDeviceMessage> SQLiteStorage::retrieveDeviceMessag
     QVector<TimestampedDeviceMessage> result;
 
     auto query = QSqlQuery(db_);
-    query.prepare("SELECT timestamp, access_id, device_id, message_id, message FROM device_messages WHERE timestamp BETWEEN ? AND ?");
-    query.addBindValue(from);
-    query.addBindValue(to);
+    query.prepare("SELECT timestamp, access_id, device_id, message_id, message FROM device_message WHERE timestamp BETWEEN ? AND ?");
+    query.addBindValue(from.toSecsSinceEpoch());
+    query.addBindValue(to.toSecsSinceEpoch());
 
     if (!query.exec()) {
         return result;
