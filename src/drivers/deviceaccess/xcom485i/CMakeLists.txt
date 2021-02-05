@@ -1,5 +1,5 @@
 find_package(Qt5 5.11 REQUIRED COMPONENTS SerialPort SerialBus)
-si_add_device_access_driver(XCom485i
+si_add_device_access_driver(Xcom485i
                             xcom485iproperty.h
                             xcom485idevice.h
                             xcom485idevice.cpp
@@ -15,4 +15,4 @@ si_add_device_access_driver(XCom485i
                             xcom485ivariostring.cpp
                             xcom485ibatterymanager.h
                             xcom485ibatterymanager.cpp)
-target_link_libraries(XCom485i Qt5::SerialPort Qt5::SerialBus)
+target_link_libraries(Xcom485i Qt5::SerialPort Qt5::SerialBus)
