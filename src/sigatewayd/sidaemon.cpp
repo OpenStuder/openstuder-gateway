@@ -142,6 +142,7 @@ bool SIDaemon::initialize() {
 
     // Create data log manager.
     dataLogManager_ = new SIDataLogManager(dataLogConfiguration, this, this);
+    dataLogManager_->startPropertyPolling();
 
     // Create web socket manager.
     if (settings.webSocketEnabled()) {

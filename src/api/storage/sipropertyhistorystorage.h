@@ -20,9 +20,10 @@ class SIPropertyHistoryStorage {
 
     bool storePropertyValues(const QMap<SIGlobalPropertyID,QVariant>& properties, const QDateTime& timestamp = QDateTime::currentDateTime());
 
-    QVector<TimestampedProperty> retrievePropertyValues(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to = QDateTime::currentDateTime());
+    QVector<TimestampedProperty> retrievePropertyValues(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to = QDateTime::currentDateTime(),
+                                                        unsigned int limit = std::numeric_limits<unsigned int>::max());
 
   private:
     virtual bool storePropertyValues_(const QMap<SIGlobalPropertyID,QVariant>& properties, const QDateTime& timestamp) = 0;
-    virtual QVector<TimestampedProperty> retrievePropertyValues_(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to) = 0;
+    virtual QVector<TimestampedProperty> retrievePropertyValues_(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to, unsigned int limit) = 0;
 };

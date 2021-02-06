@@ -36,12 +36,9 @@ SIDataLogConfiguration SIDataLogConfiguration::parse(QIODevice& device) {
         else {
             SIGlobalPropertyID propertyID(line.trimmed());
             if (propertyID.isValid() && actualReadInterval) {
-                if (!dataLogConfiguration.properties_.contains(propertyID)) {
-                    dataLogConfiguration.properties_[propertyID] = actualReadInterval;
-                    continue;
-                } else {
-                    throw std::runtime_error(QString("duplicate property on line %1: %2").arg(lineNumber).arg(QString(line)).toStdString());
-                }
+                // TODO: Check for duplicates.
+                dataLogConfiguration.properties_[actualReadInterval].append(propertyID);
+                continue;
             }
         }
 

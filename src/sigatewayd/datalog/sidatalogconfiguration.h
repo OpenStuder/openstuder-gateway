@@ -1,6 +1,7 @@
 #pragma once
 #include <QIODevice>
 #include <QMap>
+#include <QVector>
 #include <siglobalpropertyid.h>
 
 class SIDataLogConfiguration {
@@ -11,11 +12,11 @@ class SIDataLogConfiguration {
         return valid_;
     }
 
-    inline const QMap<SIGlobalPropertyID, int>& properties() const {
+    inline const QMap<int, QVector<SIGlobalPropertyID>>& properties() const {
         return properties_;
     }
 
   private:
     bool valid_ = false;
-    QMap<SIGlobalPropertyID ,int> properties_;
+    QMap<int,QVector<SIGlobalPropertyID>> properties_;
 };

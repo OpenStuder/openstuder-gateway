@@ -37,6 +37,8 @@ add_executable(sigatewayd
                bluetooth/sibluetoothprotocolv1.cpp
                datalog/sidatalogconfiguration.h
                datalog/sidatalogconfiguration.cpp
+               datalog/sidataloggroup.h
+               datalog/sidataloggroup.cpp
                sicontext.h
                datalog/sidatalogmanager.h
                datalog/sidatalogmanager.cpp)

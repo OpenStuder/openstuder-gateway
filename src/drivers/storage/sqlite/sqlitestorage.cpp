@@ -42,7 +42,7 @@ bool SQLiteStorage::storePropertyValues_(const QMap<SIGlobalPropertyID, QVariant
         auto query = QSqlQuery(db_);
         query.prepare("INSERT OR REPLACE INTO property_history (id, timestamp, value) VALUES (?, ?, ?)");
         query.addBindValue(propertyID.toString());
-        query.addBindValue(timestamp);
+        query.addBindValue(timestamp.toSecsSinceEpoch());
         query.addBindValue(properties[propertyID]);
         if (!query.exec()) {
             db_.rollback();
@@ -53,21 +53,22 @@ bool SQLiteStorage::storePropertyValues_(const QMap<SIGlobalPropertyID, QVariant
     return true;
 }
 
-QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to) {
+QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to, unsigned int limit) {
     QVector<TimestampedProperty> result;
 
     auto query = QSqlQuery(db_);
-    query.prepare("SELECT timestamp, value FROM property_history WHERE id = ? AND timestamp BETWEEN ? AND ?");
+    query.prepare("SELECT timestamp, value FROM property_history WHERE id = ? AND timestamp BETWEEN ? AND ? ORDER BY timestamp DESC limit ?");
     query.addBindValue(id.toString());
-    query.addBindValue(from);
-    query.addBindValue(to);
+    query.addBindValue(from.toSecsSinceEpoch());
+    query.addBindValue(to.toSecsSinceEpoch());
+    query.addBindValue(limit);
 
     if (!query.exec()) {
         return result;
     }
 
     while (query.next()) {
-        result.append({query.value(0).toDateTime(), query.value(1)});
+        result.append({QDateTime::fromSecsSinceEpoch(query.value(0).toULongLong()), query.value(1)});
     }
 
     return result;
