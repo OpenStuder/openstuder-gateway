@@ -5,11 +5,10 @@
 #include <sistorage.h>
 #include <QDateTime>
 
-#include <QtDebug>
-
 SIDataLogGroup::SIDataLogGroup(int interval, const QVector<SIGlobalPropertyID>& propertyIDs, SIContext* context, QObject* parent):
     QObject(parent), interval_(interval), propertyIDs_(propertyIDs), context_(context) {
     timer_.setSingleShot(true);
+    timer_.setTimerType(Qt::PreciseTimer);
     connect(&timer_, &QTimer::timeout, this, &SIDataLogGroup::onTimeout_);
 }
 
@@ -29,7 +28,6 @@ void SIDataLogGroup::stopPropertyPolling() {
 
 void SIDataLogGroup::onTimeout_() {
     if (active_) {
-        qDebug() << "START READ";
         auto* operation = context_->deviceAccessManager().readProperties(propertyIDs_);
         connect(operation, &SIAbstractOperation::finished, this, &SIDataLogGroup::onFinished_);
     }
@@ -38,14 +36,14 @@ void SIDataLogGroup::onTimeout_() {
 void SIDataLogGroup::onFinished_(SIStatus status) {
     Q_UNUSED(status)
 
-    qDebug() << "READ COMPLETE";
-
     auto* operations = dynamic_cast<SIPropertiesReadOperation*>(sender());
     QMap<SIGlobalPropertyID, QVariant> results;
     for (int i = 0; i < operations->count(); ++i) {
         auto& op = (*operations)[i];
         if (op.status() == SIStatus::Success) {
             results[op.id()] = op.value();
+        } else {
+            results[op.id()] = {};
         }
     }
     context_->storage().storePropertyValues(results);
@@ -56,5 +54,9 @@ void SIDataLogGroup::onFinished_(SIStatus status) {
 }
 
 int SIDataLogGroup::msecToNextDue_() const {
-    return (interval_ * 1000) - QDateTime::currentMSecsSinceEpoch() % (interval_ * 1000);
+    auto msecToNextDue = (interval_ * 1000) - QDateTime::currentMSecsSinceEpoch() % (interval_ * 1000);
+    if (msecToNextDue < 500) {
+        msecToNextDue += interval_;
+    }
+    return msecToNextDue;
 }
