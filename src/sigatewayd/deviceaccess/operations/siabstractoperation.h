@@ -1,6 +1,7 @@
 #pragma once
 #include <QObject>
 #include <sistatus.h>
+#include <functional>
 
 class SIDeviceAccessRegistry;
 

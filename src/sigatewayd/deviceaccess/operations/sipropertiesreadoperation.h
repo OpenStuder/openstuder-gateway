@@ -4,6 +4,7 @@
 #include <siglobalpropertyid.h>
 #include <sistatus.h>
 #include <QVariant>
+#include <QVector>
 
 class SIPropertiesReadOperation final: public SIAbstractOperation {
   Q_OBJECT

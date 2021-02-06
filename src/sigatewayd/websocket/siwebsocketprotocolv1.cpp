@@ -6,6 +6,7 @@
 #include <sidevice.h>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QTextStream>
 
 SIWebSocketProtocolV1::SIWebSocketProtocolV1(SIAccessLevel accessLevel): accessLevel_(accessLevel) {}
 

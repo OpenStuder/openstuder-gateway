@@ -3,6 +3,7 @@
 #include "../deviceaccess/siglobalpropertyid.h"
 #include "../sicontext.h"
 #include <sistatus.h>
+#include <QVector>
 #include <QTimer>
 
 class SIDataLogGroup: public QObject {
