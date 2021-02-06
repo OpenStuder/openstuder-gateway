@@ -15,8 +15,8 @@ SIDataLogConfiguration SIDataLogConfiguration::parse(QIODevice& device) {
         lineNumber++;
         auto line = device.readLine();
 
-        // Ignore comments.
-        if (line.startsWith("#")) {
+        // Ignore comments and empty lines.
+        if (line.startsWith("#") || line.trimmed().isEmpty()) {
             continue;
         }
 
