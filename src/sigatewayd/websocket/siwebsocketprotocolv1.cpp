@@ -237,9 +237,6 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 }
             }
 
-            // TODO:
-            // - Add documentation to openstuder.io
-
             auto messages = context.storage().retrieveDeviceMessages(from, to, limit);
 
             // Encode JSON messages array
@@ -258,6 +255,55 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 {"status", to_string(SIStatus::Success)},
                 {"count", QString::number(messages.count())}
             }, QJsonDocument(jsonMessages).toJson(QJsonDocument::Compact)};
+        }
+
+        case SIWebSocketProtocolFrame::READ_DATALOG: {
+            if (!frame.validateHeaders({"id"}, {"from", "to", "limit"})) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            auto id = SIGlobalPropertyID(frame.header("id"));
+            if (!id.isValid()) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            auto from = QDateTime::fromMSecsSinceEpoch(0);
+            if (frame.hasHeader("from")) {
+                from = QDateTime::fromString(frame.header("from"), Qt::ISODate);
+                if (!from.isValid()) {
+                    return SIWebSocketProtocolFrame::error("invalid frame");
+                }
+            }
+
+            auto to = QDateTime::currentDateTime();
+            if (frame.hasHeader("to")) {
+                to = QDateTime::fromString(frame.header("to"), Qt::ISODate);
+                if (!from.isValid()) {
+                    return SIWebSocketProtocolFrame::error("invalid frame");
+                }
+            }
+
+            auto limit = std::numeric_limits<unsigned int>::max();
+            if (frame.hasHeader("limit")) {
+                bool conversionOk = false;
+                limit = frame.header("limit").toUInt(&conversionOk);
+                if (!conversionOk) {
+                    return SIWebSocketProtocolFrame::error("invalid frame");
+                }
+            }
+
+            auto data = context.storage().retrievePropertyValues(id, from, to, limit);
+
+            QString buffer;
+            QTextStream output(&buffer);
+            for (const auto& entry: data) {
+                output << entry.timestamp.toString(Qt::ISODate) << ", " << entry.value.toString() << "\n";
+            }
+            output.flush();
+
+            return {SIWebSocketProtocolFrame::DATALOG_READ, {
+                {"count", QString::number(data.count())}
+            }, buffer.toUtf8()};
         }
 
         default:
