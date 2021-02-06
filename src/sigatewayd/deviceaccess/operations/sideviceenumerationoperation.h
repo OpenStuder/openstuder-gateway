@@ -4,6 +4,8 @@
 class SIDeviceEnumerationOperation final: public SIAbstractOperation {
   public:
     explicit SIDeviceEnumerationOperation(QObject* parent = nullptr);
+    SIDeviceEnumerationOperation(const SIDeviceEnumerationOperation&) = delete;
+    SIDeviceEnumerationOperation& operator =(const SIDeviceEnumerationOperation&) = delete;
 
     inline int numberOfDevicesPresent() const {
         return numberOfDevicesPresent_;

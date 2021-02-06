@@ -5,10 +5,12 @@
 #include <QVariant>
 
 class SIPropertyReadOperation final: public SIAbstractOperation {
-    Q_OBJECT
+  Q_OBJECT
 
   public:
     explicit SIPropertyReadOperation(SIGlobalPropertyID id, QObject* parent = nullptr);
+    SIPropertyReadOperation(const SIPropertyReadOperation&) = delete;
+    SIPropertyReadOperation& operator =(const SIPropertyReadOperation&) = delete;
 
     inline const SIGlobalPropertyID& id() const {
         return id_;
@@ -18,7 +20,7 @@ class SIPropertyReadOperation final: public SIAbstractOperation {
         return value_;
     }
 
-   inline  SIStatus status() const {
+    inline SIStatus status() const {
         return status_;
     }
 

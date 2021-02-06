@@ -10,6 +10,8 @@ class SIPropertyWriteOperation final: public SIAbstractOperation {
 
   public:
     explicit SIPropertyWriteOperation(SIGlobalPropertyID id, QVariant value = {}, SIPropertyWriteFlags flags = SIPropertyWriteFlag::Default, QObject* parent = nullptr);
+    SIPropertyWriteOperation(const SIPropertyWriteOperation&) = delete;
+    SIPropertyWriteOperation& operator =(const SIPropertyWriteOperation&) = delete;
 
     inline const SIGlobalPropertyID& id() const {
         return id_;

@@ -17,6 +17,8 @@ add_executable(sigatewayd
                deviceaccess/sisequentialpropertymanager.h
                deviceaccess/operations/sideviceenumerationoperation.cpp
                deviceaccess/operations/sideviceenumerationoperation.h
+               deviceaccess/operations/sipropertiesreadoperation.cpp
+               deviceaccess/operations/sipropertiesreadoperation.h
                websocket/siwebsocketmanager.cpp
                websocket/siwebsocketmanager.h
                websocket/siwebsocketconnection.cpp

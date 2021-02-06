@@ -2,6 +2,7 @@
 #include "operations/sideviceenumerationoperation.h"
 #include "operations/sipropertyreadoperation.h"
 #include "operations/sipropertywriteoperation.h"
+#include "operations/sipropertiesreadoperation.h"
 #include <sipropertyid.h>
 #include <sipropertyreadresult.h>
 #include <sipropertywriteresult.h>
@@ -28,6 +29,7 @@ class SIDeviceAccessManager: public QObject {
 
     SIDeviceEnumerationOperation* enumerateDevices();
     SIPropertyReadOperation* readProperty(SIGlobalPropertyID id);
+    SIPropertiesReadOperation* readProperties(QVector<SIGlobalPropertyID> ids);
     SIPropertyWriteOperation* writeProperty(SIGlobalPropertyID id, const QVariant& value = {}, SIPropertyWriteFlags flags = SIPropertyWriteFlag::Default);
 
     bool subscribeToProperty(SIGlobalPropertyID id, PropertySubscriber* subscriber);

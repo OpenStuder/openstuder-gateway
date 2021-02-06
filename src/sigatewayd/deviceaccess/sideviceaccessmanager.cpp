@@ -128,19 +128,25 @@ SIProperty SIDeviceAccessManager::resolveProperty(SIGlobalPropertyID id) {
 
 SIDeviceEnumerationOperation* SIDeviceAccessManager::enumerateDevices() {
     auto* operation = new SIDeviceEnumerationOperation(this);
-    enqueueOperation_(operation);
+    operation->enqueue(std::bind(&SIDeviceAccessManager::enqueueOperation_, this, std::placeholders::_1));
     return operation;
 }
 
 SIPropertyReadOperation* SIDeviceAccessManager::readProperty(SIGlobalPropertyID id) {
     auto* operation = new SIPropertyReadOperation {move(id), this};
-    enqueueOperation_(operation);
+    operation->enqueue(std::bind(&SIDeviceAccessManager::enqueueOperation_, this, std::placeholders::_1));
+    return operation;
+}
+
+SIPropertiesReadOperation* SIDeviceAccessManager::readProperties(QVector<SIGlobalPropertyID> ids) {
+    auto* operation = new SIPropertiesReadOperation(move(ids), this);
+    operation->enqueue(std::bind(&SIDeviceAccessManager::enqueueOperation_, this, std::placeholders::_1));
     return operation;
 }
 
 SIPropertyWriteOperation* SIDeviceAccessManager::writeProperty(SIGlobalPropertyID id, const QVariant& value, SIPropertyWriteFlags flags) {
     auto* operation = new SIPropertyWriteOperation {move(id), value, flags, this};
-    enqueueOperation_(operation);
+    operation->enqueue(std::bind(&SIDeviceAccessManager::enqueueOperation_, this, std::placeholders::_1));
     return operation;
 }
 
@@ -199,13 +205,13 @@ void SIDeviceAccessManager::timerEvent(QTimerEvent* event) {
     }
 
     // Enqueue device message retrieve operation.
-    enqueueOperation_(priv_->messageRetrieveOperation_);
+    priv_->messageRetrieveOperation_->enqueue(std::bind(&SIDeviceAccessManager::enqueueOperation_, this, std::placeholders::_1));
 
     // Enqueue all subscriptions that are not pending.
     for (auto* subscription: priv_->subscriptions_) {
         if (!subscription->isPending()) {
             subscription->setPending();
-            enqueueOperation_(subscription);
+            subscription->enqueue(std::bind(&SIDeviceAccessManager::enqueueOperation_, this, std::placeholders::_1));
         }
     }
 }
