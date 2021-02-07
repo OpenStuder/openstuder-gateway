@@ -58,7 +58,8 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
                         connect(protocol_, &SIAbstractWebSocketProtocol::frameReadyToSend, this, &SIWebSocketConnection::sendFrame_);
                         sendFrame_({SIWebSocketProtocolFrame::AUTHORIZED, {
                             {"access_level", to_string(accessLevel)},
-                            {"protocol_version", QString::number(version)}
+                            {"protocol_version", QString::number(version)},
+                            {"gateway_version", OPENSTUDER_GATEWAY_VERSION}
                         }});
                         break;
 
