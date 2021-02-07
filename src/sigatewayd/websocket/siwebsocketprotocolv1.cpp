@@ -298,11 +298,12 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             QString buffer;
             QTextStream output(&buffer);
             for (const auto& entry: data) {
-                output << entry.timestamp.toString(Qt::ISODate) << ", " << entry.value.toString() << "\n";
+                output << entry.timestamp.toString(Qt::ISODate) << "," << entry.value.toString() << "\n";
             }
             output.flush();
 
             return {SIWebSocketProtocolFrame::DATALOG_READ, {
+                {"status", to_string(SIStatus::Success)},
                 {"count", QString::number(data.count())}
             }, buffer.toUtf8()};
         }
