@@ -304,6 +304,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             return {SIWebSocketProtocolFrame::DATALOG_READ, {
                 {"status", to_string(SIStatus::Success)},
+                {"id", id.toString()},
                 {"count", QString::number(data.count())}
             }, buffer.toUtf8()};
         }
