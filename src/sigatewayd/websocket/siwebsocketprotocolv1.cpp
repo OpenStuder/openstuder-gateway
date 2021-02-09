@@ -40,8 +40,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 jsonFlags = SIJsonFlag::None;
                 for (const auto& flag: frame.header("flags").split(",")) {
                     if (flag == "IncludeAccessInformation") jsonFlags |= SIJsonFlag::IncludeAccessInformation;
-                    else if (flag == "IncludeAccessDetails") jsonFlags |= SIJsonFlag::IncludeAccessDetails;
-                    else if (flag == "IncludeDeviceDetails") jsonFlags |= SIJsonFlag::IncludeDeviceDetails;
+                    else if (flag == "IncludeDeviceInformation") jsonFlags |= SIJsonFlag::IncludeDeviceInformation;
+                    else if (flag == "IncludePropertyInformation") jsonFlags |= SIJsonFlag::IncludePropertyInformation;
                     else if (flag == "IncludeDriverInformation") jsonFlags |= SIJsonFlag::IncludeDriverInformation;
                     else {
                         return SIWebSocketProtocolFrame::error("invalid frame");

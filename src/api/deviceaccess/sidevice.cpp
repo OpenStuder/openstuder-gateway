@@ -57,7 +57,7 @@ QJsonObject SIDevice::jsonDescription(SIAccessLevel accessLevel, SIJsonFlags fla
 
     description["model"] = model();
     description["id"] = id();
-    if (flags.testFlag(SIJsonFlag::IncludeDeviceDetails)) {
+    if (flags.testFlag(SIJsonFlag::IncludePropertyInformation)) {
         QJsonArray props;
         for (const auto& property: properties()) {
             if (accessLevel >= property.accessLevel) {

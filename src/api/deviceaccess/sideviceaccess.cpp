@@ -93,7 +93,7 @@ QPointer<SIDevice> SIDeviceAccess::device(const QString& id) const {
 QJsonObject SIDeviceAccess::jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const {
     QJsonObject description;
         description["id"] = id();
-        if (flags.testFlag(SIJsonFlag::IncludeAccessDetails)) {
+        if (flags.testFlag(SIJsonFlag::IncludeDeviceInformation)) {
             QJsonArray devs;
             for (auto* child: children()) {
 #ifdef Q_OS_MACOS
