@@ -318,6 +318,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
 SIWebSocketProtocolFrame SIWebSocketProtocolV1::convertDeviceMessage(const SIDeviceMessage& message) {
     return {SIWebSocketProtocolFrame::DEVICE_MESSAGE, {
+        // TODO: Move timestamp to SIDeviceMessage and let the timestamp be controlled by the access driver.
+        {"timestamp", QDateTime::currentDateTime().toString(Qt::ISODate)},
         {"access_id", message.accessID},
         {"device_id", message.deviceID},
         {"message_id", QString::number(message.messageID)},
