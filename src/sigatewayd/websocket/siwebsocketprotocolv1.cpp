@@ -242,13 +242,13 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             // Encode JSON messages array
             QJsonArray jsonMessages;
-            for (const auto& message: messages) {
+            for (auto message = messages.crbegin(); message != messages.crend(); ++message) {
                 QJsonObject jsonMessage;
-                jsonMessage["timestamp"] = message.timestamp.toString(Qt::ISODate);
-                jsonMessage["access_id"] = message.message.accessID;
-                jsonMessage["device_id"] = message.message.deviceID;
-                jsonMessage["message_id"] = (qlonglong)message.message.messageID;
-                jsonMessage["message"] = message.message.message;
+                jsonMessage["timestamp"] = message->timestamp.toString(Qt::ISODate);
+                jsonMessage["access_id"] = message->message.accessID;
+                jsonMessage["device_id"] = message->message.deviceID;
+                jsonMessage["message_id"] = (qlonglong)message->message.messageID;
+                jsonMessage["message"] = message->message.message;
                 jsonMessages.append(jsonMessage);
             }
 
@@ -297,8 +297,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             QString buffer;
             QTextStream output(&buffer);
-            for (const auto& entry: data) {
-                output << entry.timestamp.toString(Qt::ISODate) << "," << entry.value.toString() << "\n";
+            for (auto entry = data.crbegin(); entry != data.crend(); ++entry) {
+                output << entry->timestamp.toString(Qt::ISODate) << "," << entry->value.toString() << "\n";
             }
             output.flush();
 
