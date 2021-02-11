@@ -13,7 +13,7 @@ SIDataLogConfiguration SIDataLogConfiguration::parse(QIODevice& device) {
     int actualReadInterval = 0;
     while (!device.atEnd()) {
         lineNumber++;
-        auto line = device.readLine();
+        auto line = device.readLine().trimmed();
 
         // Ignore comments and empty lines.
         if (line.startsWith("#") || line.trimmed().isEmpty()) {
