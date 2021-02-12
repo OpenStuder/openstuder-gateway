@@ -75,7 +75,7 @@ void SIDataLogGroup::onFinished_(SIStatus status) {
         }
     }
     context_->storage().storePropertyValues(results);
-    delete operation;
+    operation->deleteLater();
     if (active_) {
         timer_.start(msecToNextDue_());
     }

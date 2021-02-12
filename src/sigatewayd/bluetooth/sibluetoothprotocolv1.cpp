@@ -74,17 +74,17 @@ void SIBluetoothProtocolV1::propertyChanged(SIGlobalPropertyID id, const QVarian
 void SIBluetoothProtocolV1::enumerationOperationFinished_(SIStatus status) {
     auto* operation = dynamic_cast<SIDeviceEnumerationOperation*>(sender());
     emit frameReadyToSend({SIBluetoothProtocolFrame::ENUMERATED, {QString::number((int)status), QString::number(operation->numberOfDevicesPresent())}});
-    delete operation;
+    operation->deleteLater();
 }
 
 void SIBluetoothProtocolV1::readPropertyOperationFinished_(SIStatus status) {
     auto* operation = dynamic_cast<SIPropertyReadOperation*>(sender());
     emit frameReadyToSend({SIBluetoothProtocolFrame::PROPERTY_READ, {QString::number((int)status), operation->id().toString(), operation->value().toString()}});
-    delete operation;
+    operation->deleteLater();
 }
 
 void SIBluetoothProtocolV1::writePropertyOperationFinished_(SIStatus status) {
     auto* operation = dynamic_cast<SIPropertyWriteOperation*>(sender());
     emit frameReadyToSend({SIBluetoothProtocolFrame::PROPERTY_WRITTEN, {QString::number((int)status)}});
-    delete operation;
+    operation->deleteLater();
 }

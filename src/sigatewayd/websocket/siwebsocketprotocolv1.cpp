@@ -339,7 +339,7 @@ void SIWebSocketProtocolV1::enumerationOperationFinished_(SIStatus status) {
         {"status", to_string(status)},
         {"device_count", QString::number(operation->numberOfDevicesPresent())}
     }});
-    delete operation;
+    operation->deleteLater();
 }
 
 void SIWebSocketProtocolV1::readPropertyOperationFinished_(SIStatus status) {
@@ -356,7 +356,7 @@ void SIWebSocketProtocolV1::readPropertyOperationFinished_(SIStatus status) {
             {"id", operation->id().toString()}
         }});
     }
-    delete operation;
+    operation->deleteLater();
 }
 
 void SIWebSocketProtocolV1::writePropertyOperationFinished_(SIStatus status) {
@@ -365,5 +365,5 @@ void SIWebSocketProtocolV1::writePropertyOperationFinished_(SIStatus status) {
         {"status", to_string(status)},
         {"id", operation->id().toString()}
     }});
-    delete operation;
+    operation->deleteLater();
 }
