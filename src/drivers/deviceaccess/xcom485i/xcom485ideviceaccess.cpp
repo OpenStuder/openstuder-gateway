@@ -11,6 +11,8 @@
 
 using namespace std;
 
+// TODO: Add virtual extender devices for L1, L2 and L3.
+
 Q_DECLARE_LOGGING_CATEGORY(XCOM485i)
 
 static QMap<quint64, QString> xcom485iMessages_ =

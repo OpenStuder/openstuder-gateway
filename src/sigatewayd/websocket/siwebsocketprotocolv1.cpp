@@ -245,10 +245,10 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             for (auto message = messages.crbegin(); message != messages.crend(); ++message) {
                 QJsonObject jsonMessage;
                 jsonMessage["timestamp"] = message->timestamp.toString(Qt::ISODate);
-                jsonMessage["access_id"] = message->message.accessID;
-                jsonMessage["device_id"] = message->message.deviceID;
-                jsonMessage["message_id"] = (qlonglong)message->message.messageID;
-                jsonMessage["message"] = message->message.message;
+                jsonMessage["access_id"] = message->accessID;
+                jsonMessage["device_id"] = message->deviceID;
+                jsonMessage["message_id"] = (qlonglong)message->messageID;
+                jsonMessage["message"] = message->message;
                 jsonMessages.append(jsonMessage);
             }
 
@@ -318,8 +318,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
 SIWebSocketProtocolFrame SIWebSocketProtocolV1::convertDeviceMessage(const SIDeviceMessage& message) {
     return {SIWebSocketProtocolFrame::DEVICE_MESSAGE, {
-        // TODO: Move timestamp to SIDeviceMessage and let the timestamp be controlled by the access driver.
-        {"timestamp", QDateTime::currentDateTime().toString(Qt::ISODate)},
+        {"timestamp", message.timestamp.toString(Qt::ISODate)},
         {"access_id", message.accessID},
         {"device_id", message.deviceID},
         {"message_id", QString::number(message.messageID)},

@@ -74,12 +74,12 @@ QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(c
     return result;
 }
 
-bool SQLiteStorage::storeDeviceMessages_(const QVector<SIDeviceMessage>& messages, const QDateTime& timestamp) {
+bool SQLiteStorage::storeDeviceMessages_(const QVector<SIDeviceMessage>& messages) {
     db_.transaction();
     for (const auto& message: messages) {
         auto query = QSqlQuery(db_);
         query.prepare("INSERT INTO device_message (timestamp, access_id, device_id, message_id, message) VALUES (?, ?, ?, ?, ?)");
-        query.addBindValue(timestamp.toSecsSinceEpoch());
+        query.addBindValue(message.timestamp.toSecsSinceEpoch());
         query.addBindValue(message.accessID);
         query.addBindValue(message.deviceID);
         query.addBindValue(message.messageID);
@@ -93,8 +93,8 @@ bool SQLiteStorage::storeDeviceMessages_(const QVector<SIDeviceMessage>& message
     return true;
 }
 
-QVector<SIStorage::TimestampedDeviceMessage> SQLiteStorage::retrieveDeviceMessages_(const QDateTime& from, const QDateTime& to, unsigned int limit) {
-    QVector<TimestampedDeviceMessage> result;
+QVector<SIDeviceMessage> SQLiteStorage::retrieveDeviceMessages_(const QDateTime& from, const QDateTime& to, unsigned int limit) {
+    QVector<SIDeviceMessage> result;
 
     auto query = QSqlQuery(db_);
     query.prepare("SELECT timestamp, access_id, device_id, message_id, message FROM device_message WHERE timestamp BETWEEN ? AND ? ORDER BY timestamp DESC limit ?");
@@ -108,12 +108,11 @@ QVector<SIStorage::TimestampedDeviceMessage> SQLiteStorage::retrieveDeviceMessag
 
     while (query.next()) {
         result.append({
-            QDateTime::fromSecsSinceEpoch(query.value(0).toULongLong()), {
-                query.value(1).toString(),
-                query.value(2).toString(),
-                query.value(3).toUInt(),
-                query.value(4).toString()
-            }
+            query.value(1).toString(),
+            query.value(2).toString(),
+            query.value(3).toUInt(),
+            query.value(4).toString(),
+            QDateTime::fromSecsSinceEpoch(query.value(0).toULongLong())
         });
     }
 
