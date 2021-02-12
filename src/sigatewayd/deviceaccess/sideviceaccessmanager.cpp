@@ -1,7 +1,5 @@
 #include "sideviceaccessmanager.h"
 #include "sideviceaccessregistry.h"
-#include "sideviceaccess.h"
-#include "sidevice.h"
 #include <utility>
 #include <QSet>
 #include <QtDebug>
@@ -100,6 +98,11 @@ struct SIDeviceAccessManager::Private {
 
 SIDeviceAccessManager::SIDeviceAccessManager(QObject* parent): QObject(parent), priv_(new Private) {
     priv_->messageRetrieveOperation_ = new SIMessagesRetrieveOperation(this);
+
+    for (int i = 0; i < SIDeviceAccessRegistry::sharedRegistry().deviceAccessCount(); ++i) {
+        connect(SIDeviceAccessRegistry::sharedRegistry().deviceAccess(0), &SIDeviceAccess::deviceAdded, this, &SIDeviceAccessManager::onDeviceAdded_);
+        connect(SIDeviceAccessRegistry::sharedRegistry().deviceAccess(0), &SIDeviceAccess::deviceRemoved, this, &SIDeviceAccessManager::onDeviceRemoved_);
+    }
 }
 
 SIDeviceAccessManager::~SIDeviceAccessManager() {
@@ -189,6 +192,16 @@ void SIDeviceAccessManager::unsubscribeFromAllProperties(SIDeviceAccessManager::
 
 void SIDeviceAccessManager::startPropertyPolling(int intervalMS) {
     startTimer(intervalMS);
+}
+
+void SIDeviceAccessManager::onDeviceAdded_(const SIDevice& device) {
+    auto* access = reinterpret_cast<SIDeviceAccess*>(sender());
+    emit deviceAdded(*access, device);
+}
+
+void SIDeviceAccessManager::onDeviceRemoved_(const SIDevice& device) {
+    auto* access = reinterpret_cast<SIDeviceAccess*>(sender());
+    emit deviceRemoved(*access, device);
 }
 
 void SIDeviceAccessManager::timerEvent(QTimerEvent* event) {

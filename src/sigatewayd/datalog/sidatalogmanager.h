@@ -4,6 +4,7 @@
 #include "sidatalogconfiguration.h"
 #include "../sicontext.h"
 #include <sidevicemessage.h>
+#include <sidevice.h>
 
 class SIDataLogManager: public QObject {
     Q_OBJECT
@@ -17,6 +18,8 @@ class SIDataLogManager: public QObject {
 
   private slots:
     void onDeviceMessageReceived_(const SIDeviceMessage& message);
+    void onDeviceAdded_(const SIDeviceAccess& access, const SIDevice& device);
+    void onDeviceRemoved_(const SIDeviceAccess& access, const SIDevice& device);
 
   private:
     QVector<SIDataLogGroup*> groups_;

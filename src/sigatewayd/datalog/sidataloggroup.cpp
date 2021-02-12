@@ -6,7 +6,15 @@
 #include <QDateTime>
 
 SIDataLogGroup::SIDataLogGroup(int interval, const QVector<SIGlobalPropertyID>& propertyIDs, SIContext* context, QObject* parent):
-    QObject(parent), interval_(interval), propertyIDs_(propertyIDs), context_(context) {
+    QObject(parent), interval_(interval), context_(context) {
+    for (const auto& id: propertyIDs) {
+        if (id.isWildcard()) {
+            wildcardIDs_.append(id);
+        } else {
+            propertyIDs_.append(id);
+        }
+    }
+
     timer_.setSingleShot(true);
     timer_.setTimerType(Qt::PreciseTimer);
     connect(&timer_, &QTimer::timeout, this, &SIDataLogGroup::onTimeout_);
@@ -26,20 +34,40 @@ void SIDataLogGroup::stopPropertyPolling() {
     }
 }
 
+void SIDataLogGroup::addWildcardPropertiesForDevice(const QString& accessID, const QString& deviceID, const QVector<SIProperty>& properties) {
+    for (const auto& wildcardID: wildcardIDs_) {
+        for (const auto& property: properties) {
+            if (wildcardID.matches(accessID, deviceID, property.id)) {
+                propertyIDs_.append({accessID, deviceID, property.id});
+            }
+        }
+    }
+}
+
+void SIDataLogGroup::removeWildcardPropertiesForDevice(const QString& accessID, const QString& deviceID) {
+    propertyIDs_.erase(std::remove_if(propertyIDs_.begin(), propertyIDs_.end(), [&accessID, &deviceID](const SIGlobalPropertyID& id) {
+        return id.accessID() == accessID && id.deviceID() == deviceID;
+    }), propertyIDs_.end());
+}
+
 void SIDataLogGroup::onTimeout_() {
     if (active_) {
-        auto* operation = context_->deviceAccessManager().readProperties(propertyIDs_);
-        connect(operation, &SIAbstractOperation::finished, this, &SIDataLogGroup::onFinished_);
+        if (!propertyIDs_.isEmpty()) {
+            auto* operation = context_->deviceAccessManager().readProperties(propertyIDs_);
+            connect(operation, &SIAbstractOperation::finished, this, &SIDataLogGroup::onFinished_);
+        } else {
+            timer_.start(msecToNextDue_());
+        }
     }
 }
 
 void SIDataLogGroup::onFinished_(SIStatus status) {
     Q_UNUSED(status)
 
-    auto* operations = dynamic_cast<SIPropertiesReadOperation*>(sender());
+    auto* operation = dynamic_cast<SIPropertiesReadOperation*>(sender());
     QMap<SIGlobalPropertyID, QVariant> results;
-    for (int i = 0; i < operations->count(); ++i) {
-        auto& op = (*operations)[i];
+    for (int i = 0; i < operation->count(); ++i) {
+        auto& op = (*operation)[i];
         if (op.status() == SIStatus::Success) {
             results[op.id()] = op.value();
         } else {
@@ -47,7 +75,7 @@ void SIDataLogGroup::onFinished_(SIStatus status) {
         }
     }
     context_->storage().storePropertyValues(results);
-    delete operations;
+    delete operation;
     if (active_) {
         timer_.start(msecToNextDue_());
     }

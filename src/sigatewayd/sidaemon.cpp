@@ -124,6 +124,15 @@ bool SIDaemon::initialize() {
         }
     }
 
+    // Create device access manager and start polling timer.
+    int propertyPollInterval = settings.propertyPollInterval();
+    deviceAccessManager_ = new SISequentialPropertyManager(this);
+    deviceAccessManager_->startPropertyPolling(propertyPollInterval);
+
+    // Create data log manager.
+    dataLogManager_ = new SIDataLogManager(dataLogConfiguration, this, this);
+    dataLogManager_->startPropertyPolling();
+
     // Enumerate all devices on startup.
     qCInfo(DAEMON,) << "Enumerating all devices...";
     QElapsedTimer elapsedTimer;
@@ -134,15 +143,6 @@ bool SIDaemon::initialize() {
     } else {
         qCCritical(DAEMON,) << "Failed to enumerate devices";
     }
-
-    // Create device access manager and start polling timer.
-    int propertyPollInterval = settings.propertyPollInterval();
-    deviceAccessManager_ = new SISequentialPropertyManager(this);
-    deviceAccessManager_->startPropertyPolling(propertyPollInterval);
-
-    // Create data log manager.
-    dataLogManager_ = new SIDataLogManager(dataLogConfiguration, this, this);
-    dataLogManager_->startPropertyPolling();
 
     // Create web socket manager.
     if (settings.webSocketEnabled()) {

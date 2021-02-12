@@ -3,6 +3,7 @@
 #include "../deviceaccess/siglobalpropertyid.h"
 #include "../sicontext.h"
 #include <sistatus.h>
+#include <siproperty.h>
 #include <QVector>
 #include <QTimer>
 
@@ -17,6 +18,9 @@ class SIDataLogGroup: public QObject {
     void startPropertyPolling();
     void stopPropertyPolling();
 
+    void addWildcardPropertiesForDevice(const QString& accessID, const QString& deviceID, const QVector<SIProperty>& properties);
+    void removeWildcardPropertiesForDevice(const QString& accessID, const QString& deviceID);
+
   private slots:
     void onTimeout_();
     void onFinished_(SIStatus status);
@@ -27,6 +31,7 @@ class SIDataLogGroup: public QObject {
     int interval_;
     bool active_ = false;
     QVector<SIGlobalPropertyID> propertyIDs_;
+    QVector<SIGlobalPropertyID> wildcardIDs_;
     SIContext* context_;
     QTimer timer_;
 };

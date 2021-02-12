@@ -9,6 +9,8 @@
 #include <sipropertywriteflags.h>
 #include <sidevicemessage.h>
 #include <siproperty.h>
+#include <sidevice.h>
+#include <sideviceaccess.h>
 #include <QObject>
 #include <QVector>
 
@@ -40,6 +42,12 @@ class SIDeviceAccessManager: public QObject {
 
   signals:
     void deviceMessageReceived(const SIDeviceMessage& message);
+    void deviceAdded(const SIDeviceAccess& access, const SIDevice& device);
+    void deviceRemoved(const SIDeviceAccess& access, const SIDevice& device);
+
+  private slots:
+    void onDeviceAdded_(const SIDevice& device);
+    void onDeviceRemoved_(const SIDevice& device);
 
   private:
     void timerEvent(QTimerEvent* event) override;
