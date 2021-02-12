@@ -30,10 +30,26 @@ QString SIGlobalPropertyID::toString() const {
     }
 }
 
+bool SIGlobalPropertyID::isWildcard() const {
+    return accessID_ == "*" || deviceID_ == "*";
+}
+
+bool SIGlobalPropertyID::matches(const SIGlobalPropertyID& id) const {
+    return matches(id.accessID_, id.deviceID_, id.propertyID_);
+
+}
+
+bool SIGlobalPropertyID::matches(const QString& accessID, const QString& deviceID, SIPropertyID propertyID) const {
+    return isWildcard() &&
+           propertyID_ == propertyID &&
+           (deviceID_ == "*" || deviceID_ == deviceID) &&
+           (accessID_ == "*" || accessID_ == accessID);
+}
+
 bool SIGlobalPropertyID::operator ==(const SIGlobalPropertyID& other) const {
     return accessID_ == other.accessID_ &&
-    deviceID_ == other.deviceID_ &&
-    propertyID_ == other.propertyID_;
+           deviceID_ == other.deviceID_ &&
+           propertyID_ == other.propertyID_;
 }
 
 bool SIGlobalPropertyID::operator <(const SIGlobalPropertyID& other) const {
