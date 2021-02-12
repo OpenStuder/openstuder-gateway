@@ -7,7 +7,7 @@ class SISequentialPropertyManager: public SIDeviceAccessManager {
     explicit SISequentialPropertyManager(QObject* parent = nullptr): SIDeviceAccessManager(parent) {}
 
   private slots:
-    void onFinish_(SIStatus status);
+    void onAboutToFinish_();
 
 
   private:
@@ -15,5 +15,4 @@ class SISequentialPropertyManager: public SIDeviceAccessManager {
     void enqueueOperation_(SIAbstractOperation* operation) override;
 
     QQueue<SIAbstractOperation*> operationQueue_;
-    SIAbstractOperation* currentOperation_ = nullptr;
 };

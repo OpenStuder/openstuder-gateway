@@ -2,6 +2,8 @@
 #include "siabstractoperation.h"
 
 class SIDeviceEnumerationOperation final: public SIAbstractOperation {
+    Q_OBJECT
+
   public:
     explicit SIDeviceEnumerationOperation(QObject* parent = nullptr);
     SIDeviceEnumerationOperation(const SIDeviceEnumerationOperation&) = delete;

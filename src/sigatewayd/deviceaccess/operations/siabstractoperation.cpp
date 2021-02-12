@@ -12,11 +12,13 @@ void SIAbstractOperation::enqueue(const std::function<void(SIAbstractOperation*)
 
 void SIAbstractOperation::execute() {
     auto status = execute_(&SIDeviceAccessRegistry::sharedRegistry());
+    emit aboutToFinish();
     emit finished(status);
 }
 
 void SIAbstractOperation::execute(SIDeviceAccessRegistry* deviceAccessRegistry) {
     auto status = execute_(deviceAccessRegistry);
+    emit aboutToFinish();
     emit finished(status);
 }
 

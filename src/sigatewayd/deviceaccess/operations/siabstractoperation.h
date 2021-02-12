@@ -19,6 +19,7 @@ class SIAbstractOperation: public QObject {
     void enqueue(const QueueFunction& queueFunction);
 
   signals:
+    void aboutToFinish();
     void finished(SIStatus status);
 
   public slots:

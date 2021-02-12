@@ -1,7 +1,7 @@
 #include "sisequentialpropertymanager.h"
 
-void SISequentialPropertyManager::onFinish_(SIStatus status) {
-    Q_UNUSED(status)
+void SISequentialPropertyManager::onAboutToFinish_() {
+    operationQueue_.removeFirst();
     QMetaObject::invokeMethod(this, &SISequentialPropertyManager::executeNext_, Qt::QueuedConnection);
 }
 
@@ -9,14 +9,14 @@ void SISequentialPropertyManager::executeNext_() {
     if (operationQueue_.isEmpty()) {
         return;
     }
-    currentOperation_ = operationQueue_.takeFirst();
-    currentOperation_->execute();
+    operationQueue_.first()->execute();
 }
 
 void SISequentialPropertyManager::enqueueOperation_(SIAbstractOperation* operation) {
-    connect(operation, &SIAbstractOperation::finished, this, &SISequentialPropertyManager::onFinish_);
+    bool idle = operationQueue_.isEmpty();
+    connect(operation, &SIAbstractOperation::aboutToFinish, this, &SISequentialPropertyManager::onAboutToFinish_);
     operationQueue_ << operation;
-    if (operationQueue_.count() == 1) {
+    if (idle) {
         QMetaObject::invokeMethod(this, &SISequentialPropertyManager::executeNext_, Qt::QueuedConnection);
     }
 }
