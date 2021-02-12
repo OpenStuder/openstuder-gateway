@@ -15,4 +15,5 @@ class SISequentialPropertyManager: public SIDeviceAccessManager {
     void enqueueOperation_(SIAbstractOperation* operation) override;
 
     QQueue<SIAbstractOperation*> operationQueue_;
+    SIAbstractOperation* operationInProgress_ = nullptr;
 };
