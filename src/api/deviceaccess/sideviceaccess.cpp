@@ -29,7 +29,7 @@ int SIDeviceAccess::enumerateDevices() {
 #ifdef Q_OS_MACOS
         existingDevices.append(reinterpret_cast<SIDevice*>(child));
 #else
-        devices.append(qobject_cast<SIDevice*>(child));
+        existingDevices.append(qobject_cast<SIDevice*>(child));
 #endif
     }
 
