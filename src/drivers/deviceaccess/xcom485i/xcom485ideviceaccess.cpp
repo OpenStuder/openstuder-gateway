@@ -104,7 +104,6 @@ bool XCom485iDeviceEnumerator::enumerateFast(std::array<int, 5> numberOfDevicesP
         while (delta < 0) {
             auto removed = xtenders.takeLast();
             devices_.removeOne(removed);
-            delete removed;
             ++delta;
         }
     }
@@ -137,7 +136,6 @@ bool XCom485iDeviceEnumerator::enumerateFast(std::array<int, 5> numberOfDevicesP
         while (delta < 0) {
             auto removed = varioTracks.takeLast();
             devices_.removeOne(removed);
-            delete removed;
             ++delta;
         }
     }
@@ -170,7 +168,6 @@ bool XCom485iDeviceEnumerator::enumerateFast(std::array<int, 5> numberOfDevicesP
         while (delta < 0) {
             auto removed = varioStrings.takeLast();
             devices_.removeOne(removed);
-            delete removed;
             ++delta;
         }
     }
@@ -181,7 +178,6 @@ bool XCom485iDeviceEnumerator::enumerateFast(std::array<int, 5> numberOfDevicesP
         case 0:
             if (batteryManager != nullptr) {
                 devices_.removeOne(batteryManager);
-                delete batteryManager;
             }
             break;
 
@@ -189,7 +185,6 @@ bool XCom485iDeviceEnumerator::enumerateFast(std::array<int, 5> numberOfDevicesP
             auto model = XCom485iBatteryManager::model(*modbus_);
             if (batteryManager != nullptr && (model == XCom485iBatteryManager::Invalid || batteryManager->xComModel() != model)) {
                 devices_.removeOne(batteryManager);
-                delete batteryManager;
                 batteryManager = nullptr;
             }
             if (model != XCom485iBatteryManager::Invalid && batteryManager == nullptr) {
@@ -213,7 +208,6 @@ bool XCom485iDeviceEnumerator::enumerateSlow() {
     while (!xtenders.isEmpty() && XCom485iXtender::model(xtenders.last()->modbusAddress(), *modbus_) == XCom485iXtender::Invalid) {
         auto missing = xtenders.takeLast();
         devices_.removeAll(missing);
-        delete missing;
     }
 
     // Try to add new extenders as long as they respond.
@@ -234,7 +228,6 @@ bool XCom485iDeviceEnumerator::enumerateSlow() {
     while (!varioTracks.isEmpty() && XCom485iVarioTrack::model(varioTracks.last()->modbusAddress(), *modbus_) == XCom485iVarioTrack::Invalid) {
         auto missing = varioTracks.takeLast();
         devices_.removeAll(missing);
-        delete missing;
     }
 
     // Try to add new VarioTracks as long as they respond.
@@ -255,7 +248,6 @@ bool XCom485iDeviceEnumerator::enumerateSlow() {
     while (!varioStrings.isEmpty() && XCom485iVarioString::model(varioStrings.last()->modbusAddress(), *modbus_) == XCom485iVarioString::Invalid) {
         auto missing = varioStrings.takeLast();
         devices_.removeAll(missing);
-        delete missing;
     }
 
     // Try to add new VarioStrings as long as they respond.
@@ -279,13 +271,11 @@ bool XCom485iDeviceEnumerator::enumerateSlow() {
         if (batteryManager != nullptr) {
             // If there is no device on the bus, remove the existing object from devices.
             devices_.removeAll(batteryManager);
-            delete batteryManager;
         }
     } else {
         // Remove existing battery manager if it is present and not the correct model.
         if (batteryManager != nullptr && batteryManager->xComModel() != batteryManagerModel) {
             devices_.removeAll(batteryManager);
-            delete batteryManager;
             batteryManager = nullptr;
         }
 
@@ -303,7 +293,6 @@ void XCom485iDeviceEnumerator::updateVirtualXtender_() {
     // If there is at least one xtender on the bus, create the virtual multicast device, if none xtenders are present remove virtual device.
     if (xtenders.isEmpty() && virtualXtender != nullptr) {
         devices_.removeAll(virtualXtender);
-        delete virtualXtender;
     }
     if (!xtenders.isEmpty() && virtualXtender == nullptr) {
         virtualXtender = new XCom485iXtender(XCom485iXtender::Multicast, 10, modbus_);
@@ -315,7 +304,6 @@ void XCom485iDeviceEnumerator::updateVirtualVarioTrack_() {
     // If there is at least one VarioTrack on the bus, create the virtual multicast device, if none VarioTracks are present remove virtual device.
     if (varioTracks.isEmpty() && virtualVarioTrack != nullptr) {
         devices_.removeAll(virtualVarioTrack);
-        delete virtualVarioTrack;
     }
     if (!varioTracks.isEmpty() && virtualVarioTrack == nullptr) {
         virtualVarioTrack = new XCom485iVarioTrack(XCom485iVarioTrack::Multicast, 20, modbus_);
@@ -327,7 +315,6 @@ void XCom485iDeviceEnumerator::updateVirtualVarioString_() {
     // If there is at least one VarioString on the bus, create the virtual multicast device, if none VarioStrings are present remove virtual device.
     if (varioStrings.isEmpty() && virtualVarioString != nullptr) {
         devices_.removeAll(virtualVarioString);
-        delete virtualVarioString;
     }
     if (!varioStrings.isEmpty() && virtualVarioString == nullptr) {
         virtualVarioString = new XCom485iVarioString(XCom485iVarioString::Multicast, 40, modbus_);

@@ -24,31 +24,33 @@ QVector<SIDeviceMessage> SIDeviceAccess::retrievePendingDeviceMessages() const {
 
 int SIDeviceAccess::enumerateDevices() {
     // Populate device list.
-    QVector<SIDevice*> devices;
+    QVector<SIDevice*> existingDevices;
     for (const auto& child: children()) {
 #ifdef Q_OS_MACOS
-        devices.append(reinterpret_cast<SIDevice*>(child));
+        existingDevices.append(reinterpret_cast<SIDevice*>(child));
 #else
         devices.append(qobject_cast<SIDevice*>(child));
 #endif
     }
 
     // Let the driver enumerate the devices.
-    if (enumerateDevices_(devices)) {
+    auto enumeratedDevices = existingDevices;
+    if (enumerateDevices_(enumeratedDevices)) {
 
-        // Remove all devices from the devices list that are already present.
-        // TODO: might not be needed, moving to the same parent again is no problem.
-        for (const auto& child: children()) {
-#ifdef Q_OS_MACOS
-            devices.removeOne(reinterpret_cast<SIDevice*>(child));
-#else
-            devices.removeOne(qobject_cast<SIDevice*>(child));
-#endif
+        // Send signals for all removed devices.
+        for (auto* device: existingDevices) {
+            if (!enumeratedDevices.contains(device)) {
+                emit deviceRemoved(*device);
+                delete device;
+            }
         }
 
-        // Set parent for all enumerated devices.
-        for (auto* device: devices) {
-            device->setParent(this);
+        // Send signal for all added devices and add them as children.
+        for (auto* device: enumeratedDevices) {
+            if (!existingDevices.contains(device)) {
+                device->setParent(this);
+                emit deviceAdded(*device);
+            }
         }
 
         // Return the number of children.

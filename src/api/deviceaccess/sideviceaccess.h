@@ -43,6 +43,10 @@ class SIDeviceAccess: public QObject {
 
     QJsonObject jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const;
 
+  signals:
+    void deviceAdded(const SIDevice& device);
+    void deviceRemoved(const SIDevice& device);
+
   protected:
     explicit SIDeviceAccess(const QString& id);
 
