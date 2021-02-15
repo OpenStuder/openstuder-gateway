@@ -15,7 +15,6 @@
 #include <QCommandLineParser>
 #include <QFile>
 #include <QLoggingCategory>
-#include <QSettings>
 #include <QElapsedTimer>
 #include <memory>
 
@@ -37,11 +36,24 @@ bool SIDaemon::initialize() {
     // Parse command line options.
     QCommandLineParser parser;
     parser.addHelpOption();
-    parser.addVersionOption();
     QCommandLineOption configurationFileOption {{"c", "config"}, "Use configuration location <dir>", "dir"};
     configurationFileOption.setDefaultValue(OPENSTUDER_GATEWAY_DEFAULT_CONFIG_LOCATION);
     parser.addOption(configurationFileOption);
+    QCommandLineOption verboseOption {{"v", "verbose"}, "Verbose mode. Prints out more information."};
+    parser.addOption(verboseOption);
+    QCommandLineOption silentOption {{"s", "silent"}, "Silent mode. Prints out less information."};
+    parser.addOption(silentOption);
     parser.process(*this);
+
+    // Setup logging.
+    qSetMessagePattern("%{time}: %{category} [%{type}] %{message}");
+    if (parser.isSet(verboseOption)) {
+        QLoggingCategory::setFilterRules("*.debug=true");
+    } else {
+        if (parser.isSet(silentOption)) {
+            QLoggingCategory::setFilterRules("*.info=false");
+        }
+    }
 
     // Load configuration file.
     auto configurationFileLocation = parser.value(configurationFileOption);
