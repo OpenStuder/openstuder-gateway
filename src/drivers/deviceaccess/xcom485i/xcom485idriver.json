@@ -20,6 +20,12 @@
       "type": "unsigned int",
       "required": false,
       "default": 0
+    },
+    {
+      "name": "forceSlowEnumeration",
+      "type": "bool",
+      "required": false,
+      "default": false
     }
   ]
 }

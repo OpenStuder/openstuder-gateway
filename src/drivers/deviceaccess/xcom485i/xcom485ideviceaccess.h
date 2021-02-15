@@ -11,6 +11,14 @@ class XCom485iDeviceAccess: public SIDeviceAccess, private XCom485iModbusAccess 
 
     bool open(const QString& port, unsigned int baudRate, quint8 deviceOffset);
 
+    inline bool forceSlowEnumeration() const {
+        return forceSlowEnumeration_;
+    }
+
+    inline void setForceSlowEnumeration(bool forceSlowEnumeration) {
+        forceSlowEnumeration_ = forceSlowEnumeration;
+    }
+
   private:
     void retrievePendingDeviceMessages_(QVector<SIDeviceMessage>& messages) const override;
     bool enumerateDevices_(QVector<SIDevice*>& devices) override;
@@ -23,4 +31,5 @@ class XCom485iDeviceAccess: public SIDeviceAccess, private XCom485iModbusAccess 
 
     mutable QModbusRtuSerialMaster modbus_;
     quint8 deviceOffset_;
+    bool forceSlowEnumeration_ = false;
 };

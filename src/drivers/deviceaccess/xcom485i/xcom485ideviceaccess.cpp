@@ -376,27 +376,32 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
     // Create list of all currently existing devices.
     XCom485iDeviceEnumerator enumerator(devices, this);
 
-    // Try to get the number of devices present on bus from XCom485i.
-    auto reply = modbus_.sendReadRequest({QModbusDataUnit::InputRegisters, 5, 5}, deviceOffset_ + 1);
-    while (!reply->isFinished()) {
-        QCoreApplication::processEvents();
-    }
-
-    if (reply->error() == QModbusDevice::NoError) {
-
-        // If we could get the device count, enumerate the devices using this information, which is way faster.
-        return enumerator.enumerateFast({
-                                            reply->result().value(0),
-                                            reply->result().value(1),
-                                            reply->result().value(2),
-                                            reply->result().value(3),
-                                            reply->result().value(4)
-                                        });
-
-    } else {
-
-        // Otherwise fall back to the legacy method which is way slower.
+    // If fast enumeration is disabled, enumerate directly using the slow mechanism.
+    if (forceSlowEnumeration_) {
         return enumerator.enumerateSlow();
+    } else {
+        // Try to get the number of devices present on bus from XCom485i.
+        auto reply = modbus_.sendReadRequest({QModbusDataUnit::InputRegisters, 5, 5}, deviceOffset_ + 1);
+        while (!reply->isFinished()) {
+            QCoreApplication::processEvents();
+        }
+
+        if (reply->error() == QModbusDevice::NoError) {
+
+            // If we could get the device count, enumerate the devices using this information, which is way faster.
+            return enumerator.enumerateFast({
+                                                reply->result().value(0),
+                                                reply->result().value(1),
+                                                reply->result().value(2),
+                                                reply->result().value(3),
+                                                reply->result().value(4)
+                                            });
+
+        } else {
+
+            // Otherwise fall back to the legacy method which is way slower.
+            return enumerator.enumerateSlow();
+        }
     }
 }
 

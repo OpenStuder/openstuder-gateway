@@ -32,8 +32,9 @@ SIDeviceAccess* XCom485iDriver::createDeviceAccessInstance(const QString& id, co
         return nullptr;
     }
 
-    // Create a new instance.
+    // Create and configure new instance.
     auto* instance = new XCom485iDeviceAccess(id);
+    instance->setForceSlowEnumeration(parameters.value("forceSlowEnumeration", false).toBool());
 
     // Try to open the instance.
     if (!instance->open(port, baudRate, deviceAddressOffset)) {
