@@ -136,14 +136,12 @@ bool SIDaemon::initialize() {
         }
     }
 
-    // Create device access manager and start polling timer.
+    // Create device access manager.
     int propertyPollInterval = settings.propertyPollInterval();
     deviceAccessManager_ = new SISequentialPropertyManager(this);
-    deviceAccessManager_->startPropertyPolling(propertyPollInterval);
 
     // Create data log manager.
     dataLogManager_ = new SIDataLogManager(dataLogConfiguration, this, this);
-    dataLogManager_->startPropertyPolling();
 
     // Enumerate all devices on startup.
     qCInfo(DAEMON,) << "Enumerating all devices...";
@@ -171,6 +169,10 @@ bool SIDaemon::initialize() {
         bluetoothManager_->setPeripheralName(settings.bluetoothName());
         bluetoothManager_->startAdvertise();
     }
+
+    // Start property polling.
+    deviceAccessManager_->startPropertyPolling(propertyPollInterval);
+    dataLogManager_->startPropertyPolling();
 
     return true;
 }
