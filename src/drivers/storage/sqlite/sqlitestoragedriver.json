@@ -13,7 +13,7 @@
       "name": "cleanupInterval",
       "type": "int",
       "required": false,
-      "default": 3600
+      "default": 86400
     },
     {
       "name": "maxStorageDays",
