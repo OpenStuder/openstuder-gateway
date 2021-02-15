@@ -2,20 +2,16 @@
 #include "sqlitestorage.h"
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(SQLite, "driver.storage.SQLite", QtWarningMsg)
+Q_LOGGING_CATEGORY(SQLite, "driver.storage.SQLite", QtInfoMsg)
 
 SIStorage* SQLiteStorageDriver::createStorageInstance(const QVariantMap& parameters) {
     auto filename = parameters.value("file", OPENSTUDER_GATEWAY_INSTALL_PREFIX "/var/lib/openstuder/storage.sqlite").toString();
-
-    // TODO: Add options:
-    //  - Count or duration how long messages are kept.
-    //  - Duration how long data log values will be saved globally.
-
-    // TODO: Create folder.
+    auto cleanupInterval = parameters.value("cleanupInterval", 60 * 60).toInt() * 1000;
+    auto maximalStorageDays = parameters.value("maxStorageDays", 2 * 730).toInt();
 
     auto* storage = new SQLiteStorage();
 
-    if (!storage->open(filename)) {
+    if (!storage->open(filename, cleanupInterval, maximalStorageDays)) {
         delete storage;
         storage = nullptr;
     }

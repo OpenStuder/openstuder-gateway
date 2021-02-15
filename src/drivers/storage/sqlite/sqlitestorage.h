@@ -2,18 +2,23 @@
 #include <sistorage.h>
 #include <QSqlDatabase>
 
-class SQLiteStorage: public SIStorage {
-  public:
-    ~SQLiteStorage();
+class SQLiteStorage: public QObject, public SIStorage {
+    Q_OBJECT
 
-    bool open(const QString& filename);
+  public:
+    ~SQLiteStorage() override;
+
+    bool open(const QString& filename, int cleanupInterval, int maximalStorageDays);
 
   private:
-    QSqlDatabase db_;
-
     bool storePropertyValues_(const QMap<SIGlobalPropertyID, QVariant>& properties, const QDateTime& timestamp) override;
     QVector<TimestampedProperty> retrievePropertyValues_(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to, unsigned int limit) override;
 
     bool storeDeviceMessages_(const QVector<SIDeviceMessage>& messages) override;
     QVector<SIDeviceMessage> retrieveDeviceMessages_(const QDateTime& from, const QDateTime& to, unsigned int limit) override;
+
+    void timerEvent(QTimerEvent* event) override;
+
+    QSqlDatabase db_;
+    int maximalStorageDays_;
 };

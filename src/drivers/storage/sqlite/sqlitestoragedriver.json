@@ -8,6 +8,18 @@
       "type": "QString",
       "required": false,
       "default": "/var/lib/sigateway/storage.sqlite"
+    },
+    {
+      "name": "cleanupInterval",
+      "type": "int",
+      "required": false,
+      "default": 3600
+    },
+    {
+      "name": "maxStorageDays",
+      "type": "int",
+      "required": false,
+      "default": 730
     }
   ]
 }
