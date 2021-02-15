@@ -352,7 +352,7 @@ void XCom485iDeviceAccess::retrievePendingDeviceMessages_(QVector<SIDeviceMessag
 
     auto pendingMessagesCount = reply->result().value(0);
 
-    qCInfo(XCOM485i,) << "Reading" << pendingMessagesCount << "pending messages";
+    qCDebug(XCOM485i,) << "Reading" << pendingMessagesCount << "pending messages";
 
     while (pendingMessagesCount > 0) {
         reply = modbus_.sendReadRequest({QModbusDataUnit::InputRegisters, 1, 4}, deviceOffset_ + 1);
@@ -380,13 +380,19 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
     if (forceSlowEnumeration_) {
         return enumerator.enumerateSlow();
     } else {
+        qCDebug(XCOM485i,) << "Trying fast device enumeration by querying device count on bus adapter...";
         // Try to get the number of devices present on bus from XCom485i.
         auto reply = modbus_.sendReadRequest({QModbusDataUnit::InputRegisters, 5, 5}, deviceOffset_ + 1);
         while (!reply->isFinished()) {
             QCoreApplication::processEvents();
         }
 
-        if (reply->error() == QModbusDevice::NoError) {
+        if (reply->error() == QModbusDevice::NoError &&
+            reply->result().value(0) <= 9 &&
+            reply->result().value(1) <= 16 &&
+            reply->result().value(2) <= 16 &&
+            reply->result().value(3) <= 1) {
+            qCDebug(XCOM485i,) << "Device counts received, using fast enumeration";
 
             // If we could get the device count, enumerate the devices using this information, which is way faster.
             return enumerator.enumerateFast({
@@ -396,8 +402,8 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
                                                 reply->result().value(3),
                                                 reply->result().value(4)
                                             });
-
         } else {
+            qCDebug(XCOM485i,) << "Failed to get device counts, falling back to slow enumeration";
 
             // Otherwise fall back to the legacy method which is way slower.
             return enumerator.enumerateSlow();
