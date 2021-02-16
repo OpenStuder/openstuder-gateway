@@ -53,7 +53,12 @@ XCom485iBatteryManager::XCom485iBatteryManager(Model model, XCom485iModbusAccess
                 {120, 7060, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Number of parameters (in flash)", ""},
 
                 // Parameters.
-                {114, 6057, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Voltage of the system:", "1: Auto, 2: 12V, 4: 24V, 8: 48V"},
+                {114, 6057, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Voltage of the system:", {
+                    {1, "Automatic"},
+                    {2, "12V"},
+                    {4, "24V"},
+                    {8, "48V"}
+                }},
                 {2, 6001, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Nominal capacity", "Ah"},
                 {4, 6002, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Nominal discharge duration (C-rating)", "h"},
                 {34, 6017, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Nominal shunt current", "A"},
