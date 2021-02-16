@@ -154,7 +154,7 @@ SIPropertyWriteOperation* SIDeviceAccessManager::writeProperty(SIGlobalPropertyI
 }
 
 bool SIDeviceAccessManager::subscribeToProperty(SIGlobalPropertyID id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
-    if (resolveProperty(id).type == SIPropertyType::Invalid) {
+    if (resolveProperty(id).type() == SIPropertyType::Invalid) {
         return false;
     }
 

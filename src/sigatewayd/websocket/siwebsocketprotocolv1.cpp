@@ -108,13 +108,13 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             auto id = SIGlobalPropertyID(frame.header("id"));
             auto property = context.deviceAccessManager().resolveProperty(id);
-            if (property.type == SIPropertyType::Invalid || accessLevel_ < property.accessLevel) {
+            if (property.type() == SIPropertyType::Invalid || accessLevel_ < property.accessLevel()) {
                 return {SIWebSocketProtocolFrame::PROPERTY_READ, {
                     {"status", to_string(SIStatus::NoProperty)},
                     {"id", frame.header("id")}
                 }};
             }
-            if (!property.flags.testFlag(SIPropertyFlag::Readable)) {
+            if (!property.isFlagSet(SIPropertyFlag::Readable)) {
                 return {SIWebSocketProtocolFrame::PROPERTY_READ, {
                     {"status", to_string(SIStatus::Error)},
                     {"id", frame.header("id")}
@@ -133,12 +133,12 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             auto id = SIGlobalPropertyID(frame.header("id"));
             auto property = context.deviceAccessManager().resolveProperty(id);
-            if (property.type == SIPropertyType::Invalid || accessLevel_ < property.accessLevel) {
+            if (property.type() == SIPropertyType::Invalid || accessLevel_ < property.accessLevel()) {
                 return {SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
                     {"status", to_string(SIStatus::NoProperty)}
                 }};
             }
-            if (!property.flags.testFlag(SIPropertyFlag::Writeable)) {
+            if (!property.isFlagSet(SIPropertyFlag::Writeable)) {
                 return {SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
                     {"status", to_string(SIStatus::Error)}
                 }};
@@ -168,13 +168,13 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             auto id = SIGlobalPropertyID(frame.header("id"));
             auto property = context.deviceAccessManager().resolveProperty(id);
-            if (property.type == SIPropertyType::Invalid || accessLevel_ < property.accessLevel) {
+            if (property.type() == SIPropertyType::Invalid || accessLevel_ < property.accessLevel()) {
                 return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
                     {"status", to_string(SIStatus::NoProperty)},
                     {"id", frame.header("id")}
                 }};
             }
-            if (!property.flags.testFlag(SIPropertyFlag::Readable)) {
+            if (!property.isFlagSet(SIPropertyFlag::Readable)) {
                 return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
                     {"status", to_string(SIStatus::Error)},
                     {"id", frame.header("id")}

@@ -2,10 +2,66 @@
 #include "xcom485imodbusaccess.h"
 
 XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess): XCom485iDevice(toString(model), modbusAddress, modbusAccess, {
-    {0, 3000, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery voltage", "Vdc"},
+    // Infos.
+    {0, 3000, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery voltage", "V"},
     {2, 3001, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery temperature", "°C"},
-    {10, 3005, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery charge current", "Adc"},
+    {4, 3002, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Temperature compensation of battery voltage", "Ctmp"},
+    {6, 3003, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Dynamic compensation of battery voltage", "Cdyn"},
+    {8, 3004, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Wanted battery charge current", "A"},
+    {10, 3005, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery charge current", "A"},
+    {12, 3006, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery voltage ripple", "V"},
+    {14, 3007, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "State of charge", "%"},
+    {16, 3008, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Low Voltage Disconnect", "V"},
+    {20, 3010, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery cycle phase", {
+        {0, "Invalid value"},
+        {1, "Bulk"},
+        {2, "Absorption"},
+        {3, "Equalise"},
+        {4, "Floating"},
+        {5, "R.float."},
+        {6, "Per.abs."},
+        {7, "Mixing"},
+        {8, "Forming"}
+    }},
+    {22, 3011, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Input voltage", "V"},
+    {24, 3012, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Input current", "A"},
+    {26, 3013, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Input power", "kVA"},
+    {34, 3017, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Input limit value", "A"},
+    {36, 3018, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Input limit reached", {
+        {0, "Off"},
+        {1, "On"}
+    }},
+    {38, 3019, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Boost active", {
+        {0, "Off"},
+        {1, "On"}
+    }},
+    {40, 3020, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable, "State of transfer relay", {
+        {0, "Opened"},
+        {1, "Closed"}
+    }},
+    {42, 3021, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Output voltage", "V"},
+    {44, 3022, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Output current", "A"},
     {46, 3023, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Output power", "kVA"},
+    {56, 3028, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Operating state", {
+        {0, "Invalid value"},
+        {1, "Inverter"},
+        {2, "Charger"},
+        {3, "Boost"},
+        {4, "Injection"}
+    }},
+    {60, 3030, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable, "State of output relay", {
+        {0, "Opened"},
+        {1, "Closed"}
+    }},
+    {62, 3031, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable, "State of auxiliary relay 1", {
+        {0, "Opened"},
+        {1, "Closed"}
+    }},
+    {64, 3032, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable, "State of auxiliary relay 2", {
+        {0, "Opened"},
+        {1, "Closed"}
+    }},
+
     {274, 3137, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Input active power", "kW"},
     {272, 3136, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Output active power", "kW"},
 

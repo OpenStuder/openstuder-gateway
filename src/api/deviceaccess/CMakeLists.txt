@@ -4,6 +4,7 @@ si_add_library_public_headers(SIDeviceAccess deviceaccess
                               sipropertyid.h
                               siglobalpropertyid.h
                               sipropertytype.h
+                              siproperty.h
                               sipropertyflags.h
                               sipropertyreadresult.h
                               sipropertywriteflags.h
@@ -18,6 +19,7 @@ si_add_library_sources(SIDeviceAccess
                        sistatus.cpp
                        siglobalpropertyid.cpp
                        sipropertytype.cpp
+                       siproperty.cpp
                        sidevice.cpp
                        sideviceaccess.cpp
                        sideviceaccessregistry.cpp

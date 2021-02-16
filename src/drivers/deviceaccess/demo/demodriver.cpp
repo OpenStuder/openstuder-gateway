@@ -159,6 +159,10 @@ class DemoInverter: public SIDevice {
     explicit DemoInverter(const QString& id, DemoModel& model):
         SIDevice("Demo inverter", id),
         deviceProperties_({
+                              {3032, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable, "State of auxiliary relay 2", {
+                                  {0, "Opened"},
+                                  {1, "Closed"}
+                              }},
                               {3137, SIPropertyType::Float,  SIAccessLevel::Basic,  SIPropertyFlag::Readable,  "Input active power",                   "kW"},
                               {3136, SIPropertyType::Float,  SIAccessLevel::Basic,  SIPropertyFlag::Readable,  "Output active power",                  "kW"},
                               {3081, SIPropertyType::Float,  SIAccessLevel::Basic,  SIPropertyFlag::Readable,  "Energy AC-In from the current day",    "kWh"},
@@ -176,6 +180,9 @@ class DemoInverter: public SIDevice {
   private:
     SIPropertyReadResult readProperty_(SIPropertyID id) const override {
         switch (id) {
+            case 3032:
+                return {3137, SIStatus::Success, model_.acOutputOn() ? 1 : 0};
+
             case 3137:
                 return {3137, SIStatus::Success, model_.acInputPower() / 1000.};
 

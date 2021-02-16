@@ -28,7 +28,7 @@ const QVector<SIProperty>& SIDevice::properties() const {
 
 SIProperty SIDevice::property(SIPropertyID id) const {
     auto& properties = properties_();
-    auto property = std::find_if(properties.cbegin(), properties.cend(), [&id](const SIProperty& p) { return p.id == id; });
+    auto property = std::find_if(properties.cbegin(), properties.cend(), [&id](const SIProperty& p) { return p.id() == id; });
     if (property != properties.cend()) {
         return *property;
     } else {
@@ -60,15 +60,8 @@ QJsonObject SIDevice::jsonDescription(SIAccessLevel accessLevel, SIJsonFlags fla
     if (flags.testFlag(SIJsonFlag::IncludePropertyInformation)) {
         QJsonArray props;
         for (const auto& property: properties()) {
-            if (accessLevel >= property.accessLevel) {
-                props.append(QJsonObject {
-                    {"id",          (int)property.id},
-                    {"type",        to_string(property.type)},
-                    {"readable",    property.flags.testFlag(SIPropertyFlag::Readable)},
-                    {"writeable",   property.flags.testFlag(SIPropertyFlag::Writeable)},
-                    {"description", property.description},
-                    {"unit",        property.unit}
-                });
+            if (accessLevel >= property.accessLevel()) {
+                props.append(property.jsonDescription(flags));
             }
         }
         description["properties"] = props;

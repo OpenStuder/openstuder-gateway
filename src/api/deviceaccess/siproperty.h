@@ -3,18 +3,34 @@
 #include "sipropertytype.h"
 #include "siaccesslevel.h"
 #include "sipropertyflags.h"
+#include "sijsonflags.h"
 #include <QString>
+#include <QJsonObject>
 #include <utility>
+#include <memory>
 
-struct SIProperty {
-    inline SIProperty(): id(0), type(SIPropertyType::Invalid), accessLevel(SIAccessLevel::None), flags(SIPropertyFlag::None) {}
-    inline SIProperty(SIPropertyID id, SIPropertyType type, SIAccessLevel accessLevel, SIPropertyFlags flags, QString  description, QString  unit):
-        id(id), type(type), accessLevel(accessLevel), flags(flags), description(std::move(description)), unit(std::move(unit)) {}
+class SIProperty {
+  public:
+    SIProperty();
+    SIProperty(SIPropertyID id, SIPropertyType type, SIAccessLevel accessLevel, SIPropertyFlags flags, const QString& description, const QString& unit);
+    SIProperty(SIPropertyID id, SIPropertyType type, SIAccessLevel accessLevel, SIPropertyFlags flags, const QString& description, const std::initializer_list<std::pair<int, const char*>>& enumValues);
 
-    SIPropertyID id;
-    SIPropertyType type;
-    SIAccessLevel accessLevel;
-    SIPropertyFlags flags;
-    QString description;
-    QString unit;
+    SIPropertyID id() const;
+
+    SIPropertyType type() const;
+
+    SIAccessLevel accessLevel() const;
+
+    SIPropertyFlags flags() const;
+    bool isFlagSet(SIPropertyFlag flag) const;
+
+    const QString& description() const;
+
+    const QString& unit() const;
+
+    QJsonObject jsonDescription(SIJsonFlags flags) const;
+
+  private:
+    struct Private;
+    std::shared_ptr<Private> private_;
 };

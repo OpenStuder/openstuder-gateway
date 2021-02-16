@@ -37,8 +37,8 @@ void SIDataLogGroup::stopPropertyPolling() {
 void SIDataLogGroup::addWildcardPropertiesForDevice(const QString& accessID, const QString& deviceID, const QVector<SIProperty>& properties) {
     for (const auto& wildcardID: wildcardIDs_) {
         for (const auto& property: properties) {
-            if (wildcardID.matches(accessID, deviceID, property.id)) {
-                propertyIDs_.append({accessID, deviceID, property.id});
+            if (wildcardID.matches(accessID, deviceID, property.id())) {
+                propertyIDs_.append({accessID, deviceID, property.id()});
             }
         }
     }
