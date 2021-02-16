@@ -135,12 +135,14 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             auto property = context.deviceAccessManager().resolveProperty(id);
             if (property.type() == SIPropertyType::Invalid || accessLevel_ < property.accessLevel()) {
                 return {SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
-                    {"status", to_string(SIStatus::NoProperty)}
+                    {"status", to_string(SIStatus::NoProperty)},
+                    {"id", frame.header("id")}
                 }};
             }
             if (!property.isFlagSet(SIPropertyFlag::Writeable)) {
                 return {SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
-                    {"status", to_string(SIStatus::Error)}
+                    {"status", to_string(SIStatus::Error)},
+                    {"id", frame.header("id")}
                 }};
             }
 
