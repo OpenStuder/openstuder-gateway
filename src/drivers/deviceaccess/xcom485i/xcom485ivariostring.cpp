@@ -205,21 +205,11 @@ XCom485iVarioString::XCom485iVarioString(Model model, quint8 modbusAddress, XCom
 
     // BASIC SETTINGS parameters.
     {348, 14174, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Block manual programming (dip-switch)", ""},
-    {2, 14001, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-120)", "Adc"},
-    {434, 14217, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-70)", "Adc"},
-    {4, 14002, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Configuration of PV modules (VS-120)", {
-        {1, "Auotmatic"},
-        {2, "Independent"},
-        {4, "Serial"},
-        {8, "Parallel"}
-    }},
     {134, 14067, SIPropertyType::Signal, SIAccessLevel::Basic, SIPropertyFlag::Writeable, "Restore default settings", ""},
     {136, 14068, SIPropertyType::Signal, SIAccessLevel::Installer, SIPropertyFlag::Writeable, "Restore factory settings", ""},
 
     // BATTERY MANAGEMENT AND CYCLE parameters.
     {72, 14036, SIPropertyType::Bool, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Synchronisation battery cycle with Xtender", ""},
-    {2, 14001, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-120)", "Adc"},
-    {434, 14217, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-70)", "Adc"},
     {432, 14216, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery undervoltage", "Vdc"},
     {70, 14035, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Temperature compensation", "mV/°C/cell"},
 
@@ -259,13 +249,16 @@ XCom485iVarioString::XCom485iVarioString(Model model, quint8 modbusAddress, XCom
     {132, 14066, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Restart voltage level after a battery overvoltage", "Vdc"},
 
     // SYSTEM parameters.
-    {348, 14174, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Block manual programming (dip-switch)", ""},
     {80, 14040, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of battery grounding", {
         {1, "No control"},
         {2, "Bat+ grounded"},
         {4, "Bat- grounded"},
         {8, "Bat floating"}
     }},
+
+    // Type of MPPT algorithm parameters.
+    {384, 14192, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Establishment time (Algo MPPT)", "sec"},
+    {386, 14193, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Averaging time (Algo MPPT)", "sec"},
 
     // Remote entry (Remote ON/OFF) parameters.
     {402, 14201, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Remote entry active", {
@@ -283,8 +276,6 @@ XCom485iVarioString::XCom485iVarioString(Model model, quint8 modbusAddress, XCom
     {366, 14183, SIPropertyType::Signal, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Writeable, "Reset total produced PV energy meter", ""},
     {102, 14051, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset daily solar production meters", ""},
     {104, 14052, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset daily min-max", ""},
-    {134, 14067, SIPropertyType::Signal, SIAccessLevel::Basic, SIPropertyFlag::Writeable, "Restore default settings", ""},
-    {136, 14068, SIPropertyType::Signal, SIAccessLevel::Installer, SIPropertyFlag::Writeable, "Restore factory settings", ""},
     {138, 14069, SIPropertyType::Bool, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Parameters saved in flash memory", ""},
     {76, 14038, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "ON of the VarioString", ""},
     {78, 14039, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "OFF of the VarioString", ""},
@@ -436,93 +427,90 @@ XCom485iVarioString::XCom485iVarioString(Model model, quint8 modbusAddress, XCom
     {344, 14172, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Deactivate if battery in floating phase (AUX 2)", ""},
     {346, 14173, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset all settings (AUX 2)", ""}
 }) {
-    switch (model) {
-        case Invalid:
-            break;
+    if (model == VS120 || model == Multicast) {
+        addProperties({
+            // BASIC SETTINGS parameters.
+            {2, 14001, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-120)", "Adc"},
+            {4, 14002, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Configuration of PV modules (VS-120)", {
+                {1, "Automatic"},
+                {2, "Independent"},
+                {4, "Serial"},
+                {8, "Parallel"}
+            }},
 
-        case Multicast:
-            addProperties({
+            // Configuration for VS-120 parameters.
+            {82, 14041, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV grounding", {
+                {1, "No control"},
+                {2, "PV+ grounded"},
+                {4, "PV- grounded"},
+                {8, "PV floating"}
+            }},
+            {350, 14175, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV1 grounding", {
+                {1, "No control"},
+                {2, "PV+ grounded"},
+                {4, "PV- grounded"},
+                {8, "PV floating"}
+            }},
+            {84, 14042, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV2 grounding", {
+                {1, "No control"},
+                {2, "PV+ grounded"},
+                {4, "PV- grounded"},
+                {8, "PV floating"}
+            }},
 
-            });
-            break;
+            // Type of MPPT algorithm parameters.
+            {86, 14043, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV", {
+                {1, "P&O"},
+                {2, "OC ratio"},
+                {4, "Upv fixed"},
+                {8, "LSF"}
+            }},
+            {88, 14044, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV voltage fixed (for PV in series)", "Vdc"},
+            {358, 14179, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV voltage fixed (for PV in //)", "Vdc"},
+            {90, 14045, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV open circuit voltage", ""},
+            {352, 14176, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV1", {
+                {1, "P&O"},
+                {2, "OC ratio"},
+                {4, "Upv fixed"},
+                {8, "LSF"}
+            }},
+            {354, 14177, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV1 voltage fixed", "Vdc"},
+            {356, 14178, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV1 open circuit voltage", ""},
+            {92, 14046, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV2", {
+                {1, "P&O"},
+                {2, "OC ratio"},
+                {4, "Upv fixed"},
+                {8, "LSF"}
+            }},
+            {94, 14047, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV2 voltage fixed", "Vdc"},
+            {96, 14048, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV2 open circuit voltage", ""},
+            {380, 14190, SIPropertyType::Signal, SIAccessLevel::Installer, SIPropertyFlag::Writeable, "PV wiring type erased from memory", ""}
+        });
+    }
 
-        case VS120:
-            addProperties({
-                // Configuration for VS-120 parameters.
-                {82, 14041, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV grounding", {
-                    {1, "No control"},
-                    {2, "PV+ grounded"},
-                    {4, "PV- grounded"},
-                    {8, "PV floating"}
-                }},
-                {350, 14175, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV1 grounding", {
-                    {1, "No control"},
-                    {2, "PV+ grounded"},
-                    {4, "PV- grounded"},
-                    {8, "PV floating"}
-                }},
-                {84, 14042, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV2 grounding", {
-                    {1, "No control"},
-                    {2, "PV+ grounded"},
-                    {4, "PV- grounded"},
-                    {8, "PV floating"}
-                }},
+    if (model == VS70 || model == Multicast) {
+        addProperties({
+            // BASIC SETTINGS parameters.
+            {434, 14217, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-70)", "Adc"},
 
-                // Type of MPPT algorithm parameters.
-                {86, 14043, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV", {
-                    {1, "P&O"},
-                    {2, "OC ratio"},
-                    {4, "Upv fixed"},
-                    {8, "LSF"}
-                }},
-                {88, 14044, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV voltage fixed (for PV in series)", "Vdc"},
-                {358, 14179, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV voltage fixed (for PV in //)", "Vdc"},
-                {90, 14045, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV open circuit voltage", ""},
-                {352, 14176, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV1", {
-                    {1, "P&O"},
-                    {2, "OC ratio"},
-                    {4, "Upv fixed"},
-                    {8, "LSF"}
-                }},
-                {354, 14177, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV1 voltage fixed", "Vdc"},
-                {356, 14178, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV1 open circuit voltage", ""},
-                {92, 14046, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV2", {
-                    {1, "P&O"},
-                    {2, "OC ratio"},
-                    {4, "Upv fixed"},
-                    {8, "LSF"}
-                }},
-                {94, 14047, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV2 voltage fixed", "Vdc"},
-                {96, 14048, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV2 open circuit voltage", ""},
-                {384, 14192, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Establishment time (Algo MPPT)", "sec"},
-                {386, 14193, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Averaging time (Algo MPPT)", "sec"},
-                {380, 14190, SIPropertyType::Signal, SIAccessLevel::Installer, SIPropertyFlag::Writeable, "PV wiring type erased from memory", ""}
-            });
-            break;
+            // Configuration for VS-70 parameters.
+            {392, 14196, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV grounding", {
+                {1, "No control"},
+                {2, "PV+ grounded"},
+                {4, "PV- grounded"},
+                {8, "PV floating"}
+            }},
 
-        case VS70:
-            addProperties({
-                // Configuration for VS-70 parameters.
-                {392, 14196, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV grounding", {
-                    {1, "No control"},
-                    {2, "PV+ grounded"},
-                    {4, "PV- grounded"},
-                    {8, "PV floating"}
-                }},
-
-                // Type of MPPT algorithm parameters.
-                {394, 14197, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV", {
-                    {1, "P&O"},
-                    {2, "OC ratio"},
-                    {4, "Upv fixed"},
-                    {8, "LSF"}
-                }},
-                {396, 14198, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV voltage fixed", "Vdc"},
-                {398, 14199, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV open circuit voltage", ""},
-                {384, 14192, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Establishment time (Algo MPPT)", "sec"},
-                {386, 14193, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Averaging time (Algo MPPT)", "sec"}
-            });
-            break;
+            // Type of MPPT algorithm parameters.
+            {394, 14197, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV", {
+                {1, "P&O"},
+                {2, "OC ratio"},
+                {4, "Upv fixed"},
+                {8, "LSF"}
+            }},
+            {396, 14198, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV voltage fixed", "Vdc"},
+            {398, 14199, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV open circuit voltage", ""}
+        });
     }
 }
 
