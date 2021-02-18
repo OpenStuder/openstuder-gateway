@@ -215,7 +215,6 @@ XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModb
     {338, 3169, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "AC injection current limit ARN4105 P(f)", ""},
 
     // BASIC SETTINGS parameters.
-    {902, 1551, SIPropertyType::Bool, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Basic parameters set by means of the potentiomenter in the XTS", ""},
     {14, 1107, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Maximum current of AC source (Input limit)", "Aac"},
     {76, 1138, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current", "Adc"},
     {52, 1126, SIPropertyType::Bool, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Smart-Boost allowed", ""},
@@ -234,7 +233,6 @@ XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModb
     {1092, 1646, SIPropertyType::Bool, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Charger uses only power from AC-Out", ""},
     {78, 1139, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Temperature compensation", "mV/°C/cell"},
     {1030, 1615, SIPropertyType::Bool, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Fast charge/inject regulation", ""},
-    {1090, 1645, SIPropertyType::Bool, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Pulses cutting regulation for XT (Not XTS)", ""},
 
     // Undervoltage parameters.
     {16, 1108, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery undervoltage level without load", "Vdc"},
@@ -693,11 +691,23 @@ XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModb
     {1054, 1627, SIPropertyType::Bool, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "ARN4105 frequency control enabled", ""},
     {1060, 1630, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delta from user frequency to start derating", "Hz"},
     {1062, 1631, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delta from user frequency to reach 100% derating", "Hz"},
-    {922, 1561, SIPropertyType::Float, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Correction for XTS saturation Reg U", ""},
-    {924, 1562, SIPropertyType::Float, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Correction for XTS saturation Reg I", ""},
     {1096, 1648, SIPropertyType::Float, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Imagnet INT level adjustment for correction", ""},
     {1098, 1649, SIPropertyType::Float, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Imagnet ERROR level adjustment for correction", ""}
-}) {}
+}) {
+    if (model == XTS || model == Multicast) {
+        addProperties({
+            {902, 1551, SIPropertyType::Bool, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Basic parameters set by means of the potentiomenter in the XTS", ""},
+            {922, 1561, SIPropertyType::Float, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Correction for XTS saturation Reg U", ""},
+            {924, 1562, SIPropertyType::Float, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Correction for XTS saturation Reg I", ""}
+        });
+    }
+
+    if (model != XTS || model == Multicast) {
+        addProperties({
+            {1090, 1645, SIPropertyType::Bool, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Pulses cutting regulation for XT (Not XTS)", ""},
+        });
+    }
+}
 
 XCom485iXtender::Model XCom485iXtender::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(modbusAddress, 248);
