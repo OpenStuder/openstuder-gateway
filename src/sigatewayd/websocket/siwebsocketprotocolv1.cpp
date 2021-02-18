@@ -90,6 +90,21 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                         }, QJsonDocument(device->jsonDescription(accessLevel_, jsonFlags)).toJson(QJsonDocument::Compact)};
                     }
 
+                    case 3: {
+                        auto property = context.deviceAccessManager().resolveProperty(SIGlobalPropertyID(frame.header("id")));
+                        if (property.type() == SIPropertyType::Invalid || accessLevel_ < property.accessLevel()) {
+                            return {SIWebSocketProtocolFrame::DESCRIPTION, {
+                                {"status", to_string(SIStatus::NoProperty)},
+                                {"id", frame.header("id")}
+                            }};
+                        }
+
+                        return {SIWebSocketProtocolFrame::DESCRIPTION, {
+                            {"status", to_string(SIStatus::Success)},
+                            {"id", frame.header("id")}
+                        }, QJsonDocument(property.jsonDescription(jsonFlags)).toJson(QJsonDocument::Compact)};
+                    }
+
                     default:
                         return SIWebSocketProtocolFrame::error("invalid frame");
                 }
