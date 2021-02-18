@@ -326,20 +326,9 @@ class DemoDeviceAccess: public SIDeviceAccess {
 
     bool enumerateDevices_(QVector<SIDevice*>& devices) override {
         if (devices.isEmpty()) {
+            devices.append(new DemoInverter("inv", model_));
             devices.append(new DemoMPPT("sol", model_));
             devices.append(new DemoBSP("bat", model_));
-        }
-
-        if (devices.count() == 3) {
-            for (auto i = devices.begin(); i != devices.end();) {
-                if ((*i)->id() == "inv") {
-                    i = devices.erase(i);
-                } else {
-                    ++i;
-                }
-            }
-        } else {
-            devices.append(new DemoInverter("inv", model_));
         }
         return true;
     }
