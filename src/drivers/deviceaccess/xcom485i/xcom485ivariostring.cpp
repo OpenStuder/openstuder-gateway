@@ -203,28 +203,324 @@ XCom485iVarioString::XCom485iVarioString(Model model, quint8 modbusAddress, XCom
         {1, "RM EN 1"}
     }},
 
-    // Parameters.
-    {432, 14216, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery undervoltage", "Vdc"}
+    // BASIC SETTINGS parameters.
+    {348, 14174, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Block manual programming (dip-switch)", ""},
+    {2, 14001, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-120)", "Adc"},
+    {434, 14217, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-70)", "Adc"},
+    {4, 14002, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Configuration of PV modules (VS-120)", {
+        {1, "Auotmatic"},
+        {2, "Independent"},
+        {4, "Serial"},
+        {8, "Parallel"}
+    }},
+    {134, 14067, SIPropertyType::Signal, SIAccessLevel::Basic, SIPropertyFlag::Writeable, "Restore default settings", ""},
+    {136, 14068, SIPropertyType::Signal, SIAccessLevel::Installer, SIPropertyFlag::Writeable, "Restore factory settings", ""},
+
+    // BATTERY MANAGEMENT AND CYCLE parameters.
+    {72, 14036, SIPropertyType::Bool, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Synchronisation battery cycle with Xtender", ""},
+    {2, 14001, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-120)", "Adc"},
+    {434, 14217, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-70)", "Adc"},
+    {432, 14216, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery undervoltage", "Vdc"},
+    {70, 14035, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Temperature compensation", "mV/°C/cell"},
+
+    // Floating phase parameters.
+    {10, 14005, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Floating voltage", "Vdc"},
+    {12, 14006, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Force phase of floating", ""},
+
+    // Absorption phase parameters.
+    {16, 14008, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Absorption phase allowed", ""},
+    {18, 14009, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Absorption voltage", "Vdc"},
+    {20, 14010, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Force absorption phase", ""},
+    {22, 14011, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Absorption duration", "min"},
+    {24, 14012, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "End of absorption triggered by the current", ""},
+    {26, 14013, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Current threshold to end absorption phase", "Adc"},
+
+    // Equalization phase parameters.
+    {34, 14017, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization allowed", ""},
+    {36, 14018, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Force equalization", ""},
+    {42, 14021, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization voltage", "Vdc"},
+    {40, 14020, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization current", "Adc"},
+    {44, 14022, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization duration", "min"},
+    {46, 14023, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization with fixed interval", ""},
+    {48, 14024, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Days between equalizations", "days"},
+    {50, 14025, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "End of equalization triggered by the current", ""},
+    {52, 14026, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Current threshold to end equalization phase", "Adc"},
+    {38, 14019, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization before absorption phase", ""},
+
+    // New cycle parameters.
+    {56, 14028, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Force a new cycle", ""},
+    {58, 14029, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Voltage level 1 to start a new cycle", "Vdc"},
+    {60, 14030, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Time period under voltage level 1 to start a new cycle", "min"},
+    {62, 14031, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Voltage level 2 to start a new cycle", "Vdc"},
+    {64, 14032, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Time period under voltage level 2 to start a new cycle", "min"},
+    {66, 14033, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Cycling restricted", ""},
+    {68, 14034, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Minimal delay between cycles", "hours"},
+    {130, 14065, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery overvoltage level", "Vdc"},
+    {132, 14066, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Restart voltage level after a battery overvoltage", "Vdc"},
+
+    // SYSTEM parameters.
+    {348, 14174, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Block manual programming (dip-switch)", ""},
+    {80, 14040, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of battery grounding", {
+        {1, "No control"},
+        {2, "Bat+ grounded"},
+        {4, "Bat- grounded"},
+        {8, "Bat floating"}
+    }},
+
+    // Remote entry (Remote ON/OFF) parameters.
+    {402, 14201, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Remote entry active", {
+        {1, "Closed"},
+        {2, "Open"},
+        {4, "Edge"}
+    }},
+    {404, 14202, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "ON/OFF command", ""},
+    {406, 14203, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Activated by AUX1 state", ""},
+    {408, 14204, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Start equalization", ""},
+    {410, 14205, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Send a message when remote entry changes state", ""},
+    {436, 14218, SIPropertyType::Bool, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "VarioString watchdog enabled (SCOM)", ""},
+    {438, 14219, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "VarioString watchdog delay (SCOM)", "sec"},
+    {364, 14182, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset PV energy meter", ""},
+    {366, 14183, SIPropertyType::Signal, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Writeable, "Reset total produced PV energy meter", ""},
+    {102, 14051, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset daily solar production meters", ""},
+    {104, 14052, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset daily min-max", ""},
+    {134, 14067, SIPropertyType::Signal, SIAccessLevel::Basic, SIPropertyFlag::Writeable, "Restore default settings", ""},
+    {136, 14068, SIPropertyType::Signal, SIAccessLevel::Installer, SIPropertyFlag::Writeable, "Restore factory settings", ""},
+    {138, 14069, SIPropertyType::Bool, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Parameters saved in flash memory", ""},
+    {76, 14038, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "ON of the VarioString", ""},
+    {78, 14039, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "OFF of the VarioString", ""},
+    {118, 14059, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset of all VarioString", ""},
+
+    // AUXILIARY CONTACT 1 parameters.
+    {142, 14071, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Operating mode (AUX 1)", {
+        {1, "Automatic"},
+        {2, "Reversed automatic"},
+        {4, "Manual ON"},
+        {8, "Manual OFF"}
+    }},
+    {144, 14072, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Combination of the events for the auxiliary contact (AUX 1)", {
+        {0, "Any (Function OR)"},
+        {1, "All (Function AND)"}
+    }},
+
+    // Contact activated in night mode (AUX 1) parameters.
+    {148, 14074, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Activated in night mode (AUX 1)", ""},
+    {150, 14075, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay of activation after entering night mode (AUX 1)", "min"},
+    {152, 14076, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Activation time for the auxiliary relay in night mode (AUX 1)", "min"},
+
+    // Contact active with a fixed time schedule (AUX 1) parameters.
+    {414, 14207, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated with fixed time schedule (AUX 1)", ""},
+    {416, 14208, SIPropertyType::TimeOfDay, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Start hour (AUX 1)", ""},
+    {418, 14209, SIPropertyType::TimeOfDay, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "End hour (AUX 1)", ""},
+
+    // Contact active on event (AUX 1) parameters.
+    {376, 14188, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "VarioString is ON (AUX 1)", ""},
+    {156, 14078, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "VarioString is OFF (AUX 1)", ""},
+    {428, 14214, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Remote entry (AUX 1)", ""},
+    {158, 14079, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery undervoltage (AUX 1)", ""},
+    {160, 14080, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery overvoltage (AUX 1)", ""},
+    {162, 14081, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Earth fault (AUX 1)", ""},
+    {164, 14082, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV error (48h without charge) (AUX 1)", ""},
+    {166, 14083, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Overtemperature (AUX 1)", ""},
+    {168, 14084, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Bulk charge phase (AUX 1)", ""},
+    {170, 14085, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Absorption phase (AUX 1)", ""},
+    {172, 14086, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization phase (AUX 1)", ""},
+    {174, 14087, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Floating (AUX 1)", ""},
+    {176, 14088, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Reduced floating (AUX 1)", ""},
+    {178, 14089, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Periodic absorption (AUX 1)", ""},
+
+    // Contact active according to battery voltage (AUX 1) parameters.
+    {182, 14091, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 1 activate (AUX 1)", ""},
+    {184, 14092, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 1 (AUX 1)", "Vdc"},
+    {186, 14093, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 1 (AUX 1)", "min"},
+    {188, 14094, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 2 activate (AUX 1)", ""},
+    {190, 14095, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 2 (AUX 1)", "Vdc"},
+    {192, 14096, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 2 (AUX 1)", "min"},
+    {194, 14097, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 3 activate (AUX 1)", ""},
+    {196, 14098, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 3 (AUX 1)", "Vdc"},
+    {198, 14099, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 3 (AUX 1)", "min"},
+    {200, 14100, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage to deactivate (AUX 1)", "Vdc"},
+    {202, 14101, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay to deactivate (AUX 1)", "min"},
+    {204, 14102, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Deactivate if battery in floating phase (AUX 1)", ""},
+
+    // Contact active according to battery temperature (AUX 1) With BSP or BTS parameters.
+    {208, 14104, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated with the temperature of battery (AUX 1)", ""},
+    {210, 14105, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated over (AUX 1)", "°C"},
+    {212, 14106, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact deactivated below (AUX 1)", "°C"},
+    {214, 14107, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Only activated if the battery is not in bulk phase (AUX 1)", ""},
+
+    // Contact active according to SOC (AUX 1) Only with BSP parameters.
+    {218, 14109, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated with the SOC 1 of battery (AUX 1)", ""},
+    {220, 14110, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated below SOC 1 (AUX 1)", "% SOC"},
+    {222, 14111, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 1 (AUX 1)", "hours"},
+    {224, 14112, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated with the SOC 2 of battery (AUX 1)", ""},
+    {226, 14113, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated below SOC 2 (AUX 1)", "%"},
+    {228, 14114, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 2 (AUX 1)", "hours"},
+    {230, 14115, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated with the SOC 3 of battery (AUX 1)", ""},
+    {232, 14116, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated below SOC 3 (AUX 1)", "%"},
+    {234, 14117, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 3 (AUX 1)", "hours"},
+    {236, 14118, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact deactivated over SOC (AUX 1)", "% SOC"},
+    {238, 14119, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay to deactivate (AUX 1)", "hours"},
+    {240, 14120, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Deactivate if battery in floating phase (AUX 1)", ""},
+    {242, 14121, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset all settings (AUX 1)", ""},
+
+    // AUXILIARY CONTACT 2 parameters.
+    {246, 14123, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Operating mode (AUX 2)", {
+        {1, "Automatic"},
+        {2, "Reversed automatic"},
+        {4, "Manual ON"},
+        {8, "Manual OFF"}
+    }},
+    {248, 14124, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Combination of the events for the auxiliary contact (AUX 2)", {
+        {0, "Any (Function OR)"},
+        {1, "All (Function AND)"}
+    }},
+
+    // Contact activated in night mode (AUX 2) parameters.
+    {252, 14126, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Activated in night mode (AUX 2)", ""},
+    {254, 14127, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay of activation after entering night mode (AUX 2)", "min"},
+    {256, 14128, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Activation time for the auxiliary relay in night mode (AUX 2)", "min"},
+
+    // Contact active with a fixed time schedule (AUX 2) parameters.
+    {422, 14211, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated with fixed time schedule (AUX 2)", ""},
+    {424, 14212, SIPropertyType::TimeOfDay, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Start hour (AUX 2)", ""},
+    {426, 14213, SIPropertyType::TimeOfDay, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "End hour (AUX 2)", ""},
+
+    // Contact active on event (AUX 2) parameters.
+    {378, 14189, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "VarioString is ON (AUX 2)", ""},
+    {260, 14130, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "VarioString is OFF (AUX 2)", ""},
+    {430, 14215, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Remote entry (AUX 2)", ""},
+    {262, 14131, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery undervoltage (AUX 2)", ""},
+    {264, 14132, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery overvoltage (AUX 2)", ""},
+    {266, 14133, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Earth fault (AUX 2)", ""},
+    {268, 14134, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV error (48h without charge) (AUX 2)", ""},
+    {270, 14135, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Overtemperature (AUX 2)", ""},
+    {272, 14136, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Bulk charge phase (AUX 2)", ""},
+    {274, 14137, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Absorption phase (AUX 2)", ""},
+    {276, 14138, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization phase (AUX 2)", ""},
+    {278, 14139, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Floating (AUX 2)", ""},
+    {280, 14140, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Reduced floating (AUX 2)", ""},
+    {282, 14141, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Periodic absorption (AUX 2)", ""},
+
+    // Contact active according to battery voltage (AUX 2) parameters.
+    {286, 14143, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 1 activate (AUX 2)", ""},
+    {288, 14144, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 1 (AUX 2)", "Vdc"},
+    {290, 14145, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 1 (AUX 2)", "min"},
+    {292, 14146, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 2 activate (AUX 2)", ""},
+    {294, 14147, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 2 (AUX 2)", "Vdc"},
+    {296, 14148, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 2 (AUX 2)", "min"},
+    {298, 14149, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 3 activate (AUX 2)", ""},
+    {300, 14150, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage 3 (AUX 2)", "Vdc"},
+    {302, 14151, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 3 (AUX 2)", "min"},
+    {304, 14152, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery voltage to deactivate (AUX 2)", "Vdc"},
+    {306, 14153, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay to deactivate (AUX 2)", "min"},
+    {308, 14154, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Deactivate if battery in floating phase (AUX 2)", ""},
+
+    // Contact active according to battery temperature (AUX 2) With BSP or BTS parameters.
+    {312, 14156, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated with the temperature of battery (AUX 2)", ""},
+    {314, 14157, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated over (AUX 2)", "°C"},
+    {316, 14158, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact deactivated below (AUX 2)", "°C"},
+    {318, 14159, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Only activated if the battery is not in bulk phase (AUX 2)", ""},
+
+    // Contact active according to SOC (AUX 2) Only with BSP parameters.
+    {322, 14161, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated with the SOC 1 of battery (AUX 2)", ""},
+    {324, 14162, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated below SOC 1 (AUX 2)", "% SOC"},
+    {326, 14163, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 1 (AUX 2)", "hours"},
+    {328, 14164, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated with the SOC 2 of battery (AUX 2)", ""},
+    {330, 14165, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated below SOC 2 (AUX 2)", "%"},
+    {332, 14166, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 2 (AUX 2)", "hours"},
+    {334, 14167, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated with the SOC 3 of battery (AUX 2)", ""},
+    {336, 14168, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact activated below SOC 3 (AUX 2)", "%"},
+    {338, 14169, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay 3 (AUX 2)", "hours"},
+    {340, 14170, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Contact deactivated over SOC (AUX 2)", "% SOC"},
+    {342, 14171, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay to deactivate (AUX 2)", "hours"},
+    {344, 14172, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Deactivate if battery in floating phase (AUX 2)", ""},
+    {346, 14173, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset all settings (AUX 2)", ""}
 }) {
     switch (model) {
         case Invalid:
             break;
+
         case Multicast:
             addProperties({
-                {2, 14001, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-120)", "Adc"},
-                {434, 14217, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current (VS-70)", "Adc"}
+
             });
             break;
 
         case VS120:
             addProperties({
-                {2, 14001, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current", "Adc"}
+                // Configuration for VS-120 parameters.
+                {82, 14041, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV grounding", {
+                    {1, "No control"},
+                    {2, "PV+ grounded"},
+                    {4, "PV- grounded"},
+                    {8, "PV floating"}
+                }},
+                {350, 14175, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV1 grounding", {
+                    {1, "No control"},
+                    {2, "PV+ grounded"},
+                    {4, "PV- grounded"},
+                    {8, "PV floating"}
+                }},
+                {84, 14042, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV2 grounding", {
+                    {1, "No control"},
+                    {2, "PV+ grounded"},
+                    {4, "PV- grounded"},
+                    {8, "PV floating"}
+                }},
+
+                // Type of MPPT algorithm parameters.
+                {86, 14043, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV", {
+                    {1, "P&O"},
+                    {2, "OC ratio"},
+                    {4, "Upv fixed"},
+                    {8, "LSF"}
+                }},
+                {88, 14044, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV voltage fixed (for PV in series)", "Vdc"},
+                {358, 14179, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV voltage fixed (for PV in //)", "Vdc"},
+                {90, 14045, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV open circuit voltage", ""},
+                {352, 14176, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV1", {
+                    {1, "P&O"},
+                    {2, "OC ratio"},
+                    {4, "Upv fixed"},
+                    {8, "LSF"}
+                }},
+                {354, 14177, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV1 voltage fixed", "Vdc"},
+                {356, 14178, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV1 open circuit voltage", ""},
+                {92, 14046, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV2", {
+                    {1, "P&O"},
+                    {2, "OC ratio"},
+                    {4, "Upv fixed"},
+                    {8, "LSF"}
+                }},
+                {94, 14047, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV2 voltage fixed", "Vdc"},
+                {96, 14048, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV2 open circuit voltage", ""},
+                {384, 14192, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Establishment time (Algo MPPT)", "sec"},
+                {386, 14193, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Averaging time (Algo MPPT)", "sec"},
+                {380, 14190, SIPropertyType::Signal, SIAccessLevel::Installer, SIPropertyFlag::Writeable, "PV wiring type erased from memory", ""}
             });
             break;
 
         case VS70:
             addProperties({
-                {434, 14217, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current", "Adc"}
+                // Configuration for VS-70 parameters.
+                {392, 14196, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of PV grounding", {
+                    {1, "No control"},
+                    {2, "PV+ grounded"},
+                    {4, "PV- grounded"},
+                    {8, "PV floating"}
+                }},
+
+                // Type of MPPT algorithm parameters.
+                {394, 14197, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Type of MPP tracking algorithm PV", {
+                    {1, "P&O"},
+                    {2, "OC ratio"},
+                    {4, "Upv fixed"},
+                    {8, "LSF"}
+                }},
+                {396, 14198, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "PV voltage fixed", "Vdc"},
+                {398, 14199, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Ratio of PV open circuit voltage", ""},
+                {384, 14192, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Establishment time (Algo MPPT)", "sec"},
+                {386, 14193, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Averaging time (Algo MPPT)", "sec"}
             });
             break;
     }
