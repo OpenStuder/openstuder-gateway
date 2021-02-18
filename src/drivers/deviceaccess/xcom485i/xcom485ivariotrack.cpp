@@ -180,27 +180,22 @@ XCom485iVarioTrack::XCom485iVarioTrack(Model model, quint8 modbusAddress, XCom48
     {114, 10057, SIPropertyType::Signal, SIAccessLevel::Installer, SIPropertyFlag::Writeable, "Restore factory settings", ""},
 
     // BATTERY MANAGEMENT AND CYCLE parameters.
-    {74, 10037, SIPropertyType::Bool, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Synchronisation battery cycle with Xtender", ""},
     {4, 10002, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery charge current", "Adc"},
     {668, 10334, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Battery undervoltage", "Vdc"},
     {72, 10036, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Temperature compensation", "mV/°C/cell"},
 
     // Floating phase parameters.
-    {10, 10005, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Floating voltage", "Vdc"},
     {12, 10006, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Force phase of floating", ""},
 
     // Absorption phase parameters.
     {16, 10008, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Absorption phase allowed", ""},
-    {18, 10009, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Absorption voltage", "Vdc"},
     {20, 10010, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Force absorption phase", ""},
     {22, 10011, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Absorption duration", "min"},
     {24, 10012, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "End of absorption triggered by the current", ""},
     {26, 10013, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Current threshold to end absorption phase", "Adc"},
 
     // Equalization phase parameters.
-    {34, 10017, SIPropertyType::Bool, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization allowed", ""},
     {36, 10018, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Force equalization", ""},
-    {42, 10021, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization voltage", "Vdc"},
     {40, 10020, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization current", "Adc"},
     {44, 10022, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization duration", "min"},
     {104, 10052, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Equalization with fixed interval", ""},
@@ -221,7 +216,6 @@ XCom485iVarioTrack::XCom485iVarioTrack(Model model, quint8 modbusAddress, XCom48
     {172, 10086, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Restart voltage level after a battery overvoltage", "Vdc"},
 
     // SYSTEM parameters.
-    {108, 10054, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Block manual programming (dip-switch)", ""},
     {120, 10060, SIPropertyType::Enum, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Check Earthing", {
         {1, "No control"},
         {2, "Neg bat pole earth"},
@@ -255,8 +249,6 @@ XCom485iVarioTrack::XCom485iVarioTrack(Model model, quint8 modbusAddress, XCom48
     {402, 10201, SIPropertyType::Signal, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Writeable, "Reset total produced PV energy meter", ""},
     {86, 10043, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset daily solar production meters", ""},
     {88, 10044, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset daily min-max", ""},
-    {112, 10056, SIPropertyType::Signal, SIAccessLevel::Basic, SIPropertyFlag::Writeable, "Restore default settings", ""},
-    {114, 10057, SIPropertyType::Signal, SIAccessLevel::Installer, SIPropertyFlag::Writeable, "Restore factory settings", ""},
     {116, 10058, SIPropertyType::Bool, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Parameters saved in flash memory", ""},
     {78, 10039, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "ON of the VarioTrack", ""},
     {80, 10040, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "OFF of the VarioTrack", ""},
