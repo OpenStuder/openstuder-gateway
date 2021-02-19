@@ -6,7 +6,7 @@ class SIBluetoothProtocolV1: public SIAbstractBluetoothProtocol {
     Q_OBJECT
 
   public:
-    SIBluetoothProtocolV1(SIAccessLevel accessLevel);
+    explicit SIBluetoothProtocolV1(SIAccessLevel accessLevel);
 
     SIBluetoothProtocolFrame handleFrame(SIBluetoothProtocolFrame& frame, SIContext& context) override;
     SIBluetoothProtocolFrame convertDeviceMessage(const SIDeviceMessage& message) override;

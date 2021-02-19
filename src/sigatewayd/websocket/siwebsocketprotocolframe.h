@@ -36,7 +36,7 @@ class SIWebSocketProtocolFrame {
         DATALOG_READ
     };
 
-    SIWebSocketProtocolFrame(Command command = INVALID, std::initializer_list<QPair<QString,QString>> headers = {}, const QByteArray& body = {});
+    SIWebSocketProtocolFrame(Command command = INVALID, std::initializer_list<QPair<QString,QString>> headers = {}, QByteArray body = {}); // NOLINT(google-explicit-constructor)
 
     bool isNull() const;
 

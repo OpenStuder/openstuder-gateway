@@ -25,7 +25,7 @@ class SIBluetoothProtocolFrame {
         DEVICE_MESSAGE = 'M'
     };
 
-    SIBluetoothProtocolFrame(Command command = INVALID, const QVector<QString>& parameters = {});
+    SIBluetoothProtocolFrame(Command command = INVALID, const QVector<QString>& parameters = {}); // NOLINT(google-explicit-constructor)
 
     bool isNull() const;
 

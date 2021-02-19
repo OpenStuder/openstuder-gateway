@@ -80,17 +80,17 @@ class DemoModel: QObject {
         return (minuteOfDay > 300. && minuteOfDay < 1100.) ? std::max(0., 800. - pow(0.1 * (minuteOfDay - 700.), 2) + 0.0003 * pow(0.1 * (minuteOfDay - 700.), 4)) : 0.;
     }
 
-    double powerConsumption_(double minuteOfDay) const {
+    static double powerConsumption_(double minuteOfDay) {
         double factor = 0;
         if (minuteOfDay > 400.) { factor = 200; }
         if (minuteOfDay > 1000.) { factor = 25; }
         if (minuteOfDay > 1400.) { factor = 0; }
-        std::mt19937 random_engine;
-        random_engine.seed(minuteOfDay / 12);
+        std::mt19937 random_engine; // NOLINT(cert-msc51-cpp)
+        random_engine.seed(static_cast<unsigned int>(minuteOfDay / 12.0));
         return factor * 1. + factor * 0.5 * static_cast<double>(random_engine()) / std::mt19937::max();
     }
 
-    void update_(double deltaTime, double minuteOfDay = QTime::currentTime().msecsSinceStartOfDay() / 1000 / 60) {
+    void update_(double deltaTime, double minuteOfDay = static_cast<double>(QTime::currentTime().msecsSinceStartOfDay() / 1000 / 60)) {
         acOutputOn_ = acOutputOn_ && batteryCharge_ > 0.05;
         acInputOn_ = batteryCharge_ < (acInputOn_ ? 0.95 * batteryCapacity_ : 0.1 * batteryCapacity_);
         auto batteryFull = batteryCharge_ >= batteryCapacity_;

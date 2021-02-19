@@ -261,7 +261,7 @@ class SIUserManagementCommand: public SIAbstractCommand {
                << "  4 -> Qualified service personnel" << endl
                << "Your choice: ";
         output.flush();
-        int accessLevelChoice;
+        int accessLevelChoice = 0;
         input >> accessLevelChoice;
 
         // Convert the index to the respective access level and return and invalid value if a wrong index was choosen.
@@ -313,4 +313,4 @@ class SIUserManagementCommand: public SIAbstractCommand {
     }
 };
 
-static SIUserManagementCommand userManagement;
+static SIUserManagementCommand userManagement; // NOLINT(cert-err58-cpp)

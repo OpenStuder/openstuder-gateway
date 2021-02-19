@@ -35,4 +35,4 @@ class SIHelpCommand: public SIAbstractCommand {
     }
 };
 
-static SIHelpCommand help;
+static SIHelpCommand help; // NOLINT(cert-err58-cpp)

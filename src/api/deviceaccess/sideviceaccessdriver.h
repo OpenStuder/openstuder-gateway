@@ -12,7 +12,7 @@ class SIDeviceAccessDriver {
     SIDeviceAccessDriver& operator =(const SIDeviceAccessDriver&) = delete;
     virtual ~SIDeviceAccessDriver() = default;
 
-    virtual SIDeviceAccess* createDeviceAccessInstance(const QString& id, const QVariantMap& parameters = {}) = 0;
+    virtual SIDeviceAccess* createDeviceAccessInstance(const QString& id, const QVariantMap& parameters) = 0;
 };
 
 #define SIDeviceAccessDriverPlugin_IID "org.sgw.SIDeviceAccessDriverPlugin"

@@ -1,8 +1,9 @@
 #include "siwebsocketprotocolframe.h"
 #include <QTextStream>
+#include <utility>
 
-SIWebSocketProtocolFrame::SIWebSocketProtocolFrame(SIWebSocketProtocolFrame::Command command, std::initializer_list<QPair<QString, QString>> headers, const QByteArray& body)
-    : command_(command), body_(body) {
+SIWebSocketProtocolFrame::SIWebSocketProtocolFrame(SIWebSocketProtocolFrame::Command command, std::initializer_list<QPair<QString, QString>> headers, QByteArray body)
+    : command_(command), body_(std::move(body)) {
     for (const auto& header: headers) {
         headers_[header.first] = header.second;
     }

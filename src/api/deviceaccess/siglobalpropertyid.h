@@ -6,9 +6,9 @@
 class SIGlobalPropertyID {
   public:
     SIGlobalPropertyID();
-    SIGlobalPropertyID(const char* uniqueID);
-    SIGlobalPropertyID(const QByteArray& uniqueID);
-    SIGlobalPropertyID(const QString& uniqueID);
+    SIGlobalPropertyID(const char* uniqueID); // NOLINT(google-explicit-constructor)
+    SIGlobalPropertyID(const QByteArray& uniqueID); // NOLINT(google-explicit-constructor)
+    SIGlobalPropertyID(const QString& uniqueID); // NOLINT(google-explicit-constructor)
     SIGlobalPropertyID(QString accessID, QString deviceID, SIPropertyID propertyID);
 
     bool isValid() const;

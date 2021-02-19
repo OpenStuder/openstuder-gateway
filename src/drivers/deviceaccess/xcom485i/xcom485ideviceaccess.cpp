@@ -15,7 +15,7 @@ using namespace std;
 
 Q_DECLARE_LOGGING_CATEGORY(XCOM485i)
 
-static QMap<quint64, QString> xcom485iMessages_ =
+static QMap<quint64, QString> xcom485iMessages_ = // NOLINT(cert-err58-cpp)
 #include "xcom485imessages.json"
 ;
 
@@ -448,9 +448,10 @@ SIPropertyReadResult XCom485iDeviceAccess::readInputRegister_(quint8 deviceAddre
 
         case SIPropertyType::Invalid:
         case SIPropertyType::Signal:
-        default:
             return {registerAddress, SIStatus::Error, {}};
     }
+
+    return {registerAddress, SIStatus::Error, {}};
 }
 
 SIPropertyReadResult XCom485iDeviceAccess::readHoldingRegister_(quint8 deviceAddress, unsigned int registerAddress, SIPropertyType type) {
@@ -483,9 +484,10 @@ SIPropertyReadResult XCom485iDeviceAccess::readHoldingRegister_(quint8 deviceAdd
 
         case SIPropertyType::Invalid:
         case SIPropertyType::Signal:
-        default:
             return {registerAddress, SIStatus::Error, {}};
     }
+
+    return {registerAddress, SIStatus::Error, {}};
 }
 
 SIPropertyWriteResult XCom485iDeviceAccess::writeHoldingRegister_(quint8 deviceAddress, unsigned int registerAddress, const QVariant& value, SIPropertyType type) {
@@ -518,7 +520,6 @@ SIPropertyWriteResult XCom485iDeviceAccess::writeHoldingRegister_(quint8 deviceA
             break;
 
         case SIPropertyType::Invalid:
-        default:
             return {registerAddress, SIStatus::Error};
     }
 

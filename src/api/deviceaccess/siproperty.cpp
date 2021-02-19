@@ -1,7 +1,7 @@
 #include "siproperty.h"
 #include <utility>
 
-static const QString emptyString_ = "";
+static const QString emptyString_ = ""; // NOLINT(cert-err58-cpp)
 
 struct SIProperty::Private_ {
     Private_(SIPropertyID id, SIPropertyType type, SIAccessLevel accessLevel, SIPropertyFlags flags, QString description, QString unit = "")

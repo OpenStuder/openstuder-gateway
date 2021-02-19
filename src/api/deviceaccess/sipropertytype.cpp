@@ -21,7 +21,8 @@ const char* to_string(SIPropertyType type) {
             return "Signal";
 
         case SIPropertyType::Invalid:
-        default:
             return "Invalid";
     }
+
+    return "Invalid";
 }

@@ -15,7 +15,8 @@ const char* to_string(SIAccessLevel accessLevel) {
             return "QSP";
 
         case SIAccessLevel::None:
-        default:
             return "None";
     }
+
+    return "None";
 }

@@ -26,7 +26,7 @@ class SIDataLogGroup: public QObject {
     void onFinished_(SIStatus status);
 
   private:
-    int msecToNextDue_() const;
+    qint64 msecToNextDue_() const;
 
     int interval_;
     bool active_ = false;

@@ -93,7 +93,7 @@ class SIMessagesRetrieveOperation final: public SIAbstractOperation {
 
 struct SIDeviceAccessManager::Private {
     QVector<SIPropertySubscriptions*> subscriptions_;
-    SIMessagesRetrieveOperation* messageRetrieveOperation_;
+    SIMessagesRetrieveOperation* messageRetrieveOperation_ = nullptr;
 };
 
 SIDeviceAccessManager::SIDeviceAccessManager(QObject* parent): QObject(parent), priv_(new Private) {
@@ -111,7 +111,7 @@ SIDeviceAccessManager::~SIDeviceAccessManager() {
     delete priv_;
 }
 
-SIProperty SIDeviceAccessManager::resolveProperty(SIGlobalPropertyID id) {
+SIProperty SIDeviceAccessManager::resolveProperty(const SIGlobalPropertyID& id) {
     if (!id.isValid()) {
         return {};
     }
@@ -135,25 +135,25 @@ SIDeviceEnumerationOperation* SIDeviceAccessManager::enumerateDevices() {
     return operation;
 }
 
-SIPropertyReadOperation* SIDeviceAccessManager::readProperty(SIGlobalPropertyID id) {
-    auto* operation = new SIPropertyReadOperation {move(id), this};
+SIPropertyReadOperation* SIDeviceAccessManager::readProperty(const SIGlobalPropertyID& id) {
+    auto* operation = new SIPropertyReadOperation {id, this};
     operation->enqueue(std::bind(&SIDeviceAccessManager::enqueueOperation_, this, std::placeholders::_1));
     return operation;
 }
 
-SIPropertiesReadOperation* SIDeviceAccessManager::readProperties(QVector<SIGlobalPropertyID> ids) {
-    auto* operation = new SIPropertiesReadOperation(move(ids), this);
+SIPropertiesReadOperation* SIDeviceAccessManager::readProperties(const QVector<SIGlobalPropertyID>& ids) {
+    auto* operation = new SIPropertiesReadOperation(ids, this);
     operation->enqueue(std::bind(&SIDeviceAccessManager::enqueueOperation_, this, std::placeholders::_1));
     return operation;
 }
 
-SIPropertyWriteOperation* SIDeviceAccessManager::writeProperty(SIGlobalPropertyID id, const QVariant& value, SIPropertyWriteFlags flags) {
-    auto* operation = new SIPropertyWriteOperation {move(id), value, flags, this};
+SIPropertyWriteOperation* SIDeviceAccessManager::writeProperty(const SIGlobalPropertyID& id, const QVariant& value, SIPropertyWriteFlags flags) {
+    auto* operation = new SIPropertyWriteOperation {id, value, flags, this};
     operation->enqueue(std::bind(&SIDeviceAccessManager::enqueueOperation_, this, std::placeholders::_1));
     return operation;
 }
 
-bool SIDeviceAccessManager::subscribeToProperty(SIGlobalPropertyID id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
+bool SIDeviceAccessManager::subscribeToProperty(const SIGlobalPropertyID& id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
     if (resolveProperty(id).type() == SIPropertyType::Invalid) {
         return false;
     }
@@ -172,7 +172,7 @@ bool SIDeviceAccessManager::subscribeToProperty(SIGlobalPropertyID id, SIDeviceA
     return true;
 }
 
-bool SIDeviceAccessManager::unsubscribeFromProperty(SIGlobalPropertyID id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
+bool SIDeviceAccessManager::unsubscribeFromProperty(const SIGlobalPropertyID& id, SIDeviceAccessManager::PropertySubscriber* subscriber) {
     auto subscription = std::find_if(priv_->subscriptions_.begin(), priv_->subscriptions_.end(), [&id](SIPropertySubscriptions* sub) {
         return sub->id() == id;
     });

@@ -27,15 +27,15 @@ class SIDeviceAccessManager: public QObject {
     explicit SIDeviceAccessManager(QObject* parent = nullptr);
     ~SIDeviceAccessManager() override;
 
-    SIProperty resolveProperty(SIGlobalPropertyID id);
+    SIProperty resolveProperty(const SIGlobalPropertyID& id);
 
     SIDeviceEnumerationOperation* enumerateDevices();
-    SIPropertyReadOperation* readProperty(SIGlobalPropertyID id);
-    SIPropertiesReadOperation* readProperties(QVector<SIGlobalPropertyID> ids);
-    SIPropertyWriteOperation* writeProperty(SIGlobalPropertyID id, const QVariant& value = {}, SIPropertyWriteFlags flags = SIPropertyWriteFlag::Default);
+    SIPropertyReadOperation* readProperty(const SIGlobalPropertyID& id);
+    SIPropertiesReadOperation* readProperties(const QVector<SIGlobalPropertyID>& ids);
+    SIPropertyWriteOperation* writeProperty(const SIGlobalPropertyID& id, const QVariant& value = {}, SIPropertyWriteFlags flags = SIPropertyWriteFlag::Default);
 
-    bool subscribeToProperty(SIGlobalPropertyID id, PropertySubscriber* subscriber);
-    bool unsubscribeFromProperty(SIGlobalPropertyID id, PropertySubscriber* subscriber);
+    bool subscribeToProperty(const SIGlobalPropertyID& id, PropertySubscriber* subscriber);
+    bool unsubscribeFromProperty(const SIGlobalPropertyID& id, PropertySubscriber* subscriber);
     void unsubscribeFromAllProperties(PropertySubscriber* subscriber);
 
     void startPropertyPolling(int intervalMS);

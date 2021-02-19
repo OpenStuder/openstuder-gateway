@@ -38,28 +38,28 @@ const SISettings& SISettings::sharedSettings() {
 
 SISettings::SISettings(QSettings* gateway, QSettings* driver): gatewaySettings_(gateway), driverSettings_(driver) {}
 
-QVariant SISettings::requiredValue_(const QString& key, const QSettings* settings) const {
+QVariant SISettings::requiredValue_(const QString& key, const QSettings* settings) {
     if (settings == nullptr || !settings->contains(key)) {
         throw std::runtime_error(QString("Missing mandatory configuration setting \"%1\"").arg(key).toStdString());
     }
     return settings->value(key);
 }
 
-QVariant SISettings::valueWithDefault_(const QString& key, const QVariant& defaultValue, const QSettings* settings) const {
+QVariant SISettings::valueWithDefault_(const QString& key, const QVariant& defaultValue, const QSettings* settings) {
     return settings != nullptr ? settings->value(key, defaultValue) : defaultValue;
 }
 
-QVariant SISettings::valueOfThese_(const QString& key, std::initializer_list<QVariant> validValues, const QVariant& defaultValue, const QSettings* settings) const {
+QVariant SISettings::valueOfThese_(const QString& key, std::initializer_list<QVariant> validValues, const QVariant& defaultValue, const QSettings* settings) {
     auto value = valueWithDefault_(key, defaultValue, settings);
     for (const auto& validValue: validValues) {
         if (value == validValue) {
             return value;
         }
     }
-    throw std::runtime_error(QString("Invalid configuration value \"%1\" for key \"%2\"").arg(value.toString()).arg(key).toStdString());
+    throw std::runtime_error(QString(R"(Invalid configuration value "%1" for key "%2")").arg(value.toString()).arg(key).toStdString());
 }
 
-QVariantMap SISettings::filteredChildSettings_(const QString& group, const QStringList& exclude, QSettings* settings) const {
+QVariantMap SISettings::filteredChildSettings_(const QString& group, const QStringList& exclude, QSettings* settings) {
     QVariantMap filtered;
     if (settings != nullptr && settings->childGroups().contains(group)) {
         settings->beginGroup(group);
@@ -74,7 +74,7 @@ QVariantMap SISettings::filteredChildSettings_(const QString& group, const QStri
     return filtered;
 }
 
-QStringList SISettings::filteredChildGroups_(const QStringList& exclude, const QSettings* settings) const {
+QStringList SISettings::filteredChildGroups_(const QStringList& exclude, const QSettings* settings) {
     QStringList filtered;
     if (settings != nullptr) {
         for (const auto& group: settings->childGroups()) {
@@ -86,4 +86,4 @@ QStringList SISettings::filteredChildGroups_(const QStringList& exclude, const Q
     return filtered;
 }
 
-SISettings SISettings::sharedSettings_ {};
+SISettings SISettings::sharedSettings_ {}; // NOLINT(cert-err58-cpp)

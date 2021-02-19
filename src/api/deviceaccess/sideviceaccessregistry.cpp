@@ -96,9 +96,9 @@ QJsonObject SIDeviceAccessRegistry::jsonDescription(SIAccessLevel accessLevel, S
 #else
             auto* access = qobject_cast<SIDeviceAccess*>(child);
 #endif
-            QJsonObject description = access->jsonDescription(accessLevel, flags);
-            description["driver"] = private_->instanceDriverNames[access];
-            instances.append(description);
+            QJsonObject accessDescription = access->jsonDescription(accessLevel, flags);
+            accessDescription["driver"] = private_->instanceDriverNames[access];
+            instances.append(accessDescription);
         }
         description["instances"] = instances;
     }

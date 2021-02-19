@@ -57,12 +57,9 @@ SIPropertyWriteResult XCom485iDevice::writeProperty_(SIPropertyID id, const QVar
         return {id, SIStatus::InvalidValue};
     }
 
-    SIPropertyWriteResult result = {};
-    if (flags.testFlag(SIPropertyWriteFlag::Permanent)) {
-        result = modbusAccess_->writeHoldingRegister(modbusAddress_, *registerAddress, value, property->type());
-    } else {
-        result = modbusAccess_->writeHoldingRegister(modbusAddress_ + 6000, *registerAddress, value, property->type());
-    }
+    SIPropertyWriteResult result = flags.testFlag(SIPropertyWriteFlag::Permanent) ?
+        modbusAccess_->writeHoldingRegister(modbusAddress_, *registerAddress, value, property->type()) :
+        modbusAccess_->writeHoldingRegister(modbusAddress_, *registerAddress + 6000, value, property->type());
     result.setID(id);
     return result;
 }

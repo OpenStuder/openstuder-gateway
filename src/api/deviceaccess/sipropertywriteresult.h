@@ -14,7 +14,7 @@ class SIPropertyWriteResult {
 
     SIStatus status() const;
 
-    inline operator bool();
+    inline operator bool(); // NOLINT(google-explicit-constructor)
 
   private:
     void detach_();

@@ -72,11 +72,11 @@ class SISettings {
   private:
     explicit SISettings(QSettings* gateway = nullptr, QSettings* driver = nullptr);
 
-    QVariant requiredValue_(const QString& key, const QSettings* settings) const;
-    QVariant valueWithDefault_(const QString& key, const QVariant& defaultValue, const QSettings* settings) const;
-    QVariant valueOfThese_(const QString& key, std::initializer_list<QVariant> validValues, const QVariant& defaultValue, const QSettings* settings) const;
-    QVariantMap filteredChildSettings_(const QString& group, const QStringList& exclude, QSettings* settings) const;
-    QStringList filteredChildGroups_(const QStringList& exclude, const QSettings* settings) const;
+    static QVariant requiredValue_(const QString& key, const QSettings* settings);
+    static QVariant valueWithDefault_(const QString& key, const QVariant& defaultValue, const QSettings* settings);
+    static QVariant valueOfThese_(const QString& key, std::initializer_list<QVariant> validValues, const QVariant& defaultValue, const QSettings* settings);
+    static QVariantMap filteredChildSettings_(const QString& group, const QStringList& exclude, QSettings* settings);
+    static QStringList filteredChildGroups_(const QStringList& exclude, const QSettings* settings);
 
     std::shared_ptr<QSettings> gatewaySettings_;
     std::shared_ptr<QSettings> driverSettings_;

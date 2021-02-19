@@ -18,7 +18,7 @@ struct SITextFileUserManagement::Private_ {
     struct User {
         QString username;
         QString passwordHash;
-        SIAccessLevel accessLevel;
+        SIAccessLevel accessLevel = SIAccessLevel::None;
     };
 
     class Users: public QVector<User> {

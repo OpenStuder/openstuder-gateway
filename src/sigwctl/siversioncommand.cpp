@@ -23,4 +23,4 @@ class SIVersionCommand: public SIAbstractCommand {
     }
 };
 
-static SIVersionCommand siVersionCommand;
+static SIVersionCommand siVersionCommand; // NOLINT(cert-err58-cpp)

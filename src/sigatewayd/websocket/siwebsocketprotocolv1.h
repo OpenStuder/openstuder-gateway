@@ -6,7 +6,7 @@ class SIWebSocketProtocolV1: public SIAbstractWebSocketProtocol {
     Q_OBJECT
 
   public:
-    SIWebSocketProtocolV1(SIAccessLevel accessLevel);
+    explicit SIWebSocketProtocolV1(SIAccessLevel accessLevel);
 
     SIWebSocketProtocolFrame handleFrame(SIWebSocketProtocolFrame& frame, SIContext& context) override;
     SIWebSocketProtocolFrame convertDeviceMessage(const SIDeviceMessage& message) override;

@@ -17,7 +17,7 @@ class SIPropertyReadResult {
 
     const QVariant& value() const;
 
-    inline operator bool() const;
+    inline operator bool() const; // NOLINT(google-explicit-constructor)
 
   private:
     void detach_();

@@ -24,7 +24,8 @@ const char* to_string(SIStatus status) {
             return "InvalidValue";
 
         case SIStatus::Error:
-        default:
             return "Error";
     }
+
+    return "Error";
 }

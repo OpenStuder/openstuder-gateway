@@ -10,9 +10,9 @@
 #include <QLowEnergyAdvertisingParameters>
 #include <QLowEnergyAdvertisingData>
 
-const QBluetoothUuid SICharacteristicUUID {QStringLiteral("12345678-1234-0000-1623-123456789ABC")};
-const QBluetoothUuid RXCharacteristicUUID {QStringLiteral("12345678-1234-0001-1623-123456789ABC")};
-const QBluetoothUuid TXCharacteristicUUID {QStringLiteral("12345678-1234-0002-1623-123456789ABC")};
+const QBluetoothUuid SICharacteristicUUID {QStringLiteral("12345678-1234-0000-1623-123456789ABC")}; // NOLINT(cert-err58-cpp)
+const QBluetoothUuid RXCharacteristicUUID {QStringLiteral("12345678-1234-0001-1623-123456789ABC")}; // NOLINT(cert-err58-cpp)
+const QBluetoothUuid TXCharacteristicUUID {QStringLiteral("12345678-1234-0002-1623-123456789ABC")}; // NOLINT(cert-err58-cpp)
 
 SIBluetoothManager::SIBluetoothManager(SIContext* context, QObject* parent):
     QObject(parent), context_(context) {

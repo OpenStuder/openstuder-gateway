@@ -81,7 +81,7 @@ void SIDataLogGroup::onFinished_(SIStatus status) {
     }
 }
 
-int SIDataLogGroup::msecToNextDue_() const {
+qint64 SIDataLogGroup::msecToNextDue_() const {
     auto msecToNextDue = (interval_ * 1000) - QDateTime::currentMSecsSinceEpoch() % (interval_ * 1000);
     if (msecToNextDue < 500) {
         msecToNextDue += interval_;
