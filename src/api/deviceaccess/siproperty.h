@@ -3,7 +3,7 @@
 #include "sipropertytype.h"
 #include "siaccesslevel.h"
 #include "sipropertyflags.h"
-#include "sijsonflags.h"
+#include "sijdescriptionflags.h"
 #include <QString>
 #include <QJsonObject>
 #include <utility>
@@ -28,9 +28,9 @@ class SIProperty {
 
     const QString& unit() const;
 
-    QJsonObject jsonDescription(SIJsonFlags flags) const;
+    QJsonObject jsonDescription(SIDescriptionFlags flags) const;
 
   private:
-    struct Private;
-    std::shared_ptr<Private> private_;
+    struct Private_;
+    std::shared_ptr<Private_> private_;
 };

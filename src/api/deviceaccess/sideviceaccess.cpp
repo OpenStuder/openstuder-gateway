@@ -6,14 +6,14 @@ struct SIDeviceAccess::Private_ {
     QString id;
 };
 
-SIDeviceAccess::SIDeviceAccess(const QString& id): priv_(new Private_) {
-    priv_->id = id;
+SIDeviceAccess::SIDeviceAccess(const QString& id): private_(new Private_) {
+    private_->id = id;
 }
 
 SIDeviceAccess::~SIDeviceAccess() = default;
 
 const QString& SIDeviceAccess::id() const {
-    return priv_->id;
+    return private_->id;
 }
 
 QVector<SIDeviceMessage> SIDeviceAccess::retrievePendingDeviceMessages() const {
@@ -92,10 +92,10 @@ QPointer<SIDevice> SIDeviceAccess::device(const QString& id) const {
     return nullptr;
 }
 
-QJsonObject SIDeviceAccess::jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const {
+QJsonObject SIDeviceAccess::jsonDescription(SIAccessLevel accessLevel, SIDescriptionFlags flags) const {
     QJsonObject description;
         description["id"] = id();
-        if (flags.testFlag(SIJsonFlag::IncludeDeviceInformation)) {
+        if (flags.testFlag(SIDescriptionFlag::IncludeDeviceInformation)) {
             QJsonArray devs;
             for (auto* child: children()) {
 #ifdef Q_OS_MACOS
@@ -116,7 +116,7 @@ void SIDeviceAccess::retrievePendingDeviceMessages_(QVector<SIDeviceMessage>& me
     Q_UNUSED(messages)
 }
 
-void SIDeviceAccess::completeJsonDescription_(QJsonObject& object, SIJsonFlags flags) const {
+void SIDeviceAccess::completeJsonDescription_(QJsonObject& object, SIDescriptionFlags flags) const {
     Q_UNUSED(object)
     Q_UNUSED(flags)
 }

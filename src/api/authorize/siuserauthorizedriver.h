@@ -6,6 +6,9 @@
 
 class SIUserAuthorizeDriver {
   public:
+    SIUserAuthorizeDriver() = default;
+    SIUserAuthorizeDriver(const SIUserAuthorizeDriver&) = delete;
+    SIUserAuthorizeDriver& operator =(const SIUserAuthorizeDriver&) = delete;
     virtual ~SIUserAuthorizeDriver() = default;
 
     virtual SIUserAuthorizer* createUserAuthorizerInstance(const QVariantMap& parameters) = 0;

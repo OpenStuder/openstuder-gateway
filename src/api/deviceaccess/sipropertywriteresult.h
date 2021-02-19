@@ -2,11 +2,22 @@
 #include "sipropertyid.h"
 #include "sistatus.h"
 
-struct SIPropertyWriteResult {
-    SIPropertyID id;
-    SIStatus status;
+class SIPropertyWriteResult {
+  public:
+    SIPropertyWriteResult();
+    SIPropertyWriteResult(SIPropertyID id, SIStatus status);
 
-    inline operator bool() {
-        return status == SIStatus::Success;
-    }
+    SIPropertyID id() const;
+
+    void setID(SIPropertyID id);
+
+    SIStatus status() const;
+
+    inline operator bool();
+
+  private:
+    void detach_();
+
+    struct Private_;
+    std::shared_ptr<Private_> private_;
 };

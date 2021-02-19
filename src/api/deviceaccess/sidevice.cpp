@@ -7,19 +7,19 @@ struct SIDevice::Private_ {
     QString id;
 };
 
-SIDevice::SIDevice(const QString& model, const QString& id): priv_(new Private_) {
-    priv_->model = model;
-    priv_->id = id;
+SIDevice::SIDevice(const QString& model, const QString& id): private_(new Private_) {
+    private_->model = model;
+    private_->id = id;
 }
 
 SIDevice::~SIDevice() = default;
 
 const QString& SIDevice::model() const {
-    return priv_->model;
+    return private_->model;
 }
 
 const QString& SIDevice::id() const {
-    return priv_->id;
+    return private_->id;
 }
 
 const QVector<SIProperty>& SIDevice::properties() const {
@@ -52,12 +52,12 @@ QVector<SIPropertyWriteResult> SIDevice::writeProperties(const QVector<const QPa
     return writeProperties_(properties, flags);
 }
 
-QJsonObject SIDevice::jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const {
+QJsonObject SIDevice::jsonDescription(SIAccessLevel accessLevel, SIDescriptionFlags flags) const {
     QJsonObject description;
 
     description["model"] = model();
     description["id"] = id();
-    if (flags.testFlag(SIJsonFlag::IncludePropertyInformation)) {
+    if (flags.testFlag(SIDescriptionFlag::IncludePropertyInformation)) {
         QJsonArray props;
         for (const auto& property: properties()) {
             if (accessLevel >= property.accessLevel()) {
@@ -87,7 +87,7 @@ QVector<SIPropertyWriteResult> SIDevice::writeProperties_(const QVector<const QP
     return results;
 }
 
-void SIDevice::completeJsonDescription_(QJsonObject& object, SIJsonFlags flags) const {
+void SIDevice::completeJsonDescription_(QJsonObject& object, SIDescriptionFlags flags) const {
     Q_UNUSED(object)
     Q_UNUSED(flags)
 }

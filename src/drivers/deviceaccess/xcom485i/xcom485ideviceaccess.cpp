@@ -361,12 +361,9 @@ void XCom485iDeviceAccess::retrievePendingDeviceMessages_(QVector<SIDeviceMessag
             qCCritical(XCOM485i,) << "Error reading pending message:" << reply->errorString();
             return;
         }
-        SIDeviceMessage message;
-        message.accessID = id();
-        message.deviceID = QString::number(reply->result().value(0));
-        message.messageID = reply->result().value(1);
-        message.message = xcom485iMessages_.value(message.messageID, "Unknown Message");
-        messages.append(std::move(message));
+        auto messageID = reply->result().value(1);
+        SIDeviceMessage message(id(), QString::number(reply->result().value(0)), messageID, xcom485iMessages_.value(messageID, "Unknown Message"));
+        messages.append(move(message));
         --pendingMessagesCount;
     }
 }
@@ -411,7 +408,7 @@ bool XCom485iDeviceAccess::enumerateDevices_(QVector<SIDevice*>& devices) {
     }
 }
 
-void XCom485iDeviceAccess::completeJsonDescription_(QJsonObject& object, SIJsonFlags flags) const {
+void XCom485iDeviceAccess::completeJsonDescription_(QJsonObject& object, SIDescriptionFlags flags) const {
     Q_UNUSED(flags)
 
     QJsonObject parameters;

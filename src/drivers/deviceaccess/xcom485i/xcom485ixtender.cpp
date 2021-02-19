@@ -711,10 +711,10 @@ XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModb
 
 XCom485iXtender::Model XCom485iXtender::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(modbusAddress, 248);
-    if (model.status != SIStatus::Success && !model.value.isValid()) {
+    if (model.status() != SIStatus::Success && !model.value().isValid()) {
         return Invalid;
     }
-    switch (model.value.toInt()) {
+    switch (model.value().toInt()) {
         case 1:
             return XTH;
 

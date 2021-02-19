@@ -549,10 +549,10 @@ XCom485iVarioTrack::XCom485iVarioTrack(Model model, quint8 modbusAddress, XCom48
 
 XCom485iVarioTrack::Model XCom485iVarioTrack::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(modbusAddress, 30);
-    if (model.status != SIStatus::Success && !model.value.isValid()) {
+    if (model.status() != SIStatus::Success && !model.value().isValid()) {
         return Invalid;
     }
-    switch (model.value.toInt()) {
+    switch (model.value().toInt()) {
         case 0:
             return VT80;
 

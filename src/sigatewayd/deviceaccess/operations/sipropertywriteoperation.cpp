@@ -26,6 +26,6 @@ SIStatus SIPropertyWriteOperation::execute_(SIDeviceAccessRegistry* deviceAccess
     }
 
     auto result = device->writeProperty(id_.propertyID(), value_, flags_);
-    status_ = result.status;
+    status_ = result.status();
     return status_;
 }

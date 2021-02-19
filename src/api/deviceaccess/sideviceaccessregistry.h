@@ -1,6 +1,6 @@
 #pragma once
 #include "siaccesslevel.h"
-#include "sijsonflags.h"
+#include "sijdescriptionflags.h"
 #include <memory>
 #include <QObject>
 #include <QString>
@@ -36,7 +36,7 @@ class SIDeviceAccessRegistry final: QObject {
 
     bool instantiateDeviceAccess(const QString& driverName, const QString& id, const QVariantMap& parameters);
 
-    QJsonObject jsonDescription(SIAccessLevel accessLevel = SIAccessLevel::Basic, SIJsonFlags flags = SIJsonFlag::Default) const;
+    QJsonObject jsonDescription(SIAccessLevel accessLevel = SIAccessLevel::Basic, SIDescriptionFlags flags = SIDescriptionFlag::Default) const;
 
     static SIDeviceAccessRegistry& sharedRegistry();
 
@@ -49,5 +49,5 @@ class SIDeviceAccessRegistry final: QObject {
     static bool hasDeviceAccessDriver_(const QString& name);
 
     struct Private_;
-    std::unique_ptr<Private_> priv_;
+    std::unique_ptr<Private_> private_;
 };

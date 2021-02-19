@@ -1,6 +1,6 @@
 #include "siwebsocketprotocolv1.h"
 #include "sistorage.h"
-#include <sijsonflags.h>
+#include <sijdescriptionflags.h>
 #include <sideviceaccessregistry.h>
 #include <sideviceaccess.h>
 #include <sidevice.h>
@@ -35,14 +35,14 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
-            SIJsonFlags jsonFlags = SIJsonFlag::Default;
+            SIDescriptionFlags jsonFlags = SIDescriptionFlag::Default;
             if (frame.hasHeader("flags")) {
-                jsonFlags = SIJsonFlag::None;
+                jsonFlags = SIDescriptionFlag::None;
                 for (const auto& flag: frame.header("flags").split(",")) {
-                    if (flag == "IncludeAccessInformation") jsonFlags |= SIJsonFlag::IncludeAccessInformation;
-                    else if (flag == "IncludeDeviceInformation") jsonFlags |= SIJsonFlag::IncludeDeviceInformation;
-                    else if (flag == "IncludePropertyInformation") jsonFlags |= SIJsonFlag::IncludePropertyInformation;
-                    else if (flag == "IncludeDriverInformation") jsonFlags |= SIJsonFlag::IncludeDriverInformation;
+                    if (flag == "IncludeAccessInformation") jsonFlags |= SIDescriptionFlag::IncludeAccessInformation;
+                    else if (flag == "IncludeDeviceInformation") jsonFlags |= SIDescriptionFlag::IncludeDeviceInformation;
+                    else if (flag == "IncludePropertyInformation") jsonFlags |= SIDescriptionFlag::IncludePropertyInformation;
+                    else if (flag == "IncludeDriverInformation") jsonFlags |= SIDescriptionFlag::IncludeDriverInformation;
                     else {
                         return SIWebSocketProtocolFrame::error("invalid frame");
                     }
@@ -261,11 +261,11 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             QJsonArray jsonMessages;
             for (auto message = messages.crbegin(); message != messages.crend(); ++message) {
                 QJsonObject jsonMessage;
-                jsonMessage["timestamp"] = message->timestamp.toString(Qt::ISODate);
-                jsonMessage["access_id"] = message->accessID;
-                jsonMessage["device_id"] = message->deviceID;
-                jsonMessage["message_id"] = (qlonglong)message->messageID;
-                jsonMessage["message"] = message->message;
+                jsonMessage["timestamp"] = message->timestamp().toString(Qt::ISODate);
+                jsonMessage["access_id"] = message->accessID();
+                jsonMessage["device_id"] = message->deviceID();
+                jsonMessage["message_id"] = (qlonglong)message->messageID();
+                jsonMessage["message"] = message->message();
                 jsonMessages.append(jsonMessage);
             }
 
@@ -335,11 +335,11 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
 SIWebSocketProtocolFrame SIWebSocketProtocolV1::convertDeviceMessage(const SIDeviceMessage& message) {
     return {SIWebSocketProtocolFrame::DEVICE_MESSAGE, {
-        {"timestamp", message.timestamp.toString(Qt::ISODate)},
-        {"access_id", message.accessID},
-        {"device_id", message.deviceID},
-        {"message_id", QString::number(message.messageID)},
-        {"message", message.message}
+        {"timestamp", message.timestamp().toString(Qt::ISODate)},
+        {"access_id", message.accessID()},
+        {"device_id", message.deviceID()},
+        {"message_id", QString::number(message.messageID())},
+        {"message", message.message()}
     }};
 }
 

@@ -5,6 +5,9 @@
 
 class SIUserAuthorizer {
   public:
+    SIUserAuthorizer() = default;
+    SIUserAuthorizer(const SIUserAuthorizer&) = delete;
+    SIUserAuthorizer& operator =(const SIUserAuthorizer&) = delete;
     virtual ~SIUserAuthorizer() = default;
 
     inline SIAccessLevel authorizeUser(const QString& username, const QString& password) const {

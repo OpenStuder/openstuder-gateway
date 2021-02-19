@@ -3,8 +3,8 @@
 
 static const QString emptyString_ = "";
 
-struct SIProperty::Private {
-    Private(SIPropertyID id, SIPropertyType type, SIAccessLevel accessLevel, SIPropertyFlags flags, QString description, QString unit = "")
+struct SIProperty::Private_ {
+    Private_(SIPropertyID id, SIPropertyType type, SIAccessLevel accessLevel, SIPropertyFlags flags, QString description, QString unit = "")
         : id(id), type(type), accessLevel(accessLevel), flags(flags), description(std::move(description)), unit(std::move(unit)) {}
 
     SIPropertyID id;
@@ -16,13 +16,13 @@ struct SIProperty::Private {
     QJsonObject enumValues;
 };
 
-SIProperty::SIProperty(): private_(nullptr) {}
+SIProperty::SIProperty() = default;
 
 SIProperty::SIProperty(SIPropertyID id, SIPropertyType type, SIAccessLevel accessLevel, SIPropertyFlags flags, const QString& description, const QString& unit):
-    private_(new Private(id, type, accessLevel, flags, description, unit)) {}
+    private_(new Private_(id, type, accessLevel, flags, description, unit)) {}
 
 SIProperty::SIProperty(SIPropertyID id, SIPropertyType type, SIAccessLevel accessLevel, SIPropertyFlags flags, const QString& description, const std::initializer_list<std::pair<int, const char*>>& enumValues):
-    private_(new Private(id, type, accessLevel, flags, description)) {
+    private_(new Private_(id, type, accessLevel, flags, description)) {
     for (const auto& enumValue: enumValues) {
         private_->enumValues[QString::number(enumValue.first)] = enumValue.second;
     }
@@ -84,7 +84,7 @@ const QString& SIProperty::unit() const {
     }
 }
 
-QJsonObject SIProperty::jsonDescription(SIJsonFlags flags) const {
+QJsonObject SIProperty::jsonDescription(SIDescriptionFlags flags) const {
     Q_UNUSED(flags)
 
     if (private_) {

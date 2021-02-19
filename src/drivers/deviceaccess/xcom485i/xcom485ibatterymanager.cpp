@@ -133,10 +133,10 @@ XCom485iBatteryManager::XCom485iBatteryManager(Model model, XCom485iModbusAccess
 
 XCom485iBatteryManager::Model XCom485iBatteryManager::model(XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(61, 122);
-    if (model.status != SIStatus::Success && !model.value.isValid()) {
+    if (model.status() != SIStatus::Success && !model.value().isValid()) {
         return Invalid;
     }
-    if (isnan(model.value.toFloat())) {
+    if (isnan(model.value().toFloat())) {
         return BSP;
     } else {
         return XComCAN_BMS;

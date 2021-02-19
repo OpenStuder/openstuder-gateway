@@ -36,7 +36,7 @@ SIPropertyReadResult XCom485iDevice::readProperty_(SIPropertyID id) const {
     } else {
         result = modbusAccess_->readInputRegister(modbusAddress_, *registerAddress, property->type());
     }
-    result.id = id;
+    result.setID(id);
     return result;
 }
 
@@ -63,6 +63,6 @@ SIPropertyWriteResult XCom485iDevice::writeProperty_(SIPropertyID id, const QVar
     } else {
         result = modbusAccess_->writeHoldingRegister(modbusAddress_ + 6000, *registerAddress, value, property->type());
     }
-    result.id = id;
+    result.setID(id);
     return result;
 }

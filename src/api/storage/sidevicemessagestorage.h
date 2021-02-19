@@ -5,6 +5,9 @@
 
 class SIDeviceMessageStorage {
   public:
+    SIDeviceMessageStorage() = default;
+    SIDeviceMessageStorage(const SIDeviceMessageStorage&) = delete;
+    SIDeviceMessageStorage& operator =(const SIDeviceMessageStorage&) = delete;
     virtual ~SIDeviceMessageStorage() = default;
 
     inline bool storeDeviceMessage(const SIDeviceMessage& message) {

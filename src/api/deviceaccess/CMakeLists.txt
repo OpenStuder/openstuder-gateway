@@ -1,28 +1,32 @@
 si_add_library(SIDeviceAccess)
 si_add_library_public_headers(SIDeviceAccess deviceaccess
-                              sistatus.h
-                              sipropertyid.h
+                              siaccesslevel.h
+                              sidevice.h
+                              sideviceaccess.h
+                              sideviceaccessdriver.h
+                              sideviceaccessregistry.h
+                              sidevicemessage.h
                               siglobalpropertyid.h
-                              sipropertytype.h
+                              sijdescriptionflags.h
                               siproperty.h
                               sipropertyflags.h
+                              sipropertyid.h
                               sipropertyreadresult.h
+                              sipropertytype.h
                               sipropertywriteflags.h
                               sipropertywriteresult.h
-                              sidevice.h
-                              sijsonflags.h
-                              sideviceaccess.h
-                              sideviceaccessregistry.h
-                              sideviceaccessdriver.h
-                              siaccesslevel.h)
+                              sistatus.h)
 si_add_library_sources(SIDeviceAccess
-                       sistatus.cpp
-                       siglobalpropertyid.cpp
-                       sipropertytype.cpp
-                       siproperty.cpp
+                       siaccesslevel.cpp
                        sidevice.cpp
                        sideviceaccess.cpp
                        sideviceaccessregistry.cpp
-                       siaccesslevel.cpp)
+                       sidevicemessage.cpp
+                       siglobalpropertyid.cpp
+                       siproperty.cpp
+                       sipropertyreadresult.cpp
+                       sipropertytype.cpp
+                       sipropertywriteresult.cpp
+                       sistatus.cpp)
 target_include_directories(SIDeviceAccess INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(SIDeviceAccess Qt5::Core)

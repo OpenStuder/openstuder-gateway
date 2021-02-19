@@ -337,7 +337,7 @@ class DemoDeviceAccess: public SIDeviceAccess {
     void retrievePendingDeviceMessages_(QVector<SIDeviceMessage>& messages) const override {
         auto msgs = model_.pendingMessages();
         model_.clearPendingMessages();
-        for (auto& msg: msgs) msg.accessID = id();
+        for (auto& msg: msgs) msg.setAccessID(id());
         messages.append(msgs);
     }
 

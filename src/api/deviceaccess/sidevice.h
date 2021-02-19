@@ -4,7 +4,7 @@
 #include "sipropertywriteflags.h"
 #include "sipropertywriteresult.h"
 #include "siaccesslevel.h"
-#include "sijsonflags.h"
+#include "sijdescriptionflags.h"
 #include <memory>
 #include <QObject>
 #include <QString>
@@ -29,7 +29,7 @@ class SIDevice: public QObject {
 
     const QVector<SIProperty>& properties() const;
 
-    QJsonObject jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const;
+    QJsonObject jsonDescription(SIAccessLevel accessLevel, SIDescriptionFlags flags) const;
 
     SIProperty property(SIPropertyID id) const;
 
@@ -51,8 +51,8 @@ class SIDevice: public QObject {
     virtual SIPropertyWriteResult writeProperty_(SIPropertyID id, const QVariant& value, SIPropertyWriteFlags flags) = 0;
     virtual QVector<SIPropertyWriteResult> writeProperties_(const QVector<const QPair<SIPropertyID,const QVariant>>& properties, SIPropertyWriteFlags flags);
 
-    virtual void completeJsonDescription_(QJsonObject& object, SIJsonFlags flags) const;
+    virtual void completeJsonDescription_(QJsonObject& object, SIDescriptionFlags flags) const;
 
     struct Private_;
-    std::unique_ptr<Private_> priv_;
+    std::unique_ptr<Private_> private_;
 };

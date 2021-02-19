@@ -2,13 +2,26 @@
 #include "sipropertyid.h"
 #include "sistatus.h"
 #include <QVariant>
+#include <memory>
 
-struct SIPropertyReadResult {
-    SIPropertyID id;
-    SIStatus status;
-    QVariant value;
+class SIPropertyReadResult {
+  public:
+    SIPropertyReadResult();
+    SIPropertyReadResult(SIPropertyID id, SIStatus status, const QVariant& value = {});
 
-    inline operator bool() const {
-        return status == SIStatus::Success;
-    }
+    SIPropertyID id() const;
+
+    void setID(SIPropertyID id);
+
+    SIStatus status() const;
+
+    const QVariant& value() const;
+
+    inline operator bool() const;
+
+  private:
+    void detach_();
+
+    struct Private_;
+    std::shared_ptr<Private_> private_;
 };

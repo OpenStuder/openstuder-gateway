@@ -19,7 +19,7 @@ struct SIDeviceAccessRegistry::Private_ {
     QMap<SIDeviceAccess*,QString> instanceDriverNames;
 };
 
-SIDeviceAccessRegistry::SIDeviceAccessRegistry(): priv_(new Private_) {}
+SIDeviceAccessRegistry::SIDeviceAccessRegistry(): private_(new Private_) {}
 
 SIDeviceAccessRegistry::~SIDeviceAccessRegistry() = default;
 
@@ -80,15 +80,15 @@ bool SIDeviceAccessRegistry::instantiateDeviceAccess(const QString& driverName, 
         return false;
     }
 
-    priv_->instanceDriverNames[instance] = driverName;
+    private_->instanceDriverNames[instance] = driverName;
     instance->setParent(this);
     return true;
 }
 
-QJsonObject SIDeviceAccessRegistry::jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const {
+QJsonObject SIDeviceAccessRegistry::jsonDescription(SIAccessLevel accessLevel, SIDescriptionFlags flags) const {
     QJsonObject description;
 
-    if (flags.testFlag(SIJsonFlag::IncludeAccessInformation)) {
+    if (flags.testFlag(SIDescriptionFlag::IncludeAccessInformation)) {
         QJsonArray instances;
         for (auto* child: children()) {
 #ifdef Q_OS_MACOS
@@ -97,13 +97,13 @@ QJsonObject SIDeviceAccessRegistry::jsonDescription(SIAccessLevel accessLevel, S
             auto* access = qobject_cast<SIDeviceAccess*>(child);
 #endif
             QJsonObject description = access->jsonDescription(accessLevel, flags);
-            description["driver"] = priv_->instanceDriverNames[access];
+            description["driver"] = private_->instanceDriverNames[access];
             instances.append(description);
         }
         description["instances"] = instances;
     }
 
-    if (flags.testFlag(SIJsonFlag::IncludeDriverInformation)) {
+    if (flags.testFlag(SIDescriptionFlag::IncludeDriverInformation)) {
         QJsonObject drivers;
         for (const auto& driver: drivers_) {
             drivers[driver.name] = driver.metaData;

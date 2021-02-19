@@ -4,6 +4,9 @@
 #include <QRandomGenerator>
 #include <QTextStream>
 #include <QFile>
+#include <utility>
+
+using namespace std;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
 #define endl Qt::endl
@@ -11,20 +14,49 @@
 #include <ostream>
 #endif
 
-SITextFileUserManagement::SITextFileUserManagement() {
-    filename_ = OPENSTUDER_GATEWAY_DEFAULT_CONFIG_LOCATION "/users.txt";
+struct SITextFileUserManagement::Private_ {
+    struct User {
+        QString username;
+        QString passwordHash;
+        SIAccessLevel accessLevel;
+    };
+
+    class Users: public QVector<User> {
+      public:
+        iterator findByUsername(const QString& username);
+
+        inline bool hasByUserName(const QString& username) {
+            return findByUsername(username) != end();
+        }
+    };
+
+    explicit Private_(QString filename): filename(move(filename)) {}
+
+    bool load_(Users& users, bool checkFileExist = false) const;
+    bool save_(const Users& users);
+
+    static QString encodePassword_(const QString& password);
+    static bool checkPassword_(const QString& password, const QString& encoded);
+
+    QString filename;
+};
+
+SITextFileUserManagement::SITextFileUserManagement(): private_(new Private_(OPENSTUDER_GATEWAY_DEFAULT_CONFIG_LOCATION "/users.txt")) {}
+
+SITextFileUserManagement::~SITextFileUserManagement() = default;
+
+const QString& SITextFileUserManagement::filename() const {
+    return private_->filename;
 }
 
-SITextFileUserManagement::Users::iterator SITextFileUserManagement::Users::findByUsername(const QString& username) {
-    return std::find_if(begin(), end(), [&username](const User& user) {
-        return user.username == username;
-    });
+void SITextFileUserManagement::setFilename(const QString& filename) {
+    private_->filename = filename;
 }
 
 QMap<QString, SIAccessLevel> SITextFileUserManagement::listUsers(bool* status) const {
     QMap<QString, SIAccessLevel> userListing;
-    Users users;
-    if (load_(users)) {
+    Private_::Users users;
+    if (private_->load_(users)) {
         for (const auto& user: users) {
             userListing[user.username] = user.accessLevel;
         }
@@ -40,57 +72,63 @@ QMap<QString, SIAccessLevel> SITextFileUserManagement::listUsers(bool* status) c
 }
 
 bool SITextFileUserManagement::hasUser(const QString& username) const {
-    Users users;
-    if (!load_(users, false)) return false;
+    Private_::Users users;
+    if (!private_->load_(users, false)) return false;
     return users.hasByUserName(username);
 }
 
 bool SITextFileUserManagement::addUser(const QString& username, const QString& password, SIAccessLevel accessLevel) {
-    Users users;
-    if (!load_(users, false)) return false;
+    Private_::Users users;
+    if (!private_->load_(users, false)) return false;
     if (users.hasByUserName(username)) return false;
-    users.append({username, encodePassword_(password), accessLevel});
-    return save_(users);
+    users.append({username, Private_::encodePassword_(password), accessLevel});
+    return private_->save_(users);
 }
 
 bool SITextFileUserManagement::changeUserPassword(const QString& username, const QString& password) {
-    Users users;
-    if (!load_(users)) return false;
+    Private_::Users users;
+    if (!private_->load_(users)) return false;
     auto user = users.findByUsername(username);
     if (user == users.end()) return false;
-    user->passwordHash = encodePassword_(password);
-    return save_(users);
+    user->passwordHash = Private_::encodePassword_(password);
+    return private_->save_(users);
 }
 
 bool SITextFileUserManagement::changeUserAccessLevel(const QString& username, SIAccessLevel accessLevel) {
-    Users users;
-    if (!load_(users)) return false;
+    Private_::Users users;
+    if (!private_->load_(users)) return false;
     auto user = users.findByUsername(username);
     if (user == users.end()) return false;
     user->accessLevel = accessLevel;
-    return save_(users);
+    return private_->save_(users);
 }
 
 bool SITextFileUserManagement::removeUser(const QString& username) {
-    Users users;
-    if (!load_(users)) return false;
+    Private_::Users users;
+    if (!private_->load_(users)) return false;
     auto user = users.findByUsername(username);
     if (user == users.end()) return false;
     users.erase(user);
-    return save_(users);
+    return private_->save_(users);
 }
 
 SIAccessLevel SITextFileUserManagement::authorizeUser_(const QString& username, const QString& password) const {
-    Users users;
-    if (!load_(users)) return SIAccessLevel::None;
+    Private_::Users users;
+    if (!private_->load_(users)) return SIAccessLevel::None;
     auto user = users.findByUsername(username);
     if (user == users.end()) return SIAccessLevel::None;
-    if (!checkPassword(password, user->passwordHash)) return SIAccessLevel::None;
+    if (!Private_::checkPassword_(password, user->passwordHash)) return SIAccessLevel::None;
     return user->accessLevel;
 }
 
-bool SITextFileUserManagement::load_(Users& users, bool checkFileExist) const {
-    QFile file(filename_);
+SITextFileUserManagement::Private_::Users::iterator SITextFileUserManagement::Private_::Users::findByUsername(const QString& username) {
+    return std::find_if(begin(), end(), [&username](const User& user) {
+        return user.username == username;
+    });
+}
+
+bool SITextFileUserManagement::Private_::load_(Users& users, bool checkFileExist) const {
+    QFile file(filename);
 
     if (!file.exists()) {
         return !checkFileExist;
@@ -114,14 +152,14 @@ bool SITextFileUserManagement::load_(Users& users, bool checkFileExist) const {
         else if (userData[2] == "Expert") user.accessLevel = SIAccessLevel::Expert;
         else if (userData[2] == "QSP") user.accessLevel = SIAccessLevel::QualifiedServicePersonnel;
         else return false;
-        users.append(std::move(user));
+        users.append(move(user));
     }
 
     return true;
 }
 
-bool SITextFileUserManagement::save_(const Users& users) {
-    QFile file(filename_);
+bool SITextFileUserManagement::Private_::save_(const Users& users) {
+    QFile file(filename);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         return false;
@@ -137,13 +175,13 @@ bool SITextFileUserManagement::save_(const Users& users) {
     return true;
 }
 
-QString SITextFileUserManagement::encodePassword_(const QString& password) {
+QString SITextFileUserManagement::Private_::encodePassword_(const QString& password) {
     auto salt = QByteArray(16, 0);
     QRandomGenerator::system()->generate(salt.begin(), salt.end());
     return (salt + QCryptographicHash::hash(password.toUtf8() + salt, QCryptographicHash::Sha512)).toBase64();
 }
 
-bool SITextFileUserManagement::checkPassword(const QString& password, const QString& encoded) {
+bool SITextFileUserManagement::Private_::checkPassword_(const QString& password, const QString& encoded) {
     auto saltAndHash = QByteArray::fromBase64(encoded.toUtf8());
     return QCryptographicHash::hash(password.toUtf8() + saltAndHash.left(16), QCryptographicHash::Sha512) == saltAndHash.mid(16);
 }

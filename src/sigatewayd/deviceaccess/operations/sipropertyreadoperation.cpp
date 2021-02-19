@@ -27,7 +27,7 @@ SIStatus SIPropertyReadOperation::execute_(SIDeviceAccessRegistry* deviceAccessR
     }
 
     auto result = device->readProperty(id_.propertyID());
-    status_ = result.status;
-    value_ = result.value;
+    status_ = result.status();
+    value_ = result.value();
     return status_;
 }

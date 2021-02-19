@@ -1,6 +1,6 @@
 #pragma once
 #include "siaccesslevel.h"
-#include "sijsonflags.h"
+#include "sijdescriptionflags.h"
 #include "sidevicemessage.h"
 #include <memory>
 #include <QObject>
@@ -41,7 +41,7 @@ class SIDeviceAccess: public QObject {
         return device(id);
     }
 
-    QJsonObject jsonDescription(SIAccessLevel accessLevel, SIJsonFlags flags) const;
+    QJsonObject jsonDescription(SIAccessLevel accessLevel, SIDescriptionFlags flags) const;
 
   signals:
     void deviceAdded(const SIDevice& device);
@@ -55,8 +55,8 @@ class SIDeviceAccess: public QObject {
 
     virtual bool enumerateDevices_(QVector<SIDevice*>& devices) = 0;
 
-    virtual void completeJsonDescription_(QJsonObject& object, SIJsonFlags flags) const;
+    virtual void completeJsonDescription_(QJsonObject& object, SIDescriptionFlags flags) const;
 
     struct Private_;
-    std::unique_ptr<Private_> priv_;
+    std::unique_ptr<Private_> private_;
 };

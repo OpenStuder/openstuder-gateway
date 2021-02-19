@@ -136,18 +136,18 @@ bool SQLiteStorage::storeDeviceMessages_(const QVector<SIDeviceMessage>& message
     // Write message per message, fail and rollback transaction should a query fail.
     for (const auto& message: messages) {
         // If the timestamp is outside the time window to store data for, discard it.
-        if (message.timestamp < QDateTime::currentDateTime().addDays(-maximalStorageDays_)) {
+        if (message.timestamp() < QDateTime::currentDateTime().addDays(-maximalStorageDays_)) {
             qCWarning(SQLite,) << "Message timestamp outside storage time windows, skipping";
             continue;
         }
 
         auto query = QSqlQuery(db_);
         query.prepare("INSERT INTO device_message (timestamp, access_id, device_id, message_id, message) VALUES (?, ?, ?, ?, ?)");
-        query.addBindValue(message.timestamp.toSecsSinceEpoch());
-        query.addBindValue(message.accessID);
-        query.addBindValue(message.deviceID);
-        query.addBindValue(message.messageID);
-        query.addBindValue(message.message);
+        query.addBindValue(message.timestamp().toSecsSinceEpoch());
+        query.addBindValue(message.accessID());
+        query.addBindValue(message.deviceID());
+        query.addBindValue(message.messageID());
+        query.addBindValue(message.message());
         if (!query.exec()) {
             qCCritical(SQLite,) << "Error during message write:" << query.lastError().text();
             db_.rollback();

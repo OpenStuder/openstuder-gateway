@@ -1,28 +1,23 @@
 #pragma once
 #include "sipropertyid.h"
 #include <QString>
+#include <memory>
 
 class SIGlobalPropertyID {
   public:
-    inline SIGlobalPropertyID() = default;
-    inline SIGlobalPropertyID(const char* uniqueID): SIGlobalPropertyID(QString(uniqueID)) {}
-    inline SIGlobalPropertyID(const QByteArray& uniqueID): SIGlobalPropertyID(QString(uniqueID)) {}
+    SIGlobalPropertyID();
+    SIGlobalPropertyID(const char* uniqueID);
+    SIGlobalPropertyID(const QByteArray& uniqueID);
     SIGlobalPropertyID(const QString& uniqueID);
     SIGlobalPropertyID(QString accessID, QString deviceID, SIPropertyID propertyID);
 
     bool isValid() const;
 
-    const QString& accessID() const {
-        return accessID_;
-    }
+    const QString& accessID() const;
 
-    const QString& deviceID() const {
-        return deviceID_;
-    }
+    const QString& deviceID() const;
 
-    SIPropertyID propertyID() const {
-        return propertyID_;
-    }
+    SIPropertyID propertyID() const;
 
     QString toString() const;
 
@@ -34,7 +29,6 @@ class SIGlobalPropertyID {
     bool operator <(const SIGlobalPropertyID& other) const;
 
   private:
-    QString accessID_;
-    QString deviceID_;
-    SIPropertyID propertyID_ = 0;
+    struct Private_;
+    std::shared_ptr<Private_> private_;
 };

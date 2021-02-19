@@ -51,9 +51,9 @@ class SIPropertySubscriptions final: public SIAbstractOperation {
         }
 
         auto result = device->readProperty(id_.propertyID());
-        if (result.status == SIStatus::Success) {
+        if (result.status() == SIStatus::Success) {
            for (auto* subscriber: subscriptions_) {
-               subscriber->propertyChanged(id_, result.value);
+               subscriber->propertyChanged(id_, result.value());
            }
         }
 

@@ -12,6 +12,9 @@ class SIPropertyHistoryStorage {
         QVariant value;
     };
 
+    SIPropertyHistoryStorage() = default;
+    SIPropertyHistoryStorage(const SIPropertyHistoryStorage&) = delete;
+    SIPropertyHistoryStorage& operator =(const SIPropertyHistoryStorage&) = delete;
     virtual ~SIPropertyHistoryStorage() = default;
 
     inline bool storePropertyValue(const SIGlobalPropertyID& id, const QVariant& value, const QDateTime& timestamp = QDateTime::currentDateTime()) {

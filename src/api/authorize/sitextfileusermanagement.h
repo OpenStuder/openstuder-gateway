@@ -7,14 +7,11 @@
 class SITextFileUserManagement: public SIUserAuthorizer {
   public:
     SITextFileUserManagement();
+    ~SITextFileUserManagement() override;
 
-    const QString& filename() const {
-        return filename_;
-    }
+    const QString& filename() const;
 
-    void setFilename(const QString& filename) {
-        filename_ = filename;
-    }
+    void setFilename(const QString& filename);
 
     QMap<QString, SIAccessLevel> listUsers(bool* status = nullptr) const;
     bool hasUser(const QString& username) const;
@@ -24,28 +21,8 @@ class SITextFileUserManagement: public SIUserAuthorizer {
     bool removeUser(const QString& username);
 
   private:
-    struct User {
-        QString username;
-        QString passwordHash;
-        SIAccessLevel accessLevel;
-    };
-
-    class Users: public QVector<User> {
-      public:
-        iterator findByUsername(const QString& username);
-
-        inline bool hasByUserName(const QString& username) {
-            return findByUsername(username) != end();
-        }
-    };
-
     SIAccessLevel authorizeUser_(const QString& username, const QString& password) const override;
 
-    bool load_(Users& users, bool checkFileExist = false) const;
-    bool save_(const Users& users);
-
-    static QString encodePassword_(const QString& password);
-    static bool checkPassword(const QString& password, const QString& encoded);
-
-    QString filename_;
+    struct Private_;
+    std::unique_ptr<Private_> private_;
 };

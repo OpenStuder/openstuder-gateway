@@ -63,7 +63,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
 }
 
 SIBluetoothProtocolFrame SIBluetoothProtocolV1::convertDeviceMessage(const SIDeviceMessage& message) {
-    return {SIBluetoothProtocolFrame::DEVICE_MESSAGE,{message.accessID, message.deviceID, QString::number(message.messageID)}};
+    return {SIBluetoothProtocolFrame::DEVICE_MESSAGE,{message.accessID(), message.deviceID(), QString::number(message.messageID())}};
 }
 
 

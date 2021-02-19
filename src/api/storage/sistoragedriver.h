@@ -6,6 +6,9 @@
 
 class SIStorageDriver {
   public:
+    SIStorageDriver() = default;
+    SIStorageDriver(const SIStorageDriver&) = delete;
+    SIStorageDriver& operator =(const SIStorageDriver&) = delete;
     virtual ~SIStorageDriver() = default;
 
     virtual SIStorage* createStorageInstance(const QVariantMap& parameters) = 0;

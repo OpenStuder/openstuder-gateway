@@ -516,10 +516,10 @@ XCom485iVarioString::XCom485iVarioString(Model model, quint8 modbusAddress, XCom
 
 XCom485iVarioString::Model XCom485iVarioString::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(modbusAddress, 148);
-    if (model.status != SIStatus::Success && !model.value.isValid()) {
+    if (model.status() != SIStatus::Success && !model.value().isValid()) {
         return Invalid;
     }
-    switch (model.value.toInt()) {
+    switch (model.value().toInt()) {
         case 0x3201:
             return VS120;
 

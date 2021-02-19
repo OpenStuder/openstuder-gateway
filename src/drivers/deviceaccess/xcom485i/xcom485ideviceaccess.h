@@ -23,7 +23,7 @@ class XCom485iDeviceAccess: public SIDeviceAccess, private XCom485iModbusAccess 
     void retrievePendingDeviceMessages_(QVector<SIDeviceMessage>& messages) const override;
     bool enumerateDevices_(QVector<SIDevice*>& devices) override;
 
-    void completeJsonDescription_(QJsonObject& object, SIJsonFlags flags) const override;
+    void completeJsonDescription_(QJsonObject& object, SIDescriptionFlags flags) const override;
 
     SIPropertyReadResult readInputRegister_(quint8 deviceAddress, unsigned int propertyModbusAddress, SIPropertyType type) override;
     SIPropertyReadResult readHoldingRegister_(quint8 deviceAddress, unsigned int registerAddress, SIPropertyType type) override;
