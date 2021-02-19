@@ -1,6 +1,7 @@
 #pragma once
 #include "sipropertyid.h"
 #include "sistatus.h"
+#include <memory>
 
 class SIPropertyWriteResult {
   public:

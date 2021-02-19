@@ -3,6 +3,7 @@
 #include <QString>
 #include <QMap>
 #include <QVector>
+#include <memory>
 
 class SITextFileUserManagement: public SIUserAuthorizer {
   public:
