@@ -217,7 +217,7 @@ void SQLiteStorage::timerEvent(QTimerEvent* event) {
     {
         // Prepare query and bind values.
         QSqlQuery query("DELETE FROM device_message WHERE timestamp < ?", db_);
-        query.addBindValue(QDateTime::currentDateTime().addDays(maximalStorageDays_).toSecsSinceEpoch());
+        query.addBindValue(QDateTime::currentDateTime().addDays(-maximalStorageDays_).toSecsSinceEpoch());
 
         // Execute query.
         if (query.exec()) {
