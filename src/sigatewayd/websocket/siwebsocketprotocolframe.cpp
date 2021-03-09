@@ -108,7 +108,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.headers_.insert(components[0].trimmed(), components.mid(1).join(':').trimmed());
     }
 
-    in >> frame.body_;
+    frame.body_ = in.readAll().toUtf8();
 
     return frame;
 }
