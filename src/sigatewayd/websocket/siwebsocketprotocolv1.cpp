@@ -34,10 +34,10 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             if (frame.hasHeader("flags")) {
                 jsonFlags = SIDescriptionFlag::None;
                 for (const auto& flag: frame.header("flags").split(",")) {
-                    if (flag == "IncludeAccessInformation") jsonFlags |= SIDescriptionFlag::IncludeAccessInformation;
-                    else if (flag == "IncludeDeviceInformation") jsonFlags |= SIDescriptionFlag::IncludeDeviceInformation;
-                    else if (flag == "IncludePropertyInformation") jsonFlags |= SIDescriptionFlag::IncludePropertyInformation;
-                    else if (flag == "IncludeDriverInformation") jsonFlags |= SIDescriptionFlag::IncludeDriverInformation;
+                    if (flag == "IncludeAccessInformation") { jsonFlags |= SIDescriptionFlag::IncludeAccessInformation; }
+                    else if (flag == "IncludeDeviceInformation") { jsonFlags |= SIDescriptionFlag::IncludeDeviceInformation; }
+                    else if (flag == "IncludePropertyInformation") { jsonFlags |= SIDescriptionFlag::IncludePropertyInformation; }
+                    else if (flag == "IncludeDriverInformation") { jsonFlags |= SIDescriptionFlag::IncludeDriverInformation; }
                     else {
                         return SIWebSocketProtocolFrame::error("invalid frame");
                     }
@@ -161,7 +161,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::WRITE_PROPERTY: {
-            if (frame.hasBody() ||  !frame.validateHeaders({"id"}, {"value", "flags"})) {
+            if (frame.hasBody() || !frame.validateHeaders({"id"}, {"value", "flags"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
@@ -184,7 +184,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             if (frame.hasHeader("flags")) {
                 writeFlags = SIPropertyWriteFlag::None;
                 for (const auto& flag: frame.header("flags").split(",")) {
-                    if (flag == "Permanent") writeFlags |= SIPropertyWriteFlag::Permanent;
+                    if (flag == "Permanent") { writeFlags |= SIPropertyWriteFlag::Permanent; }
                     else {
                         return SIWebSocketProtocolFrame::error("invalid frame");
                     }
@@ -224,6 +224,50 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }};
         }
 
+        case SIWebSocketProtocolFrame::SUBSCRIBE_PROPERTIES: {
+            if (!frame.hasBody() || !frame.validateHeaders({})) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            auto requestJSON = QJsonDocument::fromJson(frame.body());
+            if (!requestJSON.isArray()) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            QJsonArray responseJSON;
+            for (auto entry: requestJSON.array()) {
+                SIGlobalPropertyID id {entry.toString()};
+
+                auto property = context.deviceAccessManager().resolveProperty(id);
+
+                if (property.type() == SIPropertyType::Invalid || accessLevel_ < property.accessLevel()) {
+                    responseJSON.append(QJsonObject {
+                        {"status", to_string(SIStatus::NoProperty)},
+                        {"id",     id.toString()}
+                    });
+                    continue;
+                }
+
+                if (!property.isFlagSet(SIPropertyFlag::Readable)) {
+                    responseJSON.append(QJsonObject {
+                        {"status", to_string(SIStatus::Error)},
+                        {"id",     id.toString()}
+                    });
+                    continue;
+                }
+
+                bool status = context.deviceAccessManager().subscribeToProperty(id, this);
+                responseJSON.append(QJsonObject {
+                    {"status", to_string(status ? SIStatus::Success : SIStatus::Error)},
+                    {"id",     id.toString()}
+                });
+            }
+
+            return {SIWebSocketProtocolFrame::PROPERTIES_SUBSCRIBED, {
+                {"status", to_string(SIStatus::Success)},
+            }, QJsonDocument(responseJSON).toJson(QJsonDocument::Compact)};
+        }
+
         case SIWebSocketProtocolFrame::UNSUBSCRIBE_PROPERTY: {
             if (frame.hasBody() || !frame.validateHeaders({"id"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
@@ -242,6 +286,39 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 {"status", to_string(status ? SIStatus::Success : SIStatus::Error)},
                 {"id", id.toString()}
             }};
+        }
+
+        case SIWebSocketProtocolFrame::UNSUBSCRIBE_PROPERTIES: {
+            if (!frame.hasBody() || !frame.validateHeaders({})) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            auto requestJSON = QJsonDocument::fromJson(frame.body());
+            if (!requestJSON.isArray()) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            QJsonArray responseJSON;
+            for (auto entry: requestJSON.array()) {
+                SIGlobalPropertyID id {entry.toString()};
+                if (!id.isValid()) {
+                    responseJSON.append(QJsonObject {
+                        {"status", to_string(SIStatus::NoProperty)},
+                        {"id",     id.toString()}
+                    });
+                    continue;
+                }
+
+                bool status = context.deviceAccessManager().unsubscribeFromProperty(id, this);
+                responseJSON.append(QJsonObject {
+                    {"status", to_string(status ? SIStatus::Success : SIStatus::Error)},
+                    {"id",     id.toString()}
+                });
+            }
+
+            return {SIWebSocketProtocolFrame::PROPERTIES_UNSUBSCRIBED, {
+                {"status", to_string(SIStatus::Success)},
+            }, QJsonDocument(responseJSON).toJson(QJsonDocument::Compact)};
         }
 
         case SIWebSocketProtocolFrame::READ_MESSAGES: {
@@ -404,7 +481,7 @@ void SIWebSocketProtocolV1::readPropertiesOperationFinished_(SIStatus status) {
     for (int i = 0; i < operations->count(); ++i) {
         const auto& operation = (*operations)[i];
 
-        json.append( QJsonObject {
+        json.append(QJsonObject {
             {"status", to_string(operation.status())},
             {"id",     operation.id().toString()},
             {"value",  operation.value().toString()}

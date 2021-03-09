@@ -69,8 +69,12 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = WRITE_PROPERTY;
     } else if (commandStr == "SUBSCRIBE PROPERTY") {
         frame.command_ = SUBSCRIBE_PROPERTY;
+    } else if (commandStr == "SUBSCRIBE PROPERTIES") {
+        frame.command_ = SUBSCRIBE_PROPERTIES;
     } else if (commandStr == "UNSUBSCRIBE PROPERTY") {
         frame.command_ = UNSUBSCRIBE_PROPERTY;
+    } else if (commandStr == "UNSUBSCRIBE PROPERTIES") {
+        frame.command_ = UNSUBSCRIBE_PROPERTIES;
     } else if (commandStr == "READ MESSAGES") {
         frame.command_ = READ_MESSAGES;
     } else if (commandStr == "READ DATALOG") {
@@ -91,8 +95,12 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = PROPERTY_WRITTEN;
     } else if (commandStr == "PROPERTY SUBSCRIBED") {
         frame.command_ = PROPERTY_SUBSCRIBED;
+    } else if (commandStr == "PROPERTIES SUBSCRIBED") {
+        frame.command_ = PROPERTIES_SUBSCRIBED;
     } else if (commandStr == "PROPERTY UNSUBSCRIBED") {
         frame.command_ = PROPERTY_UNSUBSCRIBED;
+    } else if (commandStr == "PROPERTIES UNSUBSCRIBED") {
+        frame.command_ = PROPERTIES_UNSUBSCRIBED;
     } else if (commandStr == "PROPERTY UPDATE") {
         frame.command_ = PROPERTY_UPDATE;
     } else if (commandStr == "DEVICE MESSAGE") {
@@ -140,8 +148,14 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
         case SIWebSocketProtocolFrame::SUBSCRIBE_PROPERTY:
             return "SUBSCRIBE PROPERTY";
 
+        case SIWebSocketProtocolFrame::SUBSCRIBE_PROPERTIES:
+            return "SUBSCRIBE PROPERTIES";
+
         case SIWebSocketProtocolFrame::UNSUBSCRIBE_PROPERTY:
             return "UNSUBSCRIBE PROPERTY";
+
+        case SIWebSocketProtocolFrame::UNSUBSCRIBE_PROPERTIES:
+            return "UNSUBSCRIBE PROPERTIES";
 
         case SIWebSocketProtocolFrame::READ_MESSAGES:
             return "READ MESSAGES";
@@ -173,8 +187,14 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
         case SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED:
             return "PROPERTY SUBSCRIBED";
 
+        case SIWebSocketProtocolFrame::PROPERTIES_SUBSCRIBED:
+            return "PROPERTIES SUBSCRIBED";
+
         case SIWebSocketProtocolFrame::PROPERTY_UNSUBSCRIBED:
             return "PROPERTY UNSUBSCRIBED";
+
+        case SIWebSocketProtocolFrame::PROPERTIES_UNSUBSCRIBED:
+            return "PROPERTIES UNSUBSCRIBED";
 
         case SIWebSocketProtocolFrame::PROPERTY_UPDATE:
             return "PROPERTY UPDATE";
