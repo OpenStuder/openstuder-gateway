@@ -106,8 +106,9 @@ QJsonObject SIDeviceAccess::jsonDescription(SIAccessLevel accessLevel, SIDescrip
                 devs.append(device->jsonDescription(accessLevel, flags));
             }
             description["devices"] = devs;
-            completeJsonDescription_(description, flags);
         }
+
+    completeJsonDescription_(description, flags);
 
     return description;
 }

@@ -142,7 +142,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }
 
             auto idsDocument = QJsonDocument::fromJson(frame.body());
-            if (!idsDocument.isArray()) {
+            if (!idsDocument.isArray() || idsDocument.array().empty()) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 

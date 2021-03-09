@@ -24,7 +24,7 @@ SIProperty::SIProperty(SIPropertyID id, SIPropertyType type, SIAccessLevel acces
 SIProperty::SIProperty(SIPropertyID id, SIPropertyType type, SIAccessLevel accessLevel, SIPropertyFlags flags, const QString& description, const std::initializer_list<std::pair<int, const char*>>& enumValues):
     private_(new Private_(id, type, accessLevel, flags, description)) {
     for (const auto& enumValue: enumValues) {
-        private_->enumValues[QString::number(enumValue.first)] = enumValue.second;
+        private_->enumValues[enumValue.second] = enumValue.first;
     }
 }
 

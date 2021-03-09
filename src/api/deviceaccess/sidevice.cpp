@@ -65,8 +65,9 @@ QJsonObject SIDevice::jsonDescription(SIAccessLevel accessLevel, SIDescriptionFl
             }
         }
         description["properties"] = props;
-        completeJsonDescription_(description, flags);
     }
+
+    completeJsonDescription_(description, flags);
 
     return description;
 }
