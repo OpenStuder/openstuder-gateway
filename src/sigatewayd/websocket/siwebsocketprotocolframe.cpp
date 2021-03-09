@@ -63,6 +63,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = DESCRIBE;
     } else if (commandStr == "READ PROPERTY") {
         frame.command_ = READ_PROPERTY;
+    } else if (commandStr == "READ PROPERTIES") {
+        frame.command_ = READ_PROPERTIES;
     } else if (commandStr == "WRITE PROPERTY") {
         frame.command_ = WRITE_PROPERTY;
     } else if (commandStr == "SUBSCRIBE PROPERTY") {
@@ -83,6 +85,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = DESCRIPTION;
     } else if (commandStr == "PROPERTY READ") {
         frame.command_ = PROPERTY_READ;
+    } else if (commandStr == "PROPERTIES READ") {
+        frame.command_ = PROPERTIES_READ;
     } else if (commandStr == "PROPERTY WRITTEN") {
         frame.command_ = PROPERTY_WRITTEN;
     } else if (commandStr == "PROPERTY SUBSCRIBED") {
@@ -127,6 +131,9 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
         case SIWebSocketProtocolFrame::READ_PROPERTY:
             return "READ PROPERTY";
 
+        case SIWebSocketProtocolFrame::READ_PROPERTIES:
+            return "READ PROPERTIES";
+
         case SIWebSocketProtocolFrame::WRITE_PROPERTY:
             return "WRITE PROPERTY";
 
@@ -156,6 +163,9 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
 
         case SIWebSocketProtocolFrame::PROPERTY_READ:
             return "PROPERTY READ";
+
+        case SIWebSocketProtocolFrame::PROPERTIES_READ:
+            return "PROPERTIES READ";
 
         case SIWebSocketProtocolFrame::PROPERTY_WRITTEN:
             return "PROPERTY WRITTEN";

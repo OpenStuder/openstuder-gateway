@@ -16,6 +16,7 @@ class SIWebSocketProtocolV1: public SIAbstractWebSocketProtocol {
   private slots:
     void enumerationOperationFinished_(SIStatus status);
     void readPropertyOperationFinished_(SIStatus status);
+    void readPropertiesOperationFinished_(SIStatus status);
     void writePropertyOperationFinished_(SIStatus status);
 
   private:
