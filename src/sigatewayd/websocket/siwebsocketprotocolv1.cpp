@@ -484,7 +484,7 @@ void SIWebSocketProtocolV1::readPropertiesOperationFinished_(SIStatus status) {
         json.append(QJsonObject {
             {"status", to_string(operation.status())},
             {"id",     operation.id().toString()},
-            {"value",  operation.value().toString()}
+            {"value",  QJsonValue::fromVariant(operation.value())}
         });
     }
 
