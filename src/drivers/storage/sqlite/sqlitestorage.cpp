@@ -129,6 +129,33 @@ QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(c
     return result;
 }
 
+
+QVector<SIGlobalPropertyID> SQLiteStorage::availableStoredProperties_(const QDateTime& from, const QDateTime& to) {
+    QVector<SIGlobalPropertyID> result;
+
+    // Prepare query.
+    auto query = QSqlQuery(db_);
+    query.prepare("SELECT id FROM property_history WHERE timestamp BETWEEN ? AND ? GROUP by id");
+    query.addBindValue(std::max(from.toSecsSinceEpoch(), QDateTime::currentDateTime().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
+    query.addBindValue(to.toSecsSinceEpoch());
+
+    // Try to execute query, return empty list if query fails.
+    // TODO: It might be better if the status could be returned.
+    if (!query.exec()) {
+        qCCritical(SQLite,) << "Error during available properties list:" << query.lastError().text();
+        return result;
+    }
+
+    // Add every row of the query result to the results vector.
+    while (query.next()) {
+        result.append(SIGlobalPropertyID {query.value(0).toString()});
+    }
+
+    // Return the results.
+    qCDebug(SQLite,) << "Found" << result.count() << "properties in from database";
+    return result;
+}
+
 bool SQLiteStorage::storeDeviceMessages_(const QVector<SIDeviceMessage>& messages) {
     // Start transaction.
     db_.transaction();

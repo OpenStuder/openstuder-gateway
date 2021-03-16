@@ -372,13 +372,16 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::READ_DATALOG: {
-            if (frame.hasBody() || !frame.validateHeaders({"id"}, {"from", "to", "limit"})) {
+            if (frame.hasBody() || !frame.validateHeaders({}, {"id", "from", "to", "limit"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
-            auto id = SIGlobalPropertyID(frame.header("id"));
-            if (!id.isValid()) {
-                return SIWebSocketProtocolFrame::error("invalid frame");
+            auto id = SIGlobalPropertyID();
+            if (frame.hasHeader("id")) {
+                id = SIGlobalPropertyID(frame.header("id"));
+                if (!id.isValid()) {
+                    return SIWebSocketProtocolFrame::error("invalid frame");
+                }
             }
 
             auto from = QDateTime::fromMSecsSinceEpoch(0);
@@ -406,20 +409,36 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 }
             }
 
-            auto data = context.storage().retrievePropertyValues(id, from, to, limit);
+            if (id.isValid()) {
+                auto data = context.storage().retrievePropertyValues(id, from, to, limit);
 
-            QString buffer;
-            QTextStream output(&buffer);
-            for (auto entry = data.crbegin(); entry != data.crend(); ++entry) {
-                output << entry->timestamp.toString(Qt::ISODate) << "," << entry->value.toString() << "\n";
+                QString buffer;
+                QTextStream output(&buffer);
+                for (auto entry = data.crbegin(); entry != data.crend(); ++entry) {
+                    output << entry->timestamp.toString(Qt::ISODate) << "," << entry->value.toString() << "\n";
+                }
+                output.flush();
+
+                return {SIWebSocketProtocolFrame::DATALOG_READ, {
+                    {"status", to_string(SIStatus::Success)},
+                    {"id", id.toString()},
+                    {"count", QString::number(data.count())}
+                }, buffer.toUtf8()};
+            } else {
+                auto storedPropertyIDs = context.storage().availableStoredProperties(from, to);
+
+                QString buffer;
+                QTextStream output(&buffer);
+                for (const auto & propertyID : storedPropertyIDs) {
+                    output << propertyID.toString() << "\n";
+                }
+                output.flush();
+
+                return {SIWebSocketProtocolFrame::DATALOG_READ, {
+                    {"status", to_string(SIStatus::Success)},
+                    {"count", QString::number(storedPropertyIDs.count())}
+                }, buffer.toUtf8()};
             }
-            output.flush();
-
-            return {SIWebSocketProtocolFrame::DATALOG_READ, {
-                {"status", to_string(SIStatus::Success)},
-                {"id", id.toString()},
-                {"count", QString::number(data.count())}
-            }, buffer.toUtf8()};
         }
 
         default:
