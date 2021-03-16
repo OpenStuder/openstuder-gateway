@@ -101,7 +101,7 @@ bool SQLiteStorage::storePropertyValues_(const QMap<SIGlobalPropertyID, QVariant
     return true;
 }
 
-QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to, unsigned int limit) {
+QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to, unsigned int limit, SIStatus* status) {
     QVector<TimestampedProperty> result;
 
     // Prepare query.
@@ -113,8 +113,8 @@ QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(c
     query.addBindValue(limit);
 
     // Try to execute query, return empty list if query fails.
-    // TODO: It might be better if the status could be returned.
     if (!query.exec()) {
+        if (status != nullptr) *status = SIStatus::Error;
         qCCritical(SQLite,) << "Error during property values read:" << query.lastError().text();
         return result;
     }
@@ -124,13 +124,36 @@ QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(c
         result.append({QDateTime::fromSecsSinceEpoch(query.value(0).toULongLong()), query.value(1)});
     }
 
+    // If no property data was found, check if it exists.
+    if (result.size() == 0) {
+        auto existQuery = QSqlQuery(db_);
+        existQuery.prepare("SELECT count(id) FROM property_history WHERE id = ?");
+        existQuery.addBindValue(id.toString());
+
+        // Try to execute query, return empty list if query fails.
+        if (!existQuery.exec() || !existQuery.next()) {
+            if (status != nullptr) *status = SIStatus::Error;
+            qCCritical(SQLite,) << "Error during property exist check:" << query.lastError().text();
+            return result;
+        }
+
+        if (existQuery.value(0) == 0) {
+            if (status != nullptr) *status = SIStatus::NoProperty;
+            return result;
+        } else {
+            if (status != nullptr) *status = SIStatus::Success;
+            return result;
+        }
+    }
+
     // Return the results.
+    if (status != nullptr) *status = SIStatus::Success;
     qCDebug(SQLite,) << "Read" << result.count() << "property value(s) for" << id.toString() << "from database";
     return result;
 }
 
 
-QVector<SIGlobalPropertyID> SQLiteStorage::availableStoredProperties_(const QDateTime& from, const QDateTime& to) {
+QVector<SIGlobalPropertyID> SQLiteStorage::availableStoredProperties_(const QDateTime& from, const QDateTime& to, SIStatus* status) {
     QVector<SIGlobalPropertyID> result;
 
     // Prepare query.
@@ -140,8 +163,8 @@ QVector<SIGlobalPropertyID> SQLiteStorage::availableStoredProperties_(const QDat
     query.addBindValue(to.toSecsSinceEpoch());
 
     // Try to execute query, return empty list if query fails.
-    // TODO: It might be better if the status could be returned.
     if (!query.exec()) {
+        if (status != nullptr) *status = SIStatus::Error;
         qCCritical(SQLite,) << "Error during available properties list:" << query.lastError().text();
         return result;
     }
@@ -152,6 +175,7 @@ QVector<SIGlobalPropertyID> SQLiteStorage::availableStoredProperties_(const QDat
     }
 
     // Return the results.
+    if (status != nullptr) *status = SIStatus::Success;
     qCDebug(SQLite,) << "Found" << result.count() << "properties in from database";
     return result;
 }
@@ -190,7 +214,7 @@ bool SQLiteStorage::storeDeviceMessages_(const QVector<SIDeviceMessage>& message
     return true;
 }
 
-QVector<SIDeviceMessage> SQLiteStorage::retrieveDeviceMessages_(const QDateTime& from, const QDateTime& to, unsigned int limit) {
+QVector<SIDeviceMessage> SQLiteStorage::retrieveDeviceMessages_(const QDateTime& from, const QDateTime& to, unsigned int limit, SIStatus* status) {
     QVector<SIDeviceMessage> result;
 
     // Prepare query.
@@ -201,8 +225,8 @@ QVector<SIDeviceMessage> SQLiteStorage::retrieveDeviceMessages_(const QDateTime&
     query.addBindValue(limit);
 
     // Try to execute query, return empty list if query fails.
-    // TODO: It might be better if the status could be returned.
     if (!query.exec()) {
+        if (status != nullptr) *status = SIStatus::Error;
         qCCritical(SQLite,) << "Error during messages read:" << query.lastError().text();
         return result;
     }
@@ -219,6 +243,7 @@ QVector<SIDeviceMessage> SQLiteStorage::retrieveDeviceMessages_(const QDateTime&
     }
 
     // Return the results.
+    if (status != nullptr) *status = SIStatus::Success;
     qCDebug(SQLite,) << "Read" << result.count() << "device message(s) from database";
     return result;
 }

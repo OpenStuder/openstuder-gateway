@@ -1,5 +1,6 @@
 #pragma once
 #include <sidevicemessage.h>
+#include <sistatus.h>
 #include <QDateTime>
 #include <QVector>
 
@@ -16,9 +17,9 @@ class SIDeviceMessageStorage {
 
     bool storeDeviceMessages(const QVector<SIDeviceMessage>& messages);
 
-    QVector<SIDeviceMessage> retrieveDeviceMessages(const QDateTime& from, const QDateTime& to , unsigned int limit = std::numeric_limits<unsigned int>::max());
+    QVector<SIDeviceMessage> retrieveDeviceMessages(const QDateTime& from, const QDateTime& to , unsigned int limit = std::numeric_limits<unsigned int>::max(), SIStatus* status = nullptr);
 
   private:
     virtual bool storeDeviceMessages_(const QVector<SIDeviceMessage>& messages) = 0;
-    virtual QVector<SIDeviceMessage> retrieveDeviceMessages_(const QDateTime& from, const QDateTime& to, unsigned int limit) = 0;
+    virtual QVector<SIDeviceMessage> retrieveDeviceMessages_(const QDateTime& from, const QDateTime& to, unsigned int limit, SIStatus* status) = 0;
 };

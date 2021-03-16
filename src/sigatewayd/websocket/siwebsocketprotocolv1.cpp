@@ -351,7 +351,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 }
             }
 
-            auto messages = context.storage().retrieveDeviceMessages(from, to, limit);
+            SIStatus status;
+            auto messages = context.storage().retrieveDeviceMessages(from, to, limit, &status);
 
             // Encode JSON messages array
             QJsonArray jsonMessages;
@@ -366,7 +367,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }
 
             return {SIWebSocketProtocolFrame::MESSAGES_READ, {
-                {"status", to_string(SIStatus::Success)},
+                {"status", to_string(status)},
                 {"count", QString::number(messages.count())}
             }, QJsonDocument(jsonMessages).toJson(QJsonDocument::Compact)};
         }
@@ -410,7 +411,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }
 
             if (id.isValid()) {
-                auto data = context.storage().retrievePropertyValues(id, from, to, limit);
+                SIStatus status;
+                auto data = context.storage().retrievePropertyValues(id, from, to, limit, &status);
 
                 QString buffer;
                 QTextStream output(&buffer);
@@ -420,12 +422,13 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 output.flush();
 
                 return {SIWebSocketProtocolFrame::DATALOG_READ, {
-                    {"status", to_string(SIStatus::Success)},
+                    {"status", to_string(status)},
                     {"id", id.toString()},
                     {"count", QString::number(data.count())}
                 }, buffer.toUtf8()};
             } else {
-                auto storedPropertyIDs = context.storage().availableStoredProperties(from, to);
+                SIStatus status;
+                auto storedPropertyIDs = context.storage().availableStoredProperties(from, to, &status);
 
                 QString buffer;
                 QTextStream output(&buffer);
@@ -435,7 +438,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 output.flush();
 
                 return {SIWebSocketProtocolFrame::DATALOG_READ, {
-                    {"status", to_string(SIStatus::Success)},
+                    {"status", to_string(status)},
                     {"count", QString::number(storedPropertyIDs.count())}
                 }, buffer.toUtf8()};
             }

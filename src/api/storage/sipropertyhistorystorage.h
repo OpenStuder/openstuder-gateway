@@ -1,5 +1,6 @@
 #pragma once
 #include <siglobalpropertyid.h>
+#include <sistatus.h>
 #include <QDateTime>
 #include <QVariant>
 #include <QVector>
@@ -24,12 +25,13 @@ class SIPropertyHistoryStorage {
     bool storePropertyValues(const QMap<SIGlobalPropertyID,QVariant>& properties, const QDateTime& timestamp = QDateTime::currentDateTime());
 
     QVector<TimestampedProperty> retrievePropertyValues(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to = QDateTime::currentDateTime(),
-                                                        unsigned int limit = std::numeric_limits<unsigned int>::max());
+                                                        unsigned int limit = std::numeric_limits<unsigned int>::max(), SIStatus* status = nullptr);
 
-    QVector<SIGlobalPropertyID> availableStoredProperties(const QDateTime& from = QDateTime::fromSecsSinceEpoch(0), const QDateTime& to = QDateTime::currentDateTime());
+    QVector<SIGlobalPropertyID> availableStoredProperties(const QDateTime& from = QDateTime::fromSecsSinceEpoch(0), const QDateTime& to = QDateTime::currentDateTime(),
+                                                          SIStatus* status = nullptr);
 
   private:
     virtual bool storePropertyValues_(const QMap<SIGlobalPropertyID,QVariant>& properties, const QDateTime& timestamp) = 0;
-    virtual QVector<TimestampedProperty> retrievePropertyValues_(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to, unsigned int limit) = 0;
-    virtual QVector<SIGlobalPropertyID> availableStoredProperties_(const QDateTime& from, const QDateTime& to) = 0;
+    virtual QVector<TimestampedProperty> retrievePropertyValues_(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to, unsigned int limit, SIStatus* status) = 0;
+    virtual QVector<SIGlobalPropertyID> availableStoredProperties_(const QDateTime& from, const QDateTime& to, SIStatus* status) = 0;
 };
