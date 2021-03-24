@@ -11,7 +11,7 @@
 
 using namespace std;
 
-// TODO: Add virtual extender devices for L1, L2 and L3.
+// TODO: Add virtual extender devices for L1, L2 and L3?
 
 Q_DECLARE_LOGGING_CATEGORY(XCOM485i)
 
@@ -88,7 +88,7 @@ bool XCom485iDeviceEnumerator::enumerateFast(std::array<int, 5> numberOfDevicesP
             switch (model) {
                 case XCom485iXtender::Invalid:
                 case XCom485iXtender::Multicast:
-                    // TODO: This is a serious error!
+                    qCCritical(XCOM485i,) << "Xtender device reports INVALID or multicast model, ignoring device";
                     break;
 
                 case XCom485iXtender::XTH:
@@ -121,7 +121,7 @@ bool XCom485iDeviceEnumerator::enumerateFast(std::array<int, 5> numberOfDevicesP
             switch (model) {
                 case XCom485iVarioTrack::Invalid:
                 case XCom485iVarioTrack::Multicast:
-                    // TODO: This is a serious error!
+                    qCCritical(XCOM485i,) << "VarioTrack device reports INVALID or multicast model, ignoring device";
                     break;
 
                 case XCom485iVarioTrack::VT65:
@@ -153,7 +153,7 @@ bool XCom485iDeviceEnumerator::enumerateFast(std::array<int, 5> numberOfDevicesP
             switch (model) {
                 case XCom485iVarioString::Invalid:
                 case XCom485iVarioString::Multicast:
-                    // TODO: This is a serious error!
+                    qCCritical(XCOM485i,) << "VarioString device reports INVALID or multicast model, ignoring device";
                     break;
 
                 case XCom485iVarioString::VS70:
@@ -195,7 +195,7 @@ bool XCom485iDeviceEnumerator::enumerateFast(std::array<int, 5> numberOfDevicesP
         }
 
         default:
-            // TODO: This is an error!
+            qCCritical(XCOM485i,) << "Multiple battery management devices detected, which is not possible";
             break;
     }
 
