@@ -3,8 +3,58 @@
 
 using namespace std;
 
+static const QMap<quint8,QString> deviceNames_ {
+    {1, "gw"},
+    {7, "l1"},
+    {8, "l2"},
+    {9, "l3"},
+    {10, "xts"},
+    {11, "xt1"},
+    {12, "xt2"},
+    {13, "xt3"},
+    {14, "xt4"},
+    {15, "xt5"},
+    {16, "xt6"},
+    {17, "xt7"},
+    {18, "xt8"},
+    {19, "xt9"},
+    {20, "vts"},
+    {21, "vt1"},
+    {22, "vt2"},
+    {23, "vt3"},
+    {24, "vt4"},
+    {25, "vt5"},
+    {26, "vt6"},
+    {27, "vt7"},
+    {28, "vt8"},
+    {29, "vt9"},
+    {30, "vt10"},
+    {31, "vt11"},
+    {32, "vt12"},
+    {33, "vt13"},
+    {34, "vt14"},
+    {35, "vt15"},
+    {40, "vss"},
+    {41, "vs1"},
+    {42, "vs2"},
+    {43, "vs3"},
+    {44, "vs4"},
+    {45, "vs5"},
+    {46, "vs6"},
+    {47, "vs7"},
+    {48, "vs8"},
+    {49, "vs9"},
+    {50, "vs10"},
+    {51, "vs11"},
+    {52, "vs12"},
+    {53, "vs13"},
+    {54, "vs14"},
+    {55, "vs15"},
+    {61, "bat"},
+};
+
 XCom485iDevice::XCom485iDevice(const QString& model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess, const initializer_list<XCom58iProperty>& properties):
-    SIDevice(model, QString::number(modbusAddress)), modbusAddress_(modbusAddress), modbusAccess_(modbusAccess) {
+    SIDevice(model, deviceNames_.value(modbusAddress, QString::number(modbusAddress))), modbusAddress_(modbusAddress), modbusAccess_(modbusAccess) {
     addProperties(properties);
 }
 
