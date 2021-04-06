@@ -1,6 +1,7 @@
 #pragma once
 #include <sidevice.h>
 #include "xcom485iproperty.h"
+#include <QMap>
 
 class XCom485iModbusAccess;
 
@@ -15,6 +16,8 @@ class XCom485iDevice: public SIDevice {
     XCom485iModbusAccess* modbusAccess() const {
         return modbusAccess_;
     }
+
+    static const QMap<quint8,QString> deviceNames;
 
   protected:
     void addProperties(std::initializer_list<XCom58iProperty> properties);

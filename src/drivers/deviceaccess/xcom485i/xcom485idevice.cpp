@@ -3,7 +3,12 @@
 
 using namespace std;
 
-static const QMap<quint8,QString> deviceNames_ {
+XCom485iDevice::XCom485iDevice(const QString& model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess, const initializer_list<XCom58iProperty>& properties):
+    SIDevice(model, deviceNames.value(modbusAddress, QString::number(modbusAddress))), modbusAddress_(modbusAddress), modbusAccess_(modbusAccess) {
+    addProperties(properties);
+}
+
+const QMap<quint8,QString> XCom485iDevice::deviceNames {
     {1, "gw"},
     {7, "l1"},
     {8, "l2"},
@@ -52,11 +57,6 @@ static const QMap<quint8,QString> deviceNames_ {
     {55, "vs15"},
     {61, "bat"},
 };
-
-XCom485iDevice::XCom485iDevice(const QString& model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess, const initializer_list<XCom58iProperty>& properties):
-    SIDevice(model, deviceNames_.value(modbusAddress, QString::number(modbusAddress))), modbusAddress_(modbusAddress), modbusAccess_(modbusAccess) {
-    addProperties(properties);
-}
 
 void XCom485iDevice::addProperties(std::initializer_list<XCom58iProperty> properties) {
     // Copy properties and create ID to modbus address map.
