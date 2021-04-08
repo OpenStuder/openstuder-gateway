@@ -180,8 +180,6 @@ class DemoModel: QObject {
         }
         batteryCharge_ += deltaTime * batteryChargePower_;
 
-        if (acOutputOn_) batteryChargePower_ = 0;
-
         batteryTemperature_ = batteryTemperature_ - 0.002 * deltaTime * (batteryTemperature_ - 25) + 0.00002 * deltaTime * abs(batteryChargePower_);
     }
 
