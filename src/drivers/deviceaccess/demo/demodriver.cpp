@@ -306,7 +306,7 @@ class DemoBSP: public SIDevice {
                 return {7001, SIStatus::Success, model_.batteryChargeCurrent()};
 
             case 7002:
-                return {7002, SIStatus::Success, model_.batteryStateOfCharge()};
+                return {7002, SIStatus::Success, 100 * model_.batteryStateOfCharge()};
 
             case 7033:
                 return {7033, SIStatus::Success, model_.batteryTemperature()};
