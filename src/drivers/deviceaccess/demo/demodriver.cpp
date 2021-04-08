@@ -165,6 +165,10 @@ class DemoInverter: public SIDevice {
                               }},
                               {3137, SIPropertyType::Float,  SIAccessLevel::Basic,  SIPropertyFlag::Readable,  "Input active power",                   "kW"},
                               {3136, SIPropertyType::Float,  SIAccessLevel::Basic,  SIPropertyFlag::Readable,  "Output active power",                  "kW"},
+                              {3049, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable, "State of the inverter", {
+                                                                                                                                            {0, "Off"},
+                                                                                                                                            {1, "On"}
+                                                                                                                                        }},
                               {3081, SIPropertyType::Float,  SIAccessLevel::Basic,  SIPropertyFlag::Readable,  "Energy AC-In from the current day",    "kWh"},
                               {3080, SIPropertyType::Float,  SIAccessLevel::Basic,  SIPropertyFlag::Readable,  "Energy AC-In from the previous day",   "kWh"},
                               {3083, SIPropertyType::Float,  SIAccessLevel::Basic,  SIPropertyFlag::Readable,  "Consumers energy of the current day",  "kWh"},
@@ -188,6 +192,9 @@ class DemoInverter: public SIDevice {
 
             case 3136:
                 return {3136, SIStatus::Success, model_.acOutputPower() / 1000.};
+
+            case 3049:
+                return {3049, SIStatus::Success, model_.acOutputOn() ? 1.0 : 0.0};
 
             case 3081:
             case 3080:
