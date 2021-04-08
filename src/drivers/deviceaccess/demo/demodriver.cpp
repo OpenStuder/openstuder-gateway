@@ -63,6 +63,66 @@ class DemoModel: QObject {
         return batteryTemperature_;
     }
 
+    inline double solarEnergyToday() const {
+        std::mt19937 random_engine; // NOLINT(cert-msc51-cpp)
+        random_engine.seed(QDate::currentDate().dayOfYear());
+        return 5000.0 * static_cast<double>(random_engine()) / std::mt19937::max();
+    }
+
+    inline double solarEnergyYesterday() const {
+        std::mt19937 random_engine; // NOLINT(cert-msc51-cpp)
+        random_engine.seed(QDate::currentDate().dayOfYear() - 1);
+        return 5000.0 * static_cast<double>(random_engine()) / std::mt19937::max();
+    }
+
+    inline double acInEnergyToday() const {
+        std::mt19937 random_engine; // NOLINT(cert-msc51-cpp)
+        random_engine.seed(2 * QDate::currentDate().dayOfYear());
+        return 500.0 * static_cast<double>(random_engine()) / std::mt19937::max();
+    }
+
+    inline double acInEnergyYesterday() const {
+        std::mt19937 random_engine; // NOLINT(cert-msc51-cpp)
+        random_engine.seed(2 * QDate::currentDate().dayOfYear() - 1);
+        return 500.0 * static_cast<double>(random_engine()) / std::mt19937::max();
+    }
+
+    inline double acOutEnergyToday() const {
+        std::mt19937 random_engine; // NOLINT(cert-msc51-cpp)
+        random_engine.seed(3 * QDate::currentDate().dayOfYear());
+        return 200.0 * static_cast<double>(random_engine()) / std::mt19937::max();
+    }
+
+    inline double acOutEnergyYesterday() const {
+        std::mt19937 random_engine; // NOLINT(cert-msc51-cpp)
+        random_engine.seed(3 * QDate::currentDate().dayOfYear() - 1);
+        return 200.0 * static_cast<double>(random_engine()) / std::mt19937::max();
+    }
+
+    inline double batteryChargeToday() const {
+        std::mt19937 random_engine; // NOLINT(cert-msc51-cpp)
+        random_engine.seed(4 * QDate::currentDate().dayOfYear());
+        return 50.0 * static_cast<double>(random_engine()) / std::mt19937::max();
+    }
+
+    inline double batteryChargeYesterday() const {
+        std::mt19937 random_engine; // NOLINT(cert-msc51-cpp)
+        random_engine.seed(4 * QDate::currentDate().dayOfYear() - 1);
+        return 50.0 * static_cast<double>(random_engine()) / std::mt19937::max();
+    }
+
+    inline double batteryDischargeToday() const {
+        std::mt19937 random_engine; // NOLINT(cert-msc51-cpp)
+        random_engine.seed(5 * QDate::currentDate().dayOfYear());
+        return 100.0 * static_cast<double>(random_engine()) / std::mt19937::max();
+    }
+
+    inline double batteryDischargeYesterday() const {
+        std::mt19937 random_engine; // NOLINT(cert-msc51-cpp)
+        random_engine.seed(5 * QDate::currentDate().dayOfYear() - 1);
+        return 100.0 * static_cast<double>(random_engine()) / std::mt19937::max();
+    }
+
     inline void addMessage(const SIDeviceMessage& message) {
         pendingMessages_.append(message);
     }
@@ -120,7 +180,9 @@ class DemoModel: QObject {
         }
         batteryCharge_ += deltaTime * batteryChargePower_;
 
-        batteryTemperature_ = batteryTemperature_ - 0.1 * (batteryTemperature_ - 20) + 0.0005 * abs(batteryChargePower_);
+        if (acOutputOn_) batteryChargePower_ = 0;
+
+        batteryTemperature_ = batteryTemperature_ - 0.002 * deltaTime * (batteryTemperature_ - 25) + 0.00002 * deltaTime * abs(batteryChargePower_);
     }
 
     void timerEvent(QTimerEvent* event) override {
@@ -151,7 +213,7 @@ class DemoModel: QObject {
     double acInputPower_ = 0.;       // w
     double batteryChargePower_ = 0.; // W
     double batteryCharge_ = batteryCapacity_ / 2.; // C
-    double batteryTemperature_ = 20; // degree celsius
+    double batteryTemperature_ = 25; // degree celsius
 
     QVector<SIDeviceMessage> pendingMessages_;
 };
@@ -199,10 +261,16 @@ class DemoInverter: public SIDevice {
                 return {3049, SIStatus::Success, model_.acOutputOn() ? 1.0 : 0.0};
 
             case 3081:
+                return {3081, SIStatus::Success, model_.acInEnergyToday()};
+
             case 3080:
+                return {3080, SIStatus::Success, model_.acInEnergyYesterday()};
+
             case 3083:
+                return {3083, SIStatus::Success, model_.acOutEnergyToday()};
+
             case 3082:
-                return {id, SIStatus::Success, id};
+                return {3082, SIStatus::Success, model_.acOutEnergyYesterday()};
 
             default:
                 return {id, SIStatus::NoProperty, {}};
@@ -258,8 +326,10 @@ class DemoMPPT: public SIDevice {
                 return {11004, SIStatus::Success, model_.solarPower() / 1000.};
 
             case 11007:
+                return {id, SIStatus::Success, model_.solarEnergyToday()};
+
             case 11011:
-                return {id, SIStatus::Success, id};
+                return {id, SIStatus::Success, model_.solarEnergyYesterday()};
 
             default:
                 return {id, SIStatus::NoProperty, {}};
@@ -286,7 +356,11 @@ class DemoBSP: public SIDevice {
                               {7000, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery voltage",                  "V"},
                               {7001, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery current",                  "A"},
                               {7002, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "State of Charge",                  "%"},
-                              {7033, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery temperature (minute avg)", "degree C"}
+                              {7033, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery temperature (minute avg)", "degree C"},
+                              {7007, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Ah charged today", "Ah"},
+                              {7008, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Ah discharged today", "Ah"},
+                              {7009, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Ah charged yesterday", "Ah"},
+                              {7010, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Ah discharged yesterday", "Ah"}
                           }), model_(model) {}
 
   private:
@@ -310,6 +384,18 @@ class DemoBSP: public SIDevice {
 
             case 7033:
                 return {7033, SIStatus::Success, model_.batteryTemperature()};
+
+            case 7007:
+                return {7007, SIStatus::Success, model_.batteryChargeToday()};
+
+            case 7008:
+                return {7008, SIStatus::Success, model_.batteryDischargeToday()};
+
+            case 7009:
+                return {7009, SIStatus::Success, model_.batteryChargeYesterday()};
+
+            case 7010:
+                return {7010, SIStatus::Success, model_.batteryDischargeYesterday()};
 
             default:
                 return {id, SIStatus::NoProperty, {}};
