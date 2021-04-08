@@ -119,6 +119,8 @@ class DemoModel: QObject {
             batteryChargePower_ = solarPower_ + acInputPower_ - acOutputPower_;
         }
         batteryCharge_ += deltaTime * batteryChargePower_;
+
+        batteryTemperature_ = batteryTemperature_ - 0.1 * (batteryTemperature_ - 20) + 0.0005 * abs(batteryChargePower_);
     }
 
     void timerEvent(QTimerEvent* event) override {
