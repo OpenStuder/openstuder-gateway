@@ -59,7 +59,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolFrame::fromBytes(const QByteArray& b
         return {};
     }
 
-    quint64 command = 0;
+    uint64_t command = 0;
     if (!cbor_value_is_unsigned_integer(&it) || cbor_value_get_uint64(&it, &command) != CborNoError) {
         return {};
     }
@@ -87,14 +87,14 @@ SIBluetoothProtocolFrame SIBluetoothProtocolFrame::fromBytes(const QByteArray& b
 
             case CborIntegerType:
                 if (cbor_value_is_unsigned_integer(&it)) {
-                    quint64 value;
+                    uint64_t value;
                     error = cbor_value_get_uint64(&it, &value);
                     if (error == CborNoError) {
                         parameters.append(value);
                         error = cbor_value_advance_fixed(&it);
                     }
                 } else {
-                    qint64 value;
+                    int64_t value;
                     error = cbor_value_get_int64(&it, &value);
                     if (error == CborNoError) {
                         parameters.append(value);
