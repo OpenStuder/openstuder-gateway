@@ -1,6 +1,10 @@
 #pragma once
 #include <QString>
 #include <QVector>
+#include <QSet>
+#include <QVariant>
+
+struct CborEncoder;
 
 class SIBluetoothProtocolFrame {
   public:
@@ -8,24 +12,26 @@ class SIBluetoothProtocolFrame {
         INVALID = 0x00,
 
         // Client messages.
-        AUTHORIZE = 'a',
-        ENUMERATE = 'e',
-        READ_PROPERTY = 'r',
-        WRITE_PROPERTY = 'w',
-        SUBSCRIBE_PROPERTY = 's',
+        AUTHORIZE = 0x01,
+        ENUMERATE = 0x02,
+        READ_PROPERTY = 0x03,
+        WRITE_PROPERTY =0x04,
+        SUBSCRIBE_PROPERTY = 0x05,
+        UNSUBSCRIBE_PROPERTY = 0x06,
 
         // Server messages.
         ERROR = 0xFF,
-        AUTHORIZED = 'A',
-        ENUMERATED = 'E',
-        PROPERTY_READ = 'R',
-        PROPERTY_WRITTEN = 'W',
-        PROPERTY_SUBSCRIBED = 'S',
-        PROPERTY_UPDATE = 'U',
-        DEVICE_MESSAGE = 'M'
+        AUTHORIZED = 0x81,
+        ENUMERATED = 0x82,
+        PROPERTY_READ = 0x83,
+        PROPERTY_WRITTEN = 0x84,
+        PROPERTY_SUBSCRIBED = 0x85,
+        PROPERTY_UNSUBSCRIBED = 0x86,
+        PROPERTY_UPDATE = 0xFE,
+        DEVICE_MESSAGE = 0xFD
     };
 
-    SIBluetoothProtocolFrame(Command command = INVALID, const QVector<QString>& parameters = {}); // NOLINT(google-explicit-constructor)
+    SIBluetoothProtocolFrame(Command command = INVALID, const QVector<QVariant>& parameters = {}); // NOLINT(google-explicit-constructor)
 
     bool isNull() const;
 
@@ -37,11 +43,11 @@ class SIBluetoothProtocolFrame {
         command_ = command;
     }
 
-    inline const QVector<QString>& parameters() const {
+    inline const QVector<QVariant>& parameters() const {
         return parameters_;
     }
 
-    inline void setParameters(const QVector<QString>& parameters) {
+    inline void setParameters(const QVector<QVariant>& parameters) {
         parameters_ = parameters;
     }
 
@@ -49,14 +55,14 @@ class SIBluetoothProtocolFrame {
         return parameters_.count();
     }
 
-    inline bool isParameterCountInRange(int min, int max) const {
-        return parameters_.count() <= min && parameters_.count() >= max;
-    }
+    bool validateParameters(const QVector<QSet<QVariant::Type>>& parameterTypes);
 
-    QByteArray toBytes() const;
+    QByteArray toBytes(qsizetype bufferSize = 1024) const;
     static SIBluetoothProtocolFrame fromBytes(const QByteArray& bytes);
 
   private:
+    int encodeVariant_(CborEncoder* encoder, const QVariant& variant) const;
+
     Command command_;
-    QVector<QString> parameters_;
+    QVector<QVariant> parameters_;
 };

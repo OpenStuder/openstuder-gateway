@@ -9,6 +9,7 @@
 #include <QLowEnergyDescriptorData>
 #include <QLowEnergyAdvertisingParameters>
 #include <QLowEnergyAdvertisingData>
+#include <QTimer>
 
 const QBluetoothUuid SICharacteristicUUID {QStringLiteral("12345678-1234-0000-1623-123456789ABC")}; // NOLINT(cert-err58-cpp)
 const QBluetoothUuid RXCharacteristicUUID {QStringLiteral("12345678-1234-0001-1623-123456789ABC")}; // NOLINT(cert-err58-cpp)
@@ -39,7 +40,10 @@ SIBluetoothManager::SIBluetoothManager(SIContext* context, QObject* parent):
 }
 
 SIBluetoothManager::~SIBluetoothManager() {
-    delete protocol_;
+    if (protocol_ != nullptr) {
+        context_->deviceAccessManager().unsubscribeFromAllProperties(protocol_);
+        delete protocol_;
+    }
 }
 
 void SIBluetoothManager::startAdvertise() {
@@ -62,15 +66,19 @@ void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic
 
     if (protocol_ == nullptr) {
         if (frame.command() == SIBluetoothProtocolFrame::AUTHORIZE) {
-            if (!frame.isParameterCountInRange(0, 3)) {
-                sendFrame_({SIBluetoothProtocolFrame::ERROR, {"invalid parameter count"}});
+            if (!frame.validateParameters({{
+                {QVariant::String, QVariant::Invalid},
+                {QVariant::String, QVariant::Invalid},
+                {QVariant::Int, QVariant::Invalid}
+            }})) {
+                sendFrame_({SIBluetoothProtocolFrame::ERROR, {"invalid frame"}});
                 return;
             } else {
-                auto accessLevel = SIAccessLevel::Basic;
+                auto accessLevel = SIAccessLevel::None;
 
-                if (SISettings::sharedSettings().authorizeEnabled() && frame.parameterCount() >= 2) {
-                    auto user = frame.parameters()[0];
-                    auto pass = frame.parameters()[1];
+                if (SISettings::sharedSettings().authorizeEnabled() && !frame.parameters()[0].isNull() && !frame.parameters()[1].isNull()) {
+                    auto user = frame.parameters()[0].toString();
+                    auto pass = frame.parameters()[1].toString();
 
                     if (context_->userAuthorizer() != nullptr) {
                         accessLevel = context_->userAuthorizer()->authorizeUser(user, pass);
@@ -79,24 +87,27 @@ void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic
                     accessLevel = SISettings::sharedSettings().authorizeGuestAccessLevel();
                 }
 
-                auto versionString = frame.parameterCount() == 3 ? frame.parameters()[2] : "1";
 
                 if (accessLevel == SIAccessLevel::None) {
                     sendFrame_({SIBluetoothProtocolFrame::ERROR, {"authorization failed"}});
                     return;
                 }
 
-                bool conversionOk = false;
-                int version = versionString.toInt(&conversionOk);
-                if (!conversionOk) {
-                    sendFrame_({SIBluetoothProtocolFrame::ERROR, {"invalid version"}});
-                    return;
+                auto version = 1;
+                if (!frame.parameters()[2].isNull()) {
+                    bool conversionOk = false;
+                    version = frame.parameters()[2].toInt(&conversionOk);
+                    if (!conversionOk) {
+                        sendFrame_({SIBluetoothProtocolFrame::ERROR, {"invalid version"}});
+                        return;
+                    }
                 }
 
                 switch (version) {
                     case 1:
                         protocol_ = new SIBluetoothProtocolV1(accessLevel);
-                        sendFrame_({SIBluetoothProtocolFrame::AUTHORIZED, {QString::number(version)}});
+                        connect(protocol_, &SIAbstractBluetoothProtocol::frameReadyToSend, this, &SIBluetoothManager::sendFrame_);
+                        sendFrame_({SIBluetoothProtocolFrame::AUTHORIZED, {(unsigned int)accessLevel, version, OPENSTUDER_GATEWAY_VERSION}});
                         break;
 
                     default:
@@ -121,7 +132,8 @@ void SIBluetoothManager::onDisconnected_() {
         delete protocol_;
         protocol_ = nullptr;
     }
-    QMetaObject::invokeMethod(this, &SIBluetoothManager::startAdvertise, Qt::QueuedConnection);
+    QTimer::singleShot(2500, this, &SIBluetoothManager::startAdvertise);
+    //QMetaObject::invokeMethod(this, &SIBluetoothManager::startAdvertise, Qt::QueuedConnection);
 }
 
 void SIBluetoothManager::onDeviceMessageReceived_(const SIDeviceMessage& message) {

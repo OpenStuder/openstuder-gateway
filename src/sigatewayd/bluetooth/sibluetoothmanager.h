@@ -32,10 +32,9 @@ class QLowEnergyService;
     void onCharacteristicChanged_(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
     void onDisconnected_();
     void onDeviceMessageReceived_(const SIDeviceMessage& message);
-
-  private:
     void sendFrame_(const SIBluetoothProtocolFrame& frame);
 
+  private:
     QString peripheralName_;
     QLowEnergyController* peripheral_;
     QLowEnergyService* service_;
