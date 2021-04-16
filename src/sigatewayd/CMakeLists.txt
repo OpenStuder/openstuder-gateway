@@ -1,5 +1,25 @@
 find_package(Qt5 5.11 REQUIRED COMPONENTS Network WebSockets Bluetooth)
 
+add_library(tinycbor STATIC
+            bluetooth/tinycbor/cbor.h
+            bluetooth/tinycbor/cborencoder.c
+            bluetooth/tinycbor/cborencoder_close_container_checked.c
+            bluetooth/tinycbor/cborerrorstrings.c
+            bluetooth/tinycbor/cborinternal_p.h
+            bluetooth/tinycbor/cborjson.h
+            bluetooth/tinycbor/cborparser.c
+            bluetooth/tinycbor/cborparser_dup_string.c
+            bluetooth/tinycbor/cborpretty.c
+            bluetooth/tinycbor/cborpretty_stdio.c
+            bluetooth/tinycbor/cbortojson.c
+            bluetooth/tinycbor/cborvalidation.c
+            bluetooth/tinycbor/compilersupport_p.h
+            bluetooth/tinycbor/open_memstream.c
+            bluetooth/tinycbor/parsetags.pl
+            bluetooth/tinycbor/tinycbor-version.h
+            bluetooth/tinycbor/utf8_p.h)
+target_include_directories(tinycbor PUBLIC bluetooth/tinycbor)
+
 add_executable(sigatewayd
                main.cpp
                sidaemon.h
@@ -43,31 +63,6 @@ add_executable(sigatewayd
                sicontext.h
                datalog/sidatalogmanager.h
                datalog/sidatalogmanager.cpp)
-target_link_libraries(sigatewayd Qt5::Core Qt5::Network Qt5::WebSockets Qt5::Bluetooth SIDeviceAccess SIStorage SIAuthorize)
+target_link_libraries(sigatewayd Qt5::Core Qt5::Network Qt5::WebSockets Qt5::Bluetooth SIDeviceAccess SIStorage SIAuthorize tinycbor)
 install(TARGETS sigatewayd RUNTIME DESTINATION sbin)
 
-#if (Qt5Core_VERSION VERSION_LESS 5.12.0)
-    add_library(tinycbor STATIC
-                bluetooth/tinycbor/cbor.h
-                bluetooth/tinycbor/cborencoder.c
-                bluetooth/tinycbor/cborencoder_close_container_checked.c
-                bluetooth/tinycbor/cborerrorstrings.c
-                bluetooth/tinycbor/cborinternal_p.h
-                bluetooth/tinycbor/cborjson.h
-                bluetooth/tinycbor/cborparser.c
-                bluetooth/tinycbor/cborparser_dup_string.c
-                bluetooth/tinycbor/cborpretty.c
-                bluetooth/tinycbor/cborpretty_stdio.c
-                bluetooth/tinycbor/cbortojson.c
-                bluetooth/tinycbor/cborvalidation.c
-                bluetooth/tinycbor/compilersupport_p.h
-                bluetooth/tinycbor/open_memstream.c
-                bluetooth/tinycbor/parsetags.pl
-                bluetooth/tinycbor/src.pri
-                bluetooth/tinycbor/tags.txt
-                bluetooth/tinycbor/tinycbor.pro
-                bluetooth/tinycbor/tinycbor-version.h
-                bluetooth/tinycbor/utf8_p.h)
-    target_include_directories(tinycbor PUBLIC bluetooth/tinycbor)
-    target_link_libraries(sigatewayd tinycbor)
-#endif()
