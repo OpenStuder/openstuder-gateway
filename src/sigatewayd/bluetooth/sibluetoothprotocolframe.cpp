@@ -90,14 +90,14 @@ SIBluetoothProtocolFrame SIBluetoothProtocolFrame::fromBytes(const QByteArray& b
                     uint64_t value;
                     error = cbor_value_get_uint64(&it, &value);
                     if (error == CborNoError) {
-                        parameters.append(value);
+                        parameters.append(static_cast<quint64>(value));
                         error = cbor_value_advance_fixed(&it);
                     }
                 } else {
                     int64_t value;
                     error = cbor_value_get_int64(&it, &value);
                     if (error == CborNoError) {
-                        parameters.append(value);
+                        parameters.append(static_cast<qint64>(value));
                         error = cbor_value_advance_fixed(&it);
                     }
                 }
