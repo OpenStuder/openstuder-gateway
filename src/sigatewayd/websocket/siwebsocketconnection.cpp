@@ -12,8 +12,10 @@ SIWebSocketConnection::SIWebSocketConnection(QWebSocket* webSocket, SIContext* c
 }
 
 SIWebSocketConnection::~SIWebSocketConnection() {
-    context_->deviceAccessManager().unsubscribeFromAllProperties(protocol_);
-    delete protocol_;
+    if (protocol_ != nullptr) {
+        context_->deviceAccessManager().unsubscribeFromAllProperties(protocol_);
+        delete protocol_;
+    }
 }
 
 void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
@@ -38,13 +40,12 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
                     accessLevel = SISettings::sharedSettings().authorizeGuestAccessLevel();
                 }
 
-                auto versionString = frame.header("protocol_version", "1");
-
                 if (accessLevel == SIAccessLevel::None) {
                     sendFrame_(SIWebSocketProtocolFrame::error("authorization failed"));
                     return;
                 }
 
+                auto versionString = frame.header("protocol_version", "1");
                 bool conversionOk = false;
                 int version = versionString.toInt(&conversionOk);
                 if (!conversionOk) {
