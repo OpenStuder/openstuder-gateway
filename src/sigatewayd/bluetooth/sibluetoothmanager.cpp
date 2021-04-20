@@ -11,9 +11,9 @@
 #include <QLowEnergyAdvertisingData>
 #include <QTimer>
 
-const QBluetoothUuid SICharacteristicUUID {QStringLiteral("12345678-1234-0000-1623-123456789ABC")}; // NOLINT(cert-err58-cpp)
-const QBluetoothUuid RXCharacteristicUUID {QStringLiteral("12345678-1234-0001-1623-123456789ABC")}; // NOLINT(cert-err58-cpp)
-const QBluetoothUuid TXCharacteristicUUID {QStringLiteral("12345678-1234-0002-1623-123456789ABC")}; // NOLINT(cert-err58-cpp)
+const QBluetoothUuid SICharacteristicUUID {QStringLiteral("f3c2d800-8421-44b1-9655-0951992f313b")}; // NOLINT(cert-err58-cpp)
+const QBluetoothUuid RXCharacteristicUUID {QStringLiteral("f3c2d801-8421-44b1-9655-0951992f313b")}; // NOLINT(cert-err58-cpp)
+const QBluetoothUuid TXCharacteristicUUID {QStringLiteral("f3c2d802-8421-44b1-9655-0951992f313b")}; // NOLINT(cert-err58-cpp)
 
 SIBluetoothManager::SIBluetoothManager(SIContext* context, QObject* parent):
     QObject(parent), context_(context) {
