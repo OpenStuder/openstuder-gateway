@@ -84,6 +84,14 @@ const QString& SIProperty::unit() const {
     }
 }
 
+QVariantMap SIProperty::enumValues() const {
+    if (private_) {
+        return private_->enumValues.toVariantMap();
+    } else {
+        return {};
+    }
+}
+
 QJsonObject SIProperty::jsonDescription(SIDescriptionFlags flags) const {
     Q_UNUSED(flags)
 

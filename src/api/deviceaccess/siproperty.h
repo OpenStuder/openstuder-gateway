@@ -6,6 +6,7 @@
 #include "sijdescriptionflags.h"
 #include <QString>
 #include <QJsonObject>
+#include <QVariantMap>
 #include <utility>
 #include <memory>
 
@@ -27,6 +28,8 @@ class SIProperty {
     const QString& description() const;
 
     const QString& unit() const;
+
+    QVariantMap enumValues() const;
 
     QJsonObject jsonDescription(SIDescriptionFlags flags) const;
 
