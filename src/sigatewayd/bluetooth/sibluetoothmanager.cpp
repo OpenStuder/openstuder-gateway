@@ -10,7 +10,7 @@
 #include <QLowEnergyAdvertisingParameters>
 #include <QLowEnergyAdvertisingData>
 
-constexpr const qsizetype MAX_FRAGMENT_SIZE = 508;
+constexpr const int MAX_FRAGMENT_SIZE = 508;
 
 const QBluetoothUuid SICharacteristicUUID {QStringLiteral("f3c2d800-8421-44b1-9655-0951992f313b")}; // NOLINT(cert-err58-cpp)
 const QBluetoothUuid RXCharacteristicUUID {QStringLiteral("f3c2d801-8421-44b1-9655-0951992f313b")}; // NOLINT(cert-err58-cpp)
