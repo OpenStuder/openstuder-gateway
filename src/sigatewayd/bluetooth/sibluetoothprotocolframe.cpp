@@ -38,7 +38,7 @@ QByteArray SIBluetoothProtocolFrame::toBytes(qsizetype bufferSize) const {
                 break;
 
             case CborErrorOutOfMemory:
-                return toBytes(bufferSize * 2);
+                return toBytes(bufferSize * 8);
 
             default:
                 return {};
@@ -170,14 +170,17 @@ int SIBluetoothProtocolFrame::encodeVariant_(CborEncoder* encoder, const QVarian
             break;
         }
 
-        case QVariant::List: {
+        case QVariant::List:
+        case QVariant::StringList: {
             auto list = variant.toList();
             CborEncoder arrayEncoder;
-            error = cbor_encoder_create_array(encoder, &arrayEncoder, list.count());
+            error = cbor_encoder_create_array(encoder, &arrayEncoder, list.size());
             if (error != CborNoError) { break; }
             for (const auto& entry: list) {
                 error = static_cast<CborError>(encodeVariant_(&arrayEncoder, entry));
-                if (error != CborNoError) { break; }
+                if (error != CborNoError) {
+                    return error;
+                }
             }
             error = cbor_encoder_close_container(encoder, &arrayEncoder);
             break;
@@ -192,9 +195,13 @@ int SIBluetoothProtocolFrame::encodeVariant_(CborEncoder* encoder, const QVarian
                 auto key = entry.toUtf8();
                 auto value = map[key];
                 error = cbor_encode_text_string(&mapEncoder, key.data(), key.size());
-                if (error != CborNoError) { break; }
+                if (error != CborNoError) {
+                    return error;
+                }
                 error = static_cast<CborError>(encodeVariant_(&mapEncoder, value));
-                if (error != CborNoError) { break; }
+                if (error != CborNoError) {
+                    return error;
+                }
             }
             error = cbor_encoder_close_container(encoder, &mapEncoder);
             break;

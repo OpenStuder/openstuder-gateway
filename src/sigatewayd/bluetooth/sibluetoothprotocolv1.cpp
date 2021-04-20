@@ -1,4 +1,6 @@
 #include "sibluetoothprotocolv1.h"
+#include <sistorage.h>
+#include <sideviceaccessregistry.h>
 
 SIBluetoothProtocolV1::SIBluetoothProtocolV1(SIAccessLevel accessLevel): accessLevel_(accessLevel) {}
 
@@ -8,16 +10,91 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
             return {SIBluetoothProtocolFrame::ERROR, {"invalid state"}};
 
         case SIBluetoothProtocolFrame::ENUMERATE: {
-            if (frame.parameterCount() != 0) { return {SIBluetoothProtocolFrame::ERROR, {"invalid frame"}}; }
+            if (frame.parameterCount() != 0) { return SIBluetoothProtocolFrame::error("invalid frame"); }
 
             auto* operation = context.deviceAccessManager().enumerateDevices();
             connect(operation, &SIAbstractOperation::finished, this, &SIBluetoothProtocolV1::enumerationOperationFinished_);
             return {};
         }
 
+        case SIBluetoothProtocolFrame::DESCRIBE: {
+            if (!frame.validateParameters({{QVariant::String, QVariant::Invalid}})) {
+                return SIBluetoothProtocolFrame::error("invalid frame");
+            }
+
+            if (frame.parameters()[0].canConvert<QString>()) {
+                auto id = frame.parameters()[0].toString().split(".");
+                switch (id.count()) {
+                    case 1: {
+                        auto deviceAccess = SIDeviceAccessRegistry::sharedRegistry().deviceAccess(id[0]);
+                        if (deviceAccess == nullptr) {
+                            return {SIBluetoothProtocolFrame::DESCRIPTION, {(int)SIStatus::NoDeviceAccess, frame.parameters()[0], QVariant {}}};
+                        }
+
+                        QVariantMap devices;
+                        for (int i = 0; i < deviceAccess->deviceCount(); ++i) {
+                            auto device = deviceAccess->device(i);
+                            devices[device->id()] = device->model();
+                        }
+                        return {SIBluetoothProtocolFrame::DESCRIPTION, {(int)SIStatus::Success, frame.parameters()[0], devices}};
+                    }
+
+                    case 2: {
+                        auto deviceAccess = SIDeviceAccessRegistry::sharedRegistry().deviceAccess(id[0]);
+                        if (deviceAccess == nullptr) {
+                            if (deviceAccess == nullptr) {
+                                return {SIBluetoothProtocolFrame::DESCRIPTION, {(int)SIStatus::NoDeviceAccess, frame.parameters()[0], QVariant {}}};
+                            }
+                        }
+
+                        auto device = deviceAccess->device(id[1]);
+                        if (device == nullptr) {
+                            return {SIBluetoothProtocolFrame::DESCRIPTION, {(int)SIStatus::NoDevice, frame.parameters()[0], QVariant {}}};
+                        }
+
+                        QList<QVariant> properties;
+                        for (const auto& property: device->properties()) {
+                            properties << property.id();
+                        }
+
+
+                        return {SIBluetoothProtocolFrame::DESCRIPTION, {(int)SIStatus::Success, frame.parameters()[0], properties}};
+                    }
+
+                    case 3: {
+                        auto property = context.deviceAccessManager().resolveProperty(SIGlobalPropertyID(frame.parameters()[0].toString()));
+                        if (property.type() == SIPropertyType::Invalid || accessLevel_ < property.accessLevel()) {
+                            return {SIBluetoothProtocolFrame::DESCRIPTION, {(int)SIStatus::NoProperty, frame.parameters()[0], QVariant {}}};
+                        }
+
+                        QVariantMap description;
+                        description["type"] = static_cast<int>(property.type());
+                        description["flags"] = static_cast<unsigned int>(property.flags());
+                        description["description"] = property.description();
+                        if (property.type() == SIPropertyType::Enum) {
+                            description["values"] = property.enumValues();
+                        } else {
+                            description["unit"] = property.unit();
+                        }
+                        return {SIBluetoothProtocolFrame::DESCRIPTION, {(int)SIStatus::Success, frame.parameters()[0], description}};
+                    }
+
+                    default:
+                        return SIBluetoothProtocolFrame::error("invalid frame");
+                }
+            } else {
+                QVariantMap accesses;
+                for (int i = 0; i < SIDeviceAccessRegistry::sharedRegistry().deviceAccessCount(); ++i) {
+                    auto access = SIDeviceAccessRegistry::sharedRegistry().deviceAccess(i);
+                    accesses[access->id()] = SIDeviceAccessRegistry::sharedRegistry().driverName(access);
+                }
+                return {SIBluetoothProtocolFrame::DESCRIPTION, {(int)SIStatus::Success, frame.parameters()[0], accesses}};
+            }
+        }
+
         case SIBluetoothProtocolFrame::READ_PROPERTY: {
             if (!frame.validateParameters({{QVariant::String}})) {
-                return {SIBluetoothProtocolFrame::ERROR, {"invalid frame"}};
+                return SIBluetoothProtocolFrame::error("invalid frame");
             }
 
             SIGlobalPropertyID id(frame.parameters()[0].value<QString>());
@@ -40,7 +117,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
                                               {QVariant::Int, QVariant::Invalid},
                                               {}
                                           })) {
-                return {SIBluetoothProtocolFrame::ERROR, {"invalid frame"}};
+                return SIBluetoothProtocolFrame::error("invalid frame");
             }
 
             SIGlobalPropertyID id(frame.parameters()[0].value<QString>());
@@ -65,7 +142,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
         }
 
         case SIBluetoothProtocolFrame::SUBSCRIBE_PROPERTY: {
-            if (!frame.validateParameters({{QVariant::String}})) { return {SIBluetoothProtocolFrame::ERROR, {"invalid frame"}}; }
+            if (!frame.validateParameters({{QVariant::String}})) { return SIBluetoothProtocolFrame::error("invalid frame"); }
 
             SIGlobalPropertyID id(frame.parameters()[0].value<QString>());
             auto property = context.deviceAccessManager().resolveProperty(id);
@@ -81,7 +158,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
         }
 
         case SIBluetoothProtocolFrame::UNSUBSCRIBE_PROPERTY: {
-            if (!frame.validateParameters({{QVariant::String}})) { return {SIBluetoothProtocolFrame::ERROR, {"invalid frame"}}; }
+            if (!frame.validateParameters({{QVariant::String}})) { return SIBluetoothProtocolFrame::error("invalid frame"); }
 
             auto id = SIGlobalPropertyID(frame.parameters()[0].toString());
             if (!id.isValid()) {
@@ -90,6 +167,120 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
 
             bool status = context.deviceAccessManager().unsubscribeFromProperty(id, this);
             return {SIBluetoothProtocolFrame::PROPERTY_UNSUBSCRIBED, {(int)(status ? SIStatus::Success : SIStatus::Error), frame.parameters()[0]}};
+        }
+
+        case SIBluetoothProtocolFrame::READ_DATALOG: {
+            if (!frame.validateParameters({
+                {QVariant::String, QVariant::Invalid},
+                {QVariant::ULongLong, QVariant::Invalid},
+                {QVariant::ULongLong, QVariant::Invalid},
+                {QVariant::UInt, QVariant::Invalid}
+            })) { return SIBluetoothProtocolFrame::error("invalid frame"); }
+
+
+            auto id = SIGlobalPropertyID();
+            if (!frame.parameters()[0].isNull()) {
+                id = SIGlobalPropertyID(frame.parameters()[0].toString());
+                if (!id.isValid()) {
+                    return SIBluetoothProtocolFrame::error("invalid frame");
+                }
+            }
+
+            auto from = QDateTime::fromMSecsSinceEpoch(0, Qt::UTC);
+            if (!frame.parameters()[1].isNull()) {
+                from = QDateTime::fromMSecsSinceEpoch(frame.parameters()[1].toULongLong(), Qt::UTC);
+                if (!from.isValid()) {
+                    return SIBluetoothProtocolFrame::error("invalid frame");
+                }
+            }
+
+            auto to = QDateTime::currentDateTime();
+            if (!frame.parameters()[2].isNull()) {
+                to = QDateTime::fromMSecsSinceEpoch(frame.parameters()[2].toULongLong(), Qt::UTC);
+                if (!from.isValid()) {
+                    return SIBluetoothProtocolFrame::error("invalid frame");
+                }
+            }
+
+            auto limit = 1000U;
+            if (!frame.parameters()[3].isNull()) {
+                bool conversionOk = false;
+                limit = qMin(1000U, frame.parameters()[3].toUInt(&conversionOk));
+                if (!conversionOk) {
+                    return SIBluetoothProtocolFrame::error("invalid frame");
+                }
+            }
+
+            if (id.isValid()) {
+                SIStatus status;
+                auto data = context.storage().retrievePropertyValues(id, from, to, limit, &status);
+
+                QList<QVariant> values;
+                for (auto entry = data.crbegin(); entry != data.crend(); ++entry) {
+                    values << entry->timestamp.toUTC().toMSecsSinceEpoch() << entry->value;
+                }
+
+                return {SIBluetoothProtocolFrame::DATALOG_READ, {(int)status, id.toString(), data.count(), values}};
+            } else {
+                SIStatus status;
+                auto storedPropertyIDs = context.storage().availableStoredProperties(from, to, &status);
+
+                QStringList ids;
+                for (const auto & propertyID : storedPropertyIDs) {
+                    ids << propertyID.toString();
+                }
+
+                return {SIBluetoothProtocolFrame::DATALOG_READ, {(int)status, storedPropertyIDs.count(), ids}};
+            }
+        }
+
+        case SIBluetoothProtocolFrame::READ_MESSAGES: {
+            if (!frame.validateParameters({
+                {QVariant::ULongLong, QVariant::Invalid},
+                {QVariant::ULongLong, QVariant::Invalid},
+                {QVariant::UInt, QVariant::Invalid}
+            })) {
+                return SIBluetoothProtocolFrame::error("invalid frame");
+            }
+
+            auto from = QDateTime::fromMSecsSinceEpoch(0, Qt::UTC);
+            if (!frame.parameters()[0].isNull()) {
+                from = QDateTime::fromMSecsSinceEpoch(frame.parameters()[0].toULongLong(), Qt::UTC);
+                if (!from.isValid()) {
+                    return SIBluetoothProtocolFrame::error("invalid frame");
+                }
+            }
+
+            auto to = QDateTime::currentDateTime();
+            if (!frame.parameters()[1].isNull()) {
+                to = QDateTime::fromMSecsSinceEpoch(frame.parameters()[1].toULongLong(), Qt::UTC);
+                if (!from.isValid()) {
+                    return SIBluetoothProtocolFrame::error("invalid frame");
+                }
+            }
+
+            auto limit = std::numeric_limits<unsigned int>::max();
+            if (!frame.parameters()[2].isNull()) {
+                bool conversionOk = false;
+                limit = frame.parameters()[2].toUInt(&conversionOk);
+                if (!conversionOk) {
+                    return SIBluetoothProtocolFrame::error("invalid frame");
+                }
+            }
+
+            SIStatus status;
+            auto messages = context.storage().retrieveDeviceMessages(from, to, limit, &status);
+
+            QList<QVariant> messageList;
+            for (auto message = messages.crbegin(); message != messages.crend(); ++message) {
+                messageList << message->timestamp().toUTC().toMSecsSinceEpoch()
+                            << message->accessID()
+                            << message->deviceID()
+                            << message->messageID()
+                            << message->message();
+            }
+
+            return {SIBluetoothProtocolFrame::MESSAGES_READ, {(int)status, messages.count(), messageList}};
         }
 
         default:
