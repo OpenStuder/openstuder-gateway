@@ -66,6 +66,10 @@ QPointer<SIDeviceAccess> SIDeviceAccessRegistry::deviceAccess(const QString& id)
     return nullptr;
 }
 
+QString SIDeviceAccessRegistry::driverName(SIDeviceAccess* deviceAccess) const {
+    return private_->instanceDriverNames.value(deviceAccess, "");
+}
+
 bool SIDeviceAccessRegistry::instantiateDeviceAccess(const QString& driverName, const QString& id, const QVariantMap& parameters) {
     auto driver = std::find_if(drivers_.cbegin(), drivers_.cend(), [&driverName](const SIDeviceAccessDriverElement& driverElement) {
         return driverElement.name == driverName;
@@ -97,7 +101,7 @@ QJsonObject SIDeviceAccessRegistry::jsonDescription(SIAccessLevel accessLevel, S
             auto* access = qobject_cast<SIDeviceAccess*>(child);
 #endif
             QJsonObject accessDescription = access->jsonDescription(accessLevel, flags);
-            accessDescription["driver"] = private_->instanceDriverNames[access];
+            accessDescription["driver"] = private_->instanceDriverNames.value(access, "");
             instances.append(accessDescription);
         }
         description["instances"] = instances;

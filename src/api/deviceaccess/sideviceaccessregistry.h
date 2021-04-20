@@ -34,6 +34,8 @@ class SIDeviceAccessRegistry final: QObject {
         return deviceAccess(id);
     }
 
+    QString driverName(SIDeviceAccess* deviceAccess) const;
+
     bool instantiateDeviceAccess(const QString& driverName, const QString& id, const QVariantMap& parameters);
 
     QJsonObject jsonDescription(SIAccessLevel accessLevel = SIAccessLevel::Basic, SIDescriptionFlags flags = SIDescriptionFlag::Default) const;
