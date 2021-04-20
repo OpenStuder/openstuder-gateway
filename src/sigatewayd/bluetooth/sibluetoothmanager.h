@@ -39,6 +39,8 @@ class QLowEnergyService;
     QLowEnergyController* peripheral_;
     QLowEnergyService* service_;
 
+    QByteArray receivingFrame_;
+
     SIAbstractBluetoothProtocol* protocol_ = nullptr;
 
     SIContext* context_;

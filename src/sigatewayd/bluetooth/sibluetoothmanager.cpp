@@ -10,6 +10,8 @@
 #include <QLowEnergyAdvertisingParameters>
 #include <QLowEnergyAdvertisingData>
 
+constexpr const qsizetype MAX_FRAGMENT_SIZE = 508;
+
 const QBluetoothUuid SICharacteristicUUID {QStringLiteral("f3c2d800-8421-44b1-9655-0951992f313b")}; // NOLINT(cert-err58-cpp)
 const QBluetoothUuid RXCharacteristicUUID {QStringLiteral("f3c2d801-8421-44b1-9655-0951992f313b")}; // NOLINT(cert-err58-cpp)
 const QBluetoothUuid TXCharacteristicUUID {QStringLiteral("f3c2d802-8421-44b1-9655-0951992f313b")}; // NOLINT(cert-err58-cpp)
@@ -63,7 +65,12 @@ void SIBluetoothManager::startAdvertise() {
 void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic& characteristic, const QByteArray& value) {
     Q_UNUSED(characteristic)
 
-    auto frame = SIBluetoothProtocolFrame::fromBytes(value);
+    receivingFrame_.append(value);
+    if (!receivingFrame_.startsWith(static_cast<char>(0))) {
+        return;
+    }
+    auto frame = SIBluetoothProtocolFrame::fromBytes(value.mid(1));
+    receivingFrame_.clear();
 
     if (protocol_ == nullptr) {
         if (frame.command() == SIBluetoothProtocolFrame::AUTHORIZE) {
@@ -144,5 +151,19 @@ void SIBluetoothManager::onDeviceMessageReceived_(const SIDeviceMessage& message
 }
 
 void SIBluetoothManager::sendFrame_(const SIBluetoothProtocolFrame& frame) {
-    service_->writeCharacteristic(service_->characteristic(RXCharacteristicUUID), frame.toBytes());
+    auto bytes = frame.toBytes();
+    auto fragmentCount = bytes.size() / MAX_FRAGMENT_SIZE;
+    if (bytes.size() % MAX_FRAGMENT_SIZE) ++fragmentCount;
+    while (fragmentCount-- > 0) {
+        QByteArray fragment;
+        fragment[0] = qMin(fragmentCount, 255);
+        if (fragmentCount) {
+            fragment.append(bytes.left(MAX_FRAGMENT_SIZE));
+            bytes.remove(0, MAX_FRAGMENT_SIZE);
+        } else {
+            fragment.append(bytes);
+            bytes.clear();
+        }
+        service_->writeCharacteristic(service_->characteristic(RXCharacteristicUUID), fragment);
+    }
 }
