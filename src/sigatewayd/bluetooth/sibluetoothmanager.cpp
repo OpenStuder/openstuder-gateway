@@ -9,7 +9,6 @@
 #include <QLowEnergyDescriptorData>
 #include <QLowEnergyAdvertisingParameters>
 #include <QLowEnergyAdvertisingData>
-#include <QTimer>
 
 const QBluetoothUuid SICharacteristicUUID {QStringLiteral("f3c2d800-8421-44b1-9655-0951992f313b")}; // NOLINT(cert-err58-cpp)
 const QBluetoothUuid RXCharacteristicUUID {QStringLiteral("f3c2d801-8421-44b1-9655-0951992f313b")}; // NOLINT(cert-err58-cpp)
@@ -17,6 +16,18 @@ const QBluetoothUuid TXCharacteristicUUID {QStringLiteral("f3c2d802-8421-44b1-96
 
 SIBluetoothManager::SIBluetoothManager(SIContext* context, QObject* parent):
     QObject(parent), context_(context) {
+
+    connect(&context_->deviceAccessManager(), &SIDeviceAccessManager::deviceMessageReceived, this, &SIBluetoothManager::onDeviceMessageReceived_);
+}
+
+SIBluetoothManager::~SIBluetoothManager() {
+    if (protocol_ != nullptr) {
+        context_->deviceAccessManager().unsubscribeFromAllProperties(protocol_);
+        delete protocol_;
+    }
+}
+
+void SIBluetoothManager::startAdvertise() {
     QLowEnergyCharacteristicData rxCharacteristic;
     rxCharacteristic.setUuid(RXCharacteristicUUID);
     rxCharacteristic.setProperties(QLowEnergyCharacteristic::Notify);
@@ -36,17 +47,7 @@ SIBluetoothManager::SIBluetoothManager(SIContext* context, QObject* parent):
     service_ = peripheral_->addService(siService);
     connect(service_, &QLowEnergyService::characteristicChanged, this, &SIBluetoothManager::onCharacteristicChanged_);
     connect(peripheral_, &QLowEnergyController::disconnected, this, &SIBluetoothManager::onDisconnected_);
-    connect(&context_->deviceAccessManager(), &SIDeviceAccessManager::deviceMessageReceived, this, &SIBluetoothManager::onDeviceMessageReceived_);
-}
 
-SIBluetoothManager::~SIBluetoothManager() {
-    if (protocol_ != nullptr) {
-        context_->deviceAccessManager().unsubscribeFromAllProperties(protocol_);
-        delete protocol_;
-    }
-}
-
-void SIBluetoothManager::startAdvertise() {
     QLowEnergyAdvertisingData advertisingData;
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
     advertisingData.setLocalName(peripheralName_);
@@ -132,8 +133,8 @@ void SIBluetoothManager::onDisconnected_() {
         delete protocol_;
         protocol_ = nullptr;
     }
-    QTimer::singleShot(2500, this, &SIBluetoothManager::startAdvertise);
-    //QMetaObject::invokeMethod(this, &SIBluetoothManager::startAdvertise, Qt::QueuedConnection);
+    delete peripheral_;
+    QMetaObject::invokeMethod(this, &SIBluetoothManager::startAdvertise, Qt::QueuedConnection);
 }
 
 void SIBluetoothManager::onDeviceMessageReceived_(const SIDeviceMessage& message) {
