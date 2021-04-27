@@ -283,6 +283,21 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
             return {SIBluetoothProtocolFrame::MESSAGES_READ, {(int)status, messages.count(), messageList}};
         }
 
+        case SIBluetoothProtocolFrame::FIND_PROPERTIES: {
+            if (!frame.validateParameters({{QVariant::String}})) { return SIBluetoothProtocolFrame::error("invalid frame"); }
+
+            auto id = SIGlobalPropertyID(frame.parameters()[0].toString());
+            if (!id.isValid()) {
+                return SIBluetoothProtocolFrame::error("invalid frame");
+            }
+
+            auto propertyIDs = context.deviceAccessManager().findProperties(id);
+            QVariantList propertyIDStrings;
+            for (const auto& id: propertyIDs) propertyIDStrings << id.toString();
+
+            return {SIBluetoothProtocolFrame::PROPERTIES_FOUND, {(int)SIStatus::Success, propertyIDs.count(), propertyIDStrings}};
+        }
+
         default:
             return {SIBluetoothProtocolFrame::ERROR, {"invalid frame"}};
     }

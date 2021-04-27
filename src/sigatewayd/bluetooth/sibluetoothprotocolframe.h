@@ -21,6 +21,7 @@ class SIBluetoothProtocolFrame {
         UNSUBSCRIBE_PROPERTY = 0x07,
         READ_DATALOG = 0x08,
         READ_MESSAGES = 0x09,
+        FIND_PROPERTIES = 0x0A,
 
         // Server messages.
         ERROR = 0xFF,
@@ -33,6 +34,7 @@ class SIBluetoothProtocolFrame {
         PROPERTY_UNSUBSCRIBED = 0x87,
         DATALOG_READ = 0x88,
         MESSAGES_READ = 0x89,
+        PROPERTIES_FOUND = 0x8A,
         PROPERTY_UPDATE = 0xFE,
         DEVICE_MESSAGE = 0xFD
     };
