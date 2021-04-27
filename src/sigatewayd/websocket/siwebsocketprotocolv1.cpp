@@ -444,6 +444,26 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }
         }
 
+        case SIWebSocketProtocolFrame::FIND_PROPERTIES: {
+            if (frame.hasBody() || !frame.validateHeaders({"id"})) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            SIGlobalPropertyID id = frame.header("id");
+            if (!id.isValid()) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            auto propertyIDs = context.deviceAccessManager().findProperties(id);
+            QJsonArray propertyIDsJSON;
+            for (const auto& id: propertyIDs) propertyIDsJSON << id.toString();
+
+            return {SIWebSocketProtocolFrame::PROPERTIES_FOUND, {
+                {"status", to_string(SIStatus::Success)},
+                {"count", QString::number(propertyIDs.count())}
+            }, QJsonDocument(propertyIDsJSON).toJson(QJsonDocument::Compact)};
+        }
+
         default:
             return SIWebSocketProtocolFrame::error("invalid frame");
     }

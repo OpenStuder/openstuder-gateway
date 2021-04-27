@@ -52,9 +52,9 @@ class SIPropertySubscriptions final: public SIAbstractOperation {
 
         auto result = device->readProperty(id_.propertyID());
         if (result.status() == SIStatus::Success) {
-           for (auto* subscriber: subscriptions_) {
-               subscriber->propertyChanged(id_, result.value());
-           }
+            for (auto* subscriber: subscriptions_) {
+                subscriber->propertyChanged(id_, result.value());
+            }
         }
 
         pending_ = false;
@@ -78,7 +78,7 @@ class SIMessagesRetrieveOperation final: public SIAbstractOperation {
         }
 
         auto deviceAccessCount = deviceAccessRegistry->deviceAccessCount();
-        for (int i = 0 ; i < deviceAccessCount; ++i) {
+        for (int i = 0; i < deviceAccessCount; ++i) {
             auto deviceAccess = deviceAccessRegistry->deviceAccess(i);
             for (const auto& message: deviceAccess->retrievePendingDeviceMessages()) {
                 emit manager_->deviceMessageReceived(message);
@@ -127,6 +127,30 @@ SIProperty SIDeviceAccessManager::resolveProperty(const SIGlobalPropertyID& id) 
     }
 
     return device->property(id.propertyID());
+}
+
+QVector<SIGlobalPropertyID> SIDeviceAccessManager::findProperties(SIGlobalPropertyID propertyID) {
+    QVector<SIGlobalPropertyID> ids;
+
+    if (propertyID.isWildcard()) {
+        for (int ai = 0; ai < SIDeviceAccessRegistry::sharedRegistry().deviceAccessCount(); ++ai) {
+            const auto deviceAccess = SIDeviceAccessRegistry::sharedRegistry().deviceAccess(ai);
+
+            if (propertyID.accessID() == "*" || propertyID.accessID() == deviceAccess->id()) {
+                for (int di = 0; di < deviceAccess->deviceCount(); ++di) {
+                    const auto device = deviceAccess->device(di);
+
+                    if (propertyID.deviceID() == "*" || propertyID.deviceID() == device->id()) {
+                        if (device->property(propertyID.propertyID()).type() != SIPropertyType::Invalid) {
+                            ids.append({deviceAccess->id(), device->id(), propertyID.propertyID()});
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return ids;
 }
 
 SIDeviceEnumerationOperation* SIDeviceAccessManager::enumerateDevices() {
@@ -209,7 +233,7 @@ void SIDeviceAccessManager::timerEvent(QTimerEvent* event) {
 
     // Remove unused subscriptions.
     for (auto i = priv_->subscriptions_.begin(); i != priv_->subscriptions_.end();) {
-        if ((*i)->isPending() ||( *i)->hasSubscribers()) {
+        if ((*i)->isPending() || (*i)->hasSubscribers()) {
             ++i;
         } else {
             delete *i;

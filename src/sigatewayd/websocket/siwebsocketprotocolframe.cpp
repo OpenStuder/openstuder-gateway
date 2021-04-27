@@ -109,6 +109,10 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = MESSAGES_READ;
     } else if (commandStr == "DATALOG READ") {
         frame.command_ = DATALOG_READ;
+    } else if (commandStr == "FIND PROPERTIES") {
+        frame.command_ = FIND_PROPERTIES;
+    } else if (commandStr == "PROPERTIES FOUND") {
+        frame.command_ = PROPERTIES_FOUND;
     }
 
     QString headerLine;
@@ -207,6 +211,12 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
 
         case SIWebSocketProtocolFrame::DATALOG_READ:
             return "DATALOG READ";
+
+        case SIWebSocketProtocolFrame::FIND_PROPERTIES:
+            return "FIND PROPERTIES";
+
+        case SIWebSocketProtocolFrame::PROPERTIES_FOUND:
+            return "PROPERTIES FOUND";
 
         default:
             return "INVALID";

@@ -23,6 +23,7 @@ class SIWebSocketProtocolFrame {
         UNSUBSCRIBE_PROPERTIES,
         READ_MESSAGES,
         READ_DATALOG,
+        FIND_PROPERTIES,
 
         // Server messages.
         ERROR,
@@ -39,7 +40,8 @@ class SIWebSocketProtocolFrame {
         PROPERTY_UPDATE,
         DEVICE_MESSAGE,
         MESSAGES_READ,
-        DATALOG_READ
+        DATALOG_READ,
+        PROPERTIES_FOUND
     };
 
     SIWebSocketProtocolFrame(Command command = INVALID, std::initializer_list<QPair<QString,QString>> headers = {}, QByteArray body = {}); // NOLINT(google-explicit-constructor)

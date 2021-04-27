@@ -28,6 +28,7 @@ class SIDeviceAccessManager: public QObject {
     ~SIDeviceAccessManager() override;
 
     SIProperty resolveProperty(const SIGlobalPropertyID& id);
+    QVector<SIGlobalPropertyID> findProperties(SIGlobalPropertyID propertyID);
 
     SIDeviceEnumerationOperation* enumerateDevices();
     SIPropertyReadOperation* readProperty(const SIGlobalPropertyID& id);
