@@ -295,7 +295,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
             QVariantList propertyIDStrings;
             for (const auto& id: propertyIDs) propertyIDStrings << id.toString();
 
-            return {SIBluetoothProtocolFrame::PROPERTIES_FOUND, {(int)SIStatus::Success, propertyIDs.count(), propertyIDStrings}};
+            return {SIBluetoothProtocolFrame::PROPERTIES_FOUND, {(int)SIStatus::Success, frame.parameters()[0], propertyIDs.count(), propertyIDStrings}};
         }
 
         default:
