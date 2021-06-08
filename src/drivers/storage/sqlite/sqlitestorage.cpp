@@ -108,8 +108,8 @@ QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(c
     auto query = QSqlQuery(db_);
     query.prepare("SELECT timestamp, value FROM property_history WHERE id = ? AND timestamp BETWEEN ? AND ? ORDER BY timestamp DESC limit ?");
     query.addBindValue(id.toString());
-    query.addBindValue(std::max(from.toSecsSinceEpoch(), QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
-    query.addBindValue(to.toSecsSinceEpoch());
+    query.addBindValue(std::max(from.toUTC().toSecsSinceEpoch(), QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
+    query.addBindValue(to.toUTC().toSecsSinceEpoch());
     query.addBindValue(limit);
 
     // Try to execute query, return empty list if query fails.
@@ -159,8 +159,8 @@ QVector<SIGlobalPropertyID> SQLiteStorage::availableStoredProperties_(const QDat
     // Prepare query.
     auto query = QSqlQuery(db_);
     query.prepare("SELECT id FROM property_history WHERE timestamp BETWEEN ? AND ? GROUP by id");
-    query.addBindValue(std::max(from.toSecsSinceEpoch(), QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
-    query.addBindValue(to.toSecsSinceEpoch());
+    query.addBindValue(std::max(from.toUTC().toSecsSinceEpoch(), QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
+    query.addBindValue(to.toUTC().toSecsSinceEpoch());
 
     // Try to execute query, return empty list if query fails.
     if (!query.exec()) {
@@ -220,8 +220,8 @@ QVector<SIDeviceMessage> SQLiteStorage::retrieveDeviceMessages_(const QDateTime&
     // Prepare query.
     auto query = QSqlQuery(db_);
     query.prepare("SELECT timestamp, access_id, device_id, message_id, message FROM device_message WHERE timestamp BETWEEN ? AND ? ORDER BY timestamp DESC limit ?");
-    query.addBindValue(std::max(from.toSecsSinceEpoch(), QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
-    query.addBindValue(to.toSecsSinceEpoch());
+    query.addBindValue(std::max(from.toUTC().toSecsSinceEpoch(), QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
+    query.addBindValue(to.toUTC().toSecsSinceEpoch());
     query.addBindValue(limit);
 
     // Try to execute query, return empty list if query fails.

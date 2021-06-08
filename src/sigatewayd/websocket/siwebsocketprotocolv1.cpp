@@ -358,7 +358,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             QJsonArray jsonMessages;
             for (auto message = messages.crbegin(); message != messages.crend(); ++message) {
                 QJsonObject jsonMessage;
-                jsonMessage["timestamp"] = message->timestamp().toString(Qt::ISODate);
+                jsonMessage["timestamp"] = message->timestamp().toUTC().toString(Qt::ISODate);
                 jsonMessage["access_id"] = message->accessID();
                 jsonMessage["device_id"] = message->deviceID();
                 jsonMessage["message_id"] = (qlonglong)message->messageID();
@@ -417,7 +417,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 QString buffer;
                 QTextStream output(&buffer);
                 for (auto entry = data.crbegin(); entry != data.crend(); ++entry) {
-                    output << entry->timestamp.toString(Qt::ISODate) << "," << entry->value.toString() << "\n";
+                    output << entry->timestamp.toUTC().toString(Qt::ISODate) << "," << entry->value.toString() << "\n";
                 }
                 output.flush();
 
@@ -474,7 +474,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
 SIWebSocketProtocolFrame SIWebSocketProtocolV1::convertDeviceMessage(const SIDeviceMessage& message) {
     return {SIWebSocketProtocolFrame::DEVICE_MESSAGE, {
-        {"timestamp", message.timestamp().toString(Qt::ISODate)},
+        {"timestamp", message.timestamp().toUTC().toString(Qt::ISODate)},
         {"access_id", message.accessID()},
         {"device_id", message.deviceID()},
         {"message_id", QString::number(message.messageID())},
