@@ -8,7 +8,7 @@ class SIDeviceMessage {
   public:
     SIDeviceMessage();
 
-    SIDeviceMessage(QString accessID, QString deviceID, quint64 messageID, QString message, QDateTime timestamp = QDateTime::currentDateTime());
+    SIDeviceMessage(QString accessID, QString deviceID, quint64 messageID, QString message, QDateTime timestamp = QDateTime::currentDateTimeUtc());
 
     bool isValid() const;
 

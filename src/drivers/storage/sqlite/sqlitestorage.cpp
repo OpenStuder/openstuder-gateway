@@ -71,7 +71,7 @@ bool SQLiteStorage::open(const QString& filename, int cleanupInterval, int maxim
 
 bool SQLiteStorage::storePropertyValues_(const QMap<SIGlobalPropertyID, QVariant>& properties, const QDateTime& timestamp) {
     // If the timestamp is outside the time window to store data for, discard it.
-    if (timestamp < QDateTime::currentDateTime().addDays(-maximalStorageDays_)) {
+    if (timestamp < QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_)) {
         qCWarning(SQLite,) << "Timestamp outside storage time windows, skipping";
         return true;
     }
@@ -108,7 +108,7 @@ QVector<SIStorage::TimestampedProperty> SQLiteStorage::retrievePropertyValues_(c
     auto query = QSqlQuery(db_);
     query.prepare("SELECT timestamp, value FROM property_history WHERE id = ? AND timestamp BETWEEN ? AND ? ORDER BY timestamp DESC limit ?");
     query.addBindValue(id.toString());
-    query.addBindValue(std::max(from.toSecsSinceEpoch(), QDateTime::currentDateTime().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
+    query.addBindValue(std::max(from.toSecsSinceEpoch(), QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
     query.addBindValue(to.toSecsSinceEpoch());
     query.addBindValue(limit);
 
@@ -159,7 +159,7 @@ QVector<SIGlobalPropertyID> SQLiteStorage::availableStoredProperties_(const QDat
     // Prepare query.
     auto query = QSqlQuery(db_);
     query.prepare("SELECT id FROM property_history WHERE timestamp BETWEEN ? AND ? GROUP by id");
-    query.addBindValue(std::max(from.toSecsSinceEpoch(), QDateTime::currentDateTime().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
+    query.addBindValue(std::max(from.toSecsSinceEpoch(), QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
     query.addBindValue(to.toSecsSinceEpoch());
 
     // Try to execute query, return empty list if query fails.
@@ -187,7 +187,7 @@ bool SQLiteStorage::storeDeviceMessages_(const QVector<SIDeviceMessage>& message
     // Write message per message, fail and rollback transaction should a query fail.
     for (const auto& message: messages) {
         // If the timestamp is outside the time window to store data for, discard it.
-        if (message.timestamp() < QDateTime::currentDateTime().addDays(-maximalStorageDays_)) {
+        if (message.timestamp() < QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_)) {
             qCWarning(SQLite,) << "Message timestamp outside storage time windows, skipping";
             continue;
         }
@@ -220,7 +220,7 @@ QVector<SIDeviceMessage> SQLiteStorage::retrieveDeviceMessages_(const QDateTime&
     // Prepare query.
     auto query = QSqlQuery(db_);
     query.prepare("SELECT timestamp, access_id, device_id, message_id, message FROM device_message WHERE timestamp BETWEEN ? AND ? ORDER BY timestamp DESC limit ?");
-    query.addBindValue(std::max(from.toSecsSinceEpoch(), QDateTime::currentDateTime().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
+    query.addBindValue(std::max(from.toSecsSinceEpoch(), QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_).toSecsSinceEpoch()));
     query.addBindValue(to.toSecsSinceEpoch());
     query.addBindValue(limit);
 
@@ -256,7 +256,7 @@ void SQLiteStorage::timerEvent(QTimerEvent* event) {
     {
         // Prepare query and bind values.
         QSqlQuery query("DELETE FROM property_history WHERE timestamp < ?", db_);
-        query.addBindValue(QDateTime::currentDateTime().addDays(-maximalStorageDays_).toSecsSinceEpoch());
+        query.addBindValue(QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_).toSecsSinceEpoch());
 
         // Execute query.
         if (query.exec()) {
@@ -269,7 +269,7 @@ void SQLiteStorage::timerEvent(QTimerEvent* event) {
     {
         // Prepare query and bind values.
         QSqlQuery query("DELETE FROM device_message WHERE timestamp < ?", db_);
-        query.addBindValue(QDateTime::currentDateTime().addDays(-maximalStorageDays_).toSecsSinceEpoch());
+        query.addBindValue(QDateTime::currentDateTimeUtc().addDays(-maximalStorageDays_).toSecsSinceEpoch());
 
         // Execute query.
         if (query.exec()) {

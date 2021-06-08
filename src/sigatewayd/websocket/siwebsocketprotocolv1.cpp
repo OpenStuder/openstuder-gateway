@@ -334,7 +334,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 }
             }
 
-            auto to = QDateTime::currentDateTime();
+            auto to = QDateTime::currentDateTimeUtc();
             if (frame.hasHeader("to")) {
                 to = QDateTime::fromString(frame.header("to"), Qt::ISODate);
                 if (!from.isValid()) {
@@ -393,7 +393,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 }
             }
 
-            auto to = QDateTime::currentDateTime();
+            auto to = QDateTime::currentDateTimeUtc();
             if (frame.hasHeader("to")) {
                 to = QDateTime::fromString(frame.header("to"), Qt::ISODate);
                 if (!from.isValid()) {

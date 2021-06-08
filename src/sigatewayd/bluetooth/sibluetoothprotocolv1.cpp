@@ -194,7 +194,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
                 }
             }
 
-            auto to = QDateTime::currentDateTime();
+            auto to = QDateTime::currentDateTimeUtc();
             if (!frame.parameters()[2].isNull()) {
                 to = QDateTime::fromMSecsSinceEpoch(frame.parameters()[2].toULongLong(), Qt::UTC);
                 if (!from.isValid()) {
@@ -251,7 +251,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
                 }
             }
 
-            auto to = QDateTime::currentDateTime();
+            auto to = QDateTime::currentDateTimeUtc();
             if (!frame.parameters()[1].isNull()) {
                 to = QDateTime::fromMSecsSinceEpoch(frame.parameters()[1].toULongLong(), Qt::UTC);
                 if (!from.isValid()) {

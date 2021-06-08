@@ -18,16 +18,16 @@ class SIPropertyHistoryStorage {
     SIPropertyHistoryStorage& operator =(const SIPropertyHistoryStorage&) = delete;
     virtual ~SIPropertyHistoryStorage() = default;
 
-    inline bool storePropertyValue(const SIGlobalPropertyID& id, const QVariant& value, const QDateTime& timestamp = QDateTime::currentDateTime()) {
+    inline bool storePropertyValue(const SIGlobalPropertyID& id, const QVariant& value, const QDateTime& timestamp = QDateTime::currentDateTimeUtc()) {
         return storePropertyValues({{id, value}}, timestamp);
     }
 
-    bool storePropertyValues(const QMap<SIGlobalPropertyID,QVariant>& properties, const QDateTime& timestamp = QDateTime::currentDateTime());
+    bool storePropertyValues(const QMap<SIGlobalPropertyID,QVariant>& properties, const QDateTime& timestamp = QDateTime::currentDateTimeUtc());
 
-    QVector<TimestampedProperty> retrievePropertyValues(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to = QDateTime::currentDateTime(),
+    QVector<TimestampedProperty> retrievePropertyValues(const SIGlobalPropertyID& id, const QDateTime& from, const QDateTime& to = QDateTime::currentDateTimeUtc(),
                                                         unsigned int limit = std::numeric_limits<unsigned int>::max(), SIStatus* status = nullptr);
 
-    QVector<SIGlobalPropertyID> availableStoredProperties(const QDateTime& from = QDateTime::fromSecsSinceEpoch(0), const QDateTime& to = QDateTime::currentDateTime(),
+    QVector<SIGlobalPropertyID> availableStoredProperties(const QDateTime& from = QDateTime::fromSecsSinceEpoch(0), const QDateTime& to = QDateTime::currentDateTimeUtc(),
                                                           SIStatus* status = nullptr);
 
   private:
