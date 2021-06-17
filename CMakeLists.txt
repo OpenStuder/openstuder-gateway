@@ -4,10 +4,10 @@ project(openstuder-gateway)
 # Load cmake modules.
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(GNUInstallDirs)
-include(GitVersion)
-include(Library)
-include(DeviceAccessDriver)
-include(StorageDriver)
+include(SIGitVersion)
+include(SILibrary)
+include(SIDeviceAccessDriver)
+include(SIStorageDriver)
 
 # Handle install prefix.
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -70,7 +70,7 @@ install(FILES ${CMAKE_BINARY_DIR}/sigatewayd.service DESTINATION ${OPENSTUDER_SY
 # Install instructions.
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/")
-set(CPACK_PACKAGE_DESCRIPTION "OpenStuder Gateway")
+set(CPACK_PACKAGE_DESCRIPTION "openstuder gateway")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://openstuder.github.io")
 set(CPACK_PACKAGE_VERSION ${OPENSTUDER_VERSION})
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "michel.clausen@hevs.ch")

@@ -1,5 +1,5 @@
 si_add_library(SIDeviceAccess)
-si_add_library_public_headers(SIDeviceAccess deviceaccess
+si_add_library_public_headers(SIDeviceAccess
                               siaccesslevel.h
                               sidevice.h
                               sideviceaccess.h
@@ -28,6 +28,5 @@ si_add_library_sources(SIDeviceAccess
                        sipropertytype.cpp
                        sipropertywriteresult.cpp
                        sistatus.cpp)
-target_include_directories(SIDeviceAccess INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(SIDeviceAccess Qt5::Core)
 si_install_library(SIDeviceAccess)
