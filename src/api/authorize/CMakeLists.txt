@@ -1,5 +1,5 @@
 si_add_library(SIAuthorize)
-si_add_library_public_headers(SIAuthorize
+si_add_library_public_headers(SIAuthorize authorize
                               siuserauthorizer.h
                               siuserauthorizedriver.h
                               sitextfileusermanagement.h)
@@ -8,3 +8,4 @@ si_add_library_sources(SIAuthorize
                        sitextfileusermanagement.cpp)
 target_include_directories(SIAuthorize INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(SIAuthorize Qt5::Core SIDeviceAccess)
+si_install_library(SIAuthorize)
