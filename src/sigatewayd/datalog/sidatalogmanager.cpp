@@ -32,13 +32,17 @@ void SIDataLogManager::onDeviceMessageReceived_(const SIDeviceMessage& message) 
 }
 
 void SIDataLogManager::onDeviceAdded_(const SIDeviceAccess& access, const SIDevice& device) {
-    for (const auto& group: groups_) {
-        group->addWildcardPropertiesForDevice(access.id(), device.id(), device.properties());
+    if (!device.isVirtual()) {
+        for (const auto& group: groups_) {
+            group->addWildcardPropertiesForDevice(access.id(), device.id(), device.properties());
+        }
     }
 }
 
 void SIDataLogManager::onDeviceRemoved_(const SIDeviceAccess& access, const SIDevice& device) {
-    for (const auto& group: groups_) {
-        group->removeWildcardPropertiesForDevice(access.id(), device.id());
+    if (!device.isVirtual()) {
+        for (const auto& group: groups_) {
+            group->removeWildcardPropertiesForDevice(access.id(), device.id());
+        }
     }
 }

@@ -426,7 +426,7 @@ XCom485iVarioString::XCom485iVarioString(Model model, quint8 modbusAddress, XCom
     {342, 14171, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay to deactivate (AUX 2)", "hours"},
     {344, 14172, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Deactivate if battery in floating phase (AUX 2)", ""},
     {346, 14173, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset all settings (AUX 2)", ""}
-}) {
+}, model == Multicast) {
     if (model == VS120 || model == Multicast) {
         addProperties({
             // BASIC SETTINGS parameters.

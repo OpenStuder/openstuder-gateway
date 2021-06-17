@@ -3,8 +3,8 @@
 
 using namespace std;
 
-XCom485iDevice::XCom485iDevice(const QString& model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess, const initializer_list<XCom58iProperty>& properties):
-    SIDevice(model, deviceNames.value(modbusAddress, QString::number(modbusAddress))), modbusAddress_(modbusAddress), modbusAccess_(modbusAccess) {
+XCom485iDevice::XCom485iDevice(const QString& model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess, const initializer_list<XCom58iProperty>& properties, bool isVirtual):
+    SIDevice(model, deviceNames.value(modbusAddress, QString::number(modbusAddress)), isVirtual), modbusAddress_(modbusAddress), modbusAccess_(modbusAccess) {
     addProperties(properties);
 }
 

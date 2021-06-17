@@ -693,7 +693,7 @@ XCom485iXtender::XCom485iXtender(Model model, quint8 modbusAddress, XCom485iModb
     {1062, 1631, SIPropertyType::Float, SIAccessLevel::Installer, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delta from user frequency to reach 100% derating", "Hz"},
     {1096, 1648, SIPropertyType::Float, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Imagnet INT level adjustment for correction", ""},
     {1098, 1649, SIPropertyType::Float, SIAccessLevel::QualifiedServicePersonnel, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Imagnet ERROR level adjustment for correction", ""}
-}) {
+}, model == Multicast) {
     if (model == XTS || model == Multicast) {
         addProperties({
             {902, 1551, SIPropertyType::Bool, SIAccessLevel::Basic, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Basic parameters set by means of the potentiomenter in the XTS", ""},

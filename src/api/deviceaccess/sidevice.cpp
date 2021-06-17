@@ -5,11 +5,13 @@
 struct SIDevice::Private_ {
     QString model;
     QString id;
+    bool isVirtual;
 };
 
-SIDevice::SIDevice(const QString& model, const QString& id): private_(new Private_) {
+SIDevice::SIDevice(const QString& model, const QString& id,  bool isVirtual): private_(new Private_) {
     private_->model = model;
     private_->id = id;
+    private_->isVirtual = isVirtual;
 }
 
 SIDevice::~SIDevice() = default;
@@ -20,6 +22,10 @@ const QString& SIDevice::model() const {
 
 const QString& SIDevice::id() const {
     return private_->id;
+}
+
+bool SIDevice::isVirtual() const {
+    return private_->isVirtual;
 }
 
 const QVector<SIProperty>& SIDevice::properties() const {
@@ -57,6 +63,7 @@ QJsonObject SIDevice::jsonDescription(SIAccessLevel accessLevel, SIDescriptionFl
 
     description["model"] = model();
     description["id"] = id();
+    description["virtual"] = isVirtual();
     if (flags.testFlag(SIDescriptionFlag::IncludePropertyInformation)) {
         QJsonArray props;
         for (const auto& property: properties()) {

@@ -27,6 +27,8 @@ class SIDevice: public QObject {
 
     const QString& id() const;
 
+    bool isVirtual() const;
+
     const QVector<SIProperty>& properties() const;
 
     QJsonObject jsonDescription(SIAccessLevel accessLevel, SIDescriptionFlags flags) const;
@@ -40,7 +42,7 @@ class SIDevice: public QObject {
     QVector<SIPropertyWriteResult> writeProperties(const QVector<const QPair<SIPropertyID,const QVariant>>& properties, SIPropertyWriteFlags flags = SIPropertyWriteFlag::Default);
 
   protected:
-    explicit SIDevice(const QString& model, const QString& id);
+    explicit SIDevice(const QString& model, const QString& id, bool isVirtual = false);
 
   private:
     virtual const QVector<SIProperty>& properties_() const = 0;

@@ -7,7 +7,7 @@ class XCom485iModbusAccess;
 
 class XCom485iDevice: public SIDevice {
   public:
-    explicit XCom485iDevice(const QString& model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess, const std::initializer_list<XCom58iProperty>& properties);
+    explicit XCom485iDevice(const QString& model, quint8 modbusAddress, XCom485iModbusAccess* modbusAccess, const std::initializer_list<XCom58iProperty>& properties, bool isVirtual = false);
 
     inline quint8 modbusAddress() const {
         return modbusAddress_;
