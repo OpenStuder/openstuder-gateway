@@ -19,9 +19,10 @@ include(cmake/GitVersion.cmake)
 si_get_git_version(GIT_VERSION)
 
 # Import gateway related functions.
-include(cmake/Library.cmake)
-include(cmake/DeviceAccessDriver.cmake)
-include(cmake/StorageDriver.cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+include(Library)
+include(DeviceAccessDriver)
+include(StorageDriver)
 
 # Resolve required packages.
 find_package(Qt5 5.11 REQUIRED COMPONENTS Core)
@@ -46,10 +47,10 @@ add_subdirectory(src/drivers/storage/sqlite)
 add_subdirectory(src/drivers/deviceaccess/xcom485i)
 add_subdirectory(src/drivers/deviceaccess/demo)
 
-# Configuration file.
-install(FILES config/gateway.conf DESTINATION "etc/openstuder")
-install(FILES config/drivers.conf DESTINATION "etc/openstuder")
-install(FILES config/datalog.conf DESTINATION "etc/openstuder")
+# Configuration files.
+install(FILES config/gateway.conf DESTINATION "${CMAKE_INSTALL_PREFIX}/etc/openstuder")
+install(FILES config/drivers.conf DESTINATION "${CMAKE_INSTALL_PREFIX}/etc/openstuder")
+install(FILES config/datalog.conf DESTINATION "${CMAKE_INSTALL_PREFIX}/etc/openstuder")
 
 # Service (systemd).
 configure_file(install/sigatewayd.service.in ${CMAKE_BINARY_DIR}/sigatewayd.service @ONLY)
@@ -62,6 +63,6 @@ set(CPACK_PACKAGE_DESCRIPTION "OpenStuder Gateway")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://openstuder.github.io")
 set(CPACK_PACKAGE_VERSION ${GIT_VERSION})
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "michel.clausen@hevs.ch")
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/install/postinst;${CMAKE_CURRENT_SOURCE_DIR}/install/prerm;${CMAKE_CURRENT_SOURCE_DIR}/install/postrm")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/install/postinst;${CMAKE_CURRENT_SOURCE_DIR}/install/prerm;${CMAKE_CURRENT_SOURCE_DIR}/install/postrm" "${CMAKE_CURRENT_SOURCE_DIR}/install/conffiles")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5core5a,libqt5serialport5,libqt5serialbus5,libqt5sql5,libqt5network5,libqt5websockets5,libqt5bluetooth5")
 include(CPack)
