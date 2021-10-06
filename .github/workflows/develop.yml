@@ -1,25 +1,16 @@
-name: CI
-on:
-  push:
-    branches: [ develop ]
-  pull_request:
-    branches: [ develop ]
-  workflow_dispatch:
+name: Raspberry
+on: [push, pull_request]
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-
-      - name: Get CMake
-        uses: symbitic/install-cmake@master
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-
-      - name: Build
-        run: |
-          cmake -G Ninja -B build
-          cmake --build build
+      - uses: pguyot/arm-runner-action@v1
+        with:
+          cpu: cortex-a8
+          image_additional_mb: 2048
+          commands: |
+            sudo apt-get update
+            sudo apt-get install -yq g++ cmake=3.13.4-1 cmake-data=3.13.4-1 ninja-build qt5-default libqt5serialport5-dev libqt5serialbus5-dev libqt5serialbus5-plugins libqt5websockets5-dev qtconnectivity5-dev
+            cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+            cmake --build build
