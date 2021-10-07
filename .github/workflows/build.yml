@@ -1,7 +1,8 @@
-name: Raspberry
+name: build
 on: [push, pull_request]
 jobs:
-  build:
+  build-raspberry:
+    name: "Build for latest Raspberry Pi OS"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -14,3 +15,14 @@ jobs:
             sudo apt-get install -yq g++ cmake=3.13.4-1 cmake-data=3.13.4-1 ninja-build qt5-default libqt5serialport5-dev libqt5serialbus5-dev libqt5serialbus5-plugins libqt5websockets5-dev qtconnectivity5-dev
             cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
             cmake --build build
+
+  build-ubuntu:
+    name: "Build for latest Ubuntu"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          sudo apt update
+          sudo apt-get install -yq g++ cmake ninja-build qt5-default libqt5serialport5-dev libqt5serialbus5-dev libqt5serialbus5-plugins libqt5websockets5-dev qtconnectivity5-dev
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
