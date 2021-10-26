@@ -1,15 +1,20 @@
 name: Packages
 on:
   push:
+    branches:
+      - feature/package
     tags:
       - '*'
 jobs:
   package-raspberry:
-    name: "Package for latest Raspberry Pi OS"
+    if: ${{ false }}
+    name: Package for latest Raspberry Pi OS
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: pguyot/arm-runner-action@v1
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Build package for Raspberry Pi (ARM 32-bit)
+        uses: pguyot/arm-runner-action@v1
         with:
           cpu: cortex-a8
           image_additional_mb: 2048
@@ -19,14 +24,64 @@ jobs:
             sudo apt-get install -yq g++ cmake=3.13.4-1 cmake-data=3.13.4-1 ninja-build qt5-default libqt5serialport5-dev libqt5serialbus5-dev libqt5serialbus5-plugins libqt5websockets5-dev qtconnectivity5-dev
             cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
             cmake --build build --target package
+      - name: Import PPA GPG key
+        run: echo -e "${PPA_SECRET_KEY}" | gpg --import
+      - name: Clone package repository
+        run: git clone https://github.com/openstuder/ppa.git
+      - name: Copy package
+        run: cp openstuder-gateway/build/*.deb ppa/
+      - name: Update package index
+        run: |
+          dpkg-scanpackages --multiversion . > Packages
+          gzip -k -f Packages
+          apt-ftparchive release . > Release
+          gpg --default-key "${PPA_EMAIL}" -abs -o - Release > Release.gpg
+          gpg --default-key "${PPA_EMAIL}" --clearsign -o - Release > InRelease
+      - name: Push new packages
+        run: |
+          git add -A
+          git commit -m update
+          git push origin
 
-  build-ubuntu:
+  package-ubuntu:
     name: "Package for latest Ubuntu"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: |
-          sudo apt update
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
           sudo apt-get install -yq g++ cmake ninja-build qt5-default libqt5serialport5-dev libqt5serialbus5-dev libqt5serialbus5-plugins libqt5websockets5-dev qtconnectivity5-dev
+      - name: Build package
+        run: |
           cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --target package
+      - name: Clone package repository
+        uses: actions/checkout@v2
+        with:
+          repository: openstuder/ppa
+          path: ppa
+          ssh-key: '${{ secrets.PPA_GIT_PKEY }}'
+      - name: Copy package into package repository
+        run: cp ./build/*.deb ppa/
+      - name: Update package index
+        env:
+          PPA_SIGN_EMAIL: '${{ secrets.PPA_SIGN_EMAIL }}'
+          PPA_SIGN_KEY: '${{ secrets.PPA_SIGN_KEY }}'
+        run: |
+          cd ppa
+          echo -e "$PPA_SIGN_KEY" | gpg --import
+          dpkg-scanpackages --multiversion . > Packages
+          gzip -k -f Packages
+          apt-ftparchive release . > Release
+          gpg --default-key "${PPA_SIGN_EMAIL}" -abs -o - Release > Release.gpg
+          gpg --default-key "${PPA_SIGN_EMAIL}" --clearsign -o - Release > InRelease
+      - name: Update PPA
+        run: |
+          cd ppa
+          git config user.name ppa
+          git config user.email ppa@www.openstuder.io
+          git add -A
+          git commit -m "Updated package index"
+          git push origin
