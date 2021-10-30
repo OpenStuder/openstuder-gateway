@@ -1,8 +1,6 @@
 name: Packages
 on:
   push:
-    branches:
-      - feature/package
     tags:
       - '*'
 jobs:
@@ -67,7 +65,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -yq g++ cmake ninja-build qt5-default libqt5serialport5-dev libqt5serialbus5-dev libqt5serialbus5-plugins libqt5websockets5-dev qtconnectivity5-dev
+          sudo apt-get install -yq g++ git cmake ninja-build qt5-default libqt5serialport5-dev libqt5serialbus5-dev libqt5serialbus5-plugins libqt5websockets5-dev qtconnectivity5-dev
 
       - name: Build package
         run: |
