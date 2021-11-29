@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.13)
 project(openstuder-gateway)
 
 # Load cmake modules.
@@ -34,9 +34,9 @@ si_get_git_version(OPENSTUDER_VERSION)
 find_package(Qt5 5.11 REQUIRED COMPONENTS Core)
 
 # Global variables.
-set(OPENSTUDER_CONFIG_LOCATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/openstuder)
-set(OPENSTUDER_DRIVER_LOCATION ${CMAKE_INSTALL_FULL_LIBEXECDIR}/openstuder/drivers)
-set(OPENSTUDER_SYSTEMD_UNIT_LOCATION /lib/systemd/system)
+set(OPENSTUDER_CONFIG_LOCATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SYSCONFDIR}/openstuder")
+set(OPENSTUDER_DRIVER_LOCATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}/openstuder/drivers")
+set(OPENSTUDER_SYSTEMD_UNIT_LOCATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/systemd/system")
 
 # Set global compile definitions.
 add_compile_definitions(OPENSTUDER_GATEWAY_VERSION="${OPENSTUDER_VERSION}")
