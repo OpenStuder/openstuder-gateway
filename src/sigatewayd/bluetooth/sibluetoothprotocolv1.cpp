@@ -230,7 +230,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
                     ids << propertyID.toString();
                 }
 
-                return {SIBluetoothProtocolFrame::DATALOG_READ, {(int)status, storedPropertyIDs.count(), ids}};
+                return {SIBluetoothProtocolFrame::DATALOG_READ, {(int)status, {}, storedPropertyIDs.count(), ids}};
             }
         }
 
