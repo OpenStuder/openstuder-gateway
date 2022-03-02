@@ -186,9 +186,9 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
                 }
             }
 
-            auto from = QDateTime::fromMSecsSinceEpoch(0, Qt::UTC);
+            auto from = QDateTime::fromSecsSinceEpoch(0, Qt::UTC);
             if (!frame.parameters()[1].isNull()) {
-                from = QDateTime::fromMSecsSinceEpoch(frame.parameters()[1].toULongLong(), Qt::UTC);
+                from = QDateTime::fromSecsSinceEpoch(frame.parameters()[1].toULongLong(), Qt::UTC);
                 if (!from.isValid()) {
                     return SIBluetoothProtocolFrame::error("invalid frame");
                 }
@@ -196,7 +196,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
 
             auto to = QDateTime::currentDateTimeUtc();
             if (!frame.parameters()[2].isNull()) {
-                to = QDateTime::fromMSecsSinceEpoch(frame.parameters()[2].toULongLong(), Qt::UTC);
+                to = QDateTime::fromSecsSinceEpoch(frame.parameters()[2].toULongLong(), Qt::UTC);
                 if (!from.isValid()) {
                     return SIBluetoothProtocolFrame::error("invalid frame");
                 }
@@ -217,7 +217,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
 
                 QList<QVariant> values;
                 for (auto entry = data.crbegin(); entry != data.crend(); ++entry) {
-                    values << entry->timestamp.toUTC().toMSecsSinceEpoch() << entry->value;
+                    values << entry->timestamp.toUTC().toSecsSinceEpoch() << entry->value;
                 }
 
                 return {SIBluetoothProtocolFrame::DATALOG_READ, {(int)status, id.toString(), data.count(), values}};
@@ -243,9 +243,9 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
                 return SIBluetoothProtocolFrame::error("invalid frame");
             }
 
-            auto from = QDateTime::fromMSecsSinceEpoch(0, Qt::UTC);
+            auto from = QDateTime::fromSecsSinceEpoch(0, Qt::UTC);
             if (!frame.parameters()[0].isNull()) {
-                from = QDateTime::fromMSecsSinceEpoch(frame.parameters()[0].toULongLong(), Qt::UTC);
+                from = QDateTime::fromSecsSinceEpoch(frame.parameters()[0].toULongLong(), Qt::UTC);
                 if (!from.isValid()) {
                     return SIBluetoothProtocolFrame::error("invalid frame");
                 }
@@ -253,7 +253,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
 
             auto to = QDateTime::currentDateTimeUtc();
             if (!frame.parameters()[1].isNull()) {
-                to = QDateTime::fromMSecsSinceEpoch(frame.parameters()[1].toULongLong(), Qt::UTC);
+                to = QDateTime::fromSecsSinceEpoch(frame.parameters()[1].toULongLong(), Qt::UTC);
                 if (!from.isValid()) {
                     return SIBluetoothProtocolFrame::error("invalid frame");
                 }
@@ -273,7 +273,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
 
             QList<QVariant> messageList;
             for (auto message = messages.crbegin(); message != messages.crend(); ++message) {
-                messageList << message->timestamp().toUTC().toMSecsSinceEpoch()
+                messageList << message->timestamp().toUTC().toSecsSinceEpoch()
                             << message->accessID()
                             << message->deviceID()
                             << message->messageID()
