@@ -65,11 +65,13 @@ void SIBluetoothManager::startAdvertise() {
 void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic& characteristic, const QByteArray& value) {
     Q_UNUSED(characteristic)
 
-    receivingFrame_.append(value);
-    if (!receivingFrame_.startsWith(static_cast<char>(0))) {
+    int remainingFragments = value[0];
+    receivingFrame_.append(value.right(value.size() - 1));
+    if (remainingFragments != 0) {
         return;
     }
-    auto frame = SIBluetoothProtocolFrame::fromBytes(value.mid(1));
+
+    auto frame = SIBluetoothProtocolFrame::fromBytes(receivingFrame_);
     receivingFrame_.clear();
 
     if (protocol_ == nullptr) {
@@ -135,6 +137,7 @@ void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic
 }
 
 void SIBluetoothManager::onDisconnected_() {
+    receivingFrame_.clear();
     if (protocol_ != nullptr) {
         context_->deviceAccessManager().unsubscribeFromAllProperties(protocol_);
         delete protocol_;
