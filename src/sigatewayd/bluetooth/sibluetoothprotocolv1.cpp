@@ -100,10 +100,10 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
             SIGlobalPropertyID id(frame.parameters()[0].value<QString>());
             auto property = context.deviceAccessManager().resolveProperty(id);
             if (property.type() == SIPropertyType::Invalid || accessLevel_ < property.accessLevel()) {
-                return {SIBluetoothProtocolFrame::PROPERTY_READ, {(int)SIStatus::NoProperty, frame.parameters()[0]}};
+                return {SIBluetoothProtocolFrame::PROPERTY_READ, {(int)SIStatus::NoProperty, frame.parameters()[0], {}}};
             }
             if (!property.isFlagSet(SIPropertyFlag::Readable)) {
-                return {SIBluetoothProtocolFrame::PROPERTY_READ, {(int)SIStatus::Error, frame.parameters()[0]}};
+                return {SIBluetoothProtocolFrame::PROPERTY_READ, {(int)SIStatus::Error, frame.parameters()[0], {}}};
             }
 
             auto* operation = context.deviceAccessManager().readProperty(id);
