@@ -442,7 +442,7 @@ SIPropertyReadResult XCom485iDeviceAccess::readInputRegister_(quint8 deviceAddre
         case SIPropertyType::Enum:
         case SIPropertyType::Bool:
         case SIPropertyType::DaysOfWeek:
-            return {registerAddress, SIStatus::Success, conv.f};
+            return {registerAddress, SIStatus::Success, static_cast<double>(conv.f)};
 
         case SIPropertyType::TimeOfDay:
             return {registerAddress, SIStatus::Success, QTime((int)conv.f / 60, (int)conv.f % 60)};
@@ -478,7 +478,7 @@ SIPropertyReadResult XCom485iDeviceAccess::readHoldingRegister_(quint8 deviceAdd
         case SIPropertyType::Enum:
         case SIPropertyType::Bool:
         case SIPropertyType::DaysOfWeek:
-            return {registerAddress, SIStatus::Success, conv.f};
+            return {registerAddress, SIStatus::Success, static_cast<double>(conv.f)};
 
         case SIPropertyType::TimeOfDay:
             return {registerAddress, SIStatus::Success, QTime((int)conv.f / 60, (int)conv.f % 60)};
