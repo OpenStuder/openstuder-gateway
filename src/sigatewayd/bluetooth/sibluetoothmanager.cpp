@@ -52,12 +52,13 @@ void SIBluetoothManager::startAdvertise() {
 
     QLowEnergyAdvertisingData advertisingData;
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
-    advertisingData.setLocalName(peripheralName_);
+    advertisingData.setManufacturerData(0x025A, "OSGW");
 
     QLowEnergyAdvertisingData scanResponseData;
-    advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
-    advertisingData.setLocalName(peripheralName_);
-    advertisingData.setServices({SICharacteristicUUID});
+    scanResponseData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
+    scanResponseData.setManufacturerData(0x025A, "OSGW");
+    scanResponseData.setLocalName(peripheralName_);
+    scanResponseData.setServices({SICharacteristicUUID});
 
     peripheral_->startAdvertising({}, advertisingData, scanResponseData);
 }
