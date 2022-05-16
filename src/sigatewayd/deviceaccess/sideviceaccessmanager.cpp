@@ -129,7 +129,7 @@ SIProperty SIDeviceAccessManager::resolveProperty(const SIGlobalPropertyID& id) 
     return device->property(id.propertyID());
 }
 
-QVector<SIGlobalPropertyID> SIDeviceAccessManager::findProperties(SIGlobalPropertyID propertyID) {
+QVector<SIGlobalPropertyID> SIDeviceAccessManager::findProperties(SIGlobalPropertyID propertyID, bool virtualDevices, SIDeviceFunctions functionsMask) {
     QVector<SIGlobalPropertyID> ids;
 
     if (propertyID.isWildcard()) {
@@ -139,10 +139,11 @@ QVector<SIGlobalPropertyID> SIDeviceAccessManager::findProperties(SIGlobalProper
             if (propertyID.accessID() == "*" || propertyID.accessID() == deviceAccess->id()) {
                 for (int di = 0; di < deviceAccess->deviceCount(); ++di) {
                     const auto device = deviceAccess->device(di);
-
-                    if (propertyID.deviceID() == "*" || propertyID.deviceID() == device->id()) {
-                        if (device->property(propertyID.propertyID()).type() != SIPropertyType::Invalid) {
-                            ids.append({deviceAccess->id(), device->id(), propertyID.propertyID()});
+                    if (virtualDevices == device->isVirtual() && functionsMask & device->functions()) {
+                        if (propertyID.deviceID() == "*" || propertyID.deviceID() == device->id()) {
+                            if (device->property(propertyID.propertyID()).type() != SIPropertyType::Invalid) {
+                                ids.append({deviceAccess->id(), device->id(), propertyID.propertyID()});
+                            }
                         }
                     }
                 }

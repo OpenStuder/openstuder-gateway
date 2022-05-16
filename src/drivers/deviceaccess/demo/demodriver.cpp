@@ -219,7 +219,7 @@ class DemoModel: QObject {
 class DemoInverter: public SIDevice {
   public:
     explicit DemoInverter(const QString& id, DemoModel& model):
-        SIDevice("Demo inverter", id),
+        SIDevice("Demo inverter", id, false, SIDeviceFunction::Inverter | SIDeviceFunction::Charger | SIDeviceFunction::Solar | SIDeviceFunction::Transfer),
         deviceProperties_({
                               {3032, SIPropertyType::Enum, SIAccessLevel::Basic, SIPropertyFlag::Readable, "State of auxiliary relay 2", {
                                   {0, "Opened"},
@@ -306,7 +306,7 @@ class DemoInverter: public SIDevice {
 class DemoMPPT: public SIDevice {
   public:
     explicit DemoMPPT(const QString& id, DemoModel& model):
-        SIDevice("Demo MPPT", id),
+        SIDevice("Demo MPPT", id, false, SIDeviceFunction::Charger | SIDeviceFunction::Solar),
         deviceProperties_({
                               {11004, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Power of the PV generator",                "kW"},
                               {11007, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Production in (kWh) for the current day",  "kWh"},
@@ -348,7 +348,7 @@ class DemoMPPT: public SIDevice {
 class DemoBSP: public SIDevice {
   public:
     explicit DemoBSP(const QString& id, DemoModel& model):
-        SIDevice("Demo BSP", id),
+        SIDevice("Demo BSP", id, false, SIDeviceFunction::Battery),
         deviceProperties_({
                               {7003, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Power",                            "W"},
                               {7000, SIPropertyType::Float, SIAccessLevel::Basic, SIPropertyFlag::Readable, "Battery voltage",                  "V"},

@@ -15,7 +15,8 @@ si_add_library_public_headers(SIDeviceAccess
                               sipropertytype.h
                               sipropertywriteflags.h
                               sipropertywriteresult.h
-                              sistatus.h)
+                              sistatus.h
+                              sidevicefunctions.h)
 si_add_library_sources(SIDeviceAccess
                        siaccesslevel.cpp
                        sidevice.cpp

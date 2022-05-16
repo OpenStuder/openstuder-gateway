@@ -11,6 +11,7 @@
 #include <siproperty.h>
 #include <sidevice.h>
 #include <sideviceaccess.h>
+#include <sidevicefunctions.h>
 #include <QObject>
 #include <QVector>
 
@@ -28,7 +29,7 @@ class SIDeviceAccessManager: public QObject {
     ~SIDeviceAccessManager() override;
 
     SIProperty resolveProperty(const SIGlobalPropertyID& id);
-    QVector<SIGlobalPropertyID> findProperties(SIGlobalPropertyID propertyID);
+    QVector<SIGlobalPropertyID> findProperties(SIGlobalPropertyID propertyID, bool virtualDevices = false, SIDeviceFunctions functionsMask = SIDeviceFunction::All);
 
     SIDeviceEnumerationOperation* enumerateDevices();
     SIPropertyReadOperation* readProperty(const SIGlobalPropertyID& id);

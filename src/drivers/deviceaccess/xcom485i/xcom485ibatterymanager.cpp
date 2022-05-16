@@ -8,7 +8,7 @@ XCom485iBatteryManager::XCom485iBatteryManager(Model model, XCom485iModbusAccess
     // Parameters.
     {8, 6004, SIPropertyType::Signal, SIAccessLevel::Basic, SIPropertyFlag::Writeable, "Restore default settings", ""},
     {10, 6005, SIPropertyType::Signal, SIAccessLevel::Installer, SIPropertyFlag::Writeable, "Restore factory settings", ""}
-}), model_(model) {
+}, false, SIDeviceFunction::Battery), model_(model) {
     switch (model) {
         case Invalid:
             break;

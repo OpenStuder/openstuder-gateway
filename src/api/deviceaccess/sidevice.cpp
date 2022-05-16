@@ -6,12 +6,14 @@ struct SIDevice::Private_ {
     QString model;
     QString id;
     bool isVirtual;
+    SIDeviceFunctions functions;
 };
 
-SIDevice::SIDevice(const QString& model, const QString& id,  bool isVirtual): private_(new Private_) {
+SIDevice::SIDevice(const QString& model, const QString& id,  bool isVirtual, SIDeviceFunctions functions): private_(new Private_) {
     private_->model = model;
     private_->id = id;
     private_->isVirtual = isVirtual;
+    private_->functions = functions;
 }
 
 SIDevice::~SIDevice() = default;
@@ -26,6 +28,10 @@ const QString& SIDevice::id() const {
 
 bool SIDevice::isVirtual() const {
     return private_->isVirtual;
+}
+
+SIDeviceFunctions SIDevice::functions() const {
+    return private_->functions;
 }
 
 const QVector<SIProperty>& SIDevice::properties() const {

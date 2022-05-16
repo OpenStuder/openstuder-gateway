@@ -445,7 +445,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::FIND_PROPERTIES: {
-            if (frame.hasBody() || !frame.validateHeaders({"id"})) {
+            if (frame.hasBody() || !frame.validateHeaders({"id"}, {"virtual", "functions"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
@@ -454,7 +454,22 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
-            auto propertyIDs = context.deviceAccessManager().findProperties(id);
+            bool virtualDevices = frame.header("virtual", "false").toLower() == "true";
+
+            SIDeviceFunctions functionsMask = frame.hasHeader("functions") ? SIDeviceFunction::None : SIDeviceFunction::All;
+            for (const auto& functionString: frame.header("functions", "").split(",")) {
+                if (functionString.toLower() == "inverter") functionsMask |= SIDeviceFunction::Inverter;
+                else if (functionString.toLower() == "charger") functionsMask |= SIDeviceFunction::Charger;
+                else if (functionString.toLower() == "solar") functionsMask |= SIDeviceFunction::Solar;
+                else if (functionString.toLower() == "transfer") functionsMask |= SIDeviceFunction::Transfer;
+                else if (functionString.toLower() == "battery") functionsMask |= SIDeviceFunction::Battery;
+                else if (functionString.toLower() == "all") functionsMask |= SIDeviceFunction::All;
+                else {
+                    return SIWebSocketProtocolFrame::error("invalid frame");
+                }
+            }
+
+            auto propertyIDs = context.deviceAccessManager().findProperties(id, virtualDevices, functionsMask);
             QJsonArray propertyIDsJSON;
             for (const auto& id: propertyIDs) propertyIDsJSON << id.toString();
 

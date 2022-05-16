@@ -545,7 +545,7 @@ XCom485iVarioTrack::XCom485iVarioTrack(Model model, quint8 modbusAddress, XCom48
     {610, 10305, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delay to deactivate (AUX 4)", "hours"},
     {612, 10306, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Deactivate if battery in floating phase (AUX 4)", ""},
     {614, 10307, SIPropertyType::Signal, SIAccessLevel::Expert, SIPropertyFlag::Writeable, "Reset all settings (AUX 4)", ""}
-}, model == Multicast) {}
+}, model == Multicast, SIDeviceFunction::Charger | SIDeviceFunction::Solar) {}
 
 XCom485iVarioTrack::Model XCom485iVarioTrack::model(quint8 modbusAddress, XCom485iModbusAccess& access) {
     auto model = access.readInputRegister(modbusAddress, 30);
