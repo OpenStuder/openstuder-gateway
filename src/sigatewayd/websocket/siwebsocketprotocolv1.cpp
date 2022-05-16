@@ -458,6 +458,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             SIDeviceFunctions functionsMask = frame.hasHeader("functions") ? SIDeviceFunction::None : SIDeviceFunction::All;
             for (const auto& functionString: frame.header("functions", "").split(",")) {
+                if (functionString.isEmpty()) continue;
                 if (functionString.toLower() == "inverter") functionsMask |= SIDeviceFunction::Inverter;
                 else if (functionString.toLower() == "charger") functionsMask |= SIDeviceFunction::Charger;
                 else if (functionString.toLower() == "solar") functionsMask |= SIDeviceFunction::Solar;
