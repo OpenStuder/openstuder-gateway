@@ -477,6 +477,8 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             return {SIWebSocketProtocolFrame::PROPERTIES_FOUND, {
                 {"status", to_string(SIStatus::Success)},
                 {"id", frame.header("id")},
+                {"virtual", virtualDevices ? "true" : "false"},
+                {"functions", frame.header("functions", "all")},
                 {"count", QString::number(propertyIDs.count())}
             }, QJsonDocument(propertyIDsJSON).toJson(QJsonDocument::Compact)};
         }
