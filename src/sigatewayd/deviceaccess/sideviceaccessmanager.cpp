@@ -100,8 +100,8 @@ SIDeviceAccessManager::SIDeviceAccessManager(QObject* parent): QObject(parent), 
     priv_->messageRetrieveOperation_ = new SIMessagesRetrieveOperation(this);
 
     for (int i = 0; i < SIDeviceAccessRegistry::sharedRegistry().deviceAccessCount(); ++i) {
-        connect(SIDeviceAccessRegistry::sharedRegistry().deviceAccess(0), &SIDeviceAccess::deviceAdded, this, &SIDeviceAccessManager::onDeviceAdded_);
-        connect(SIDeviceAccessRegistry::sharedRegistry().deviceAccess(0), &SIDeviceAccess::deviceRemoved, this, &SIDeviceAccessManager::onDeviceRemoved_);
+        connect(SIDeviceAccessRegistry::sharedRegistry().deviceAccess(i), &SIDeviceAccess::deviceAdded, this, &SIDeviceAccessManager::onDeviceAdded_);
+        connect(SIDeviceAccessRegistry::sharedRegistry().deviceAccess(i), &SIDeviceAccess::deviceRemoved, this, &SIDeviceAccessManager::onDeviceRemoved_);
     }
 }
 
