@@ -70,6 +70,7 @@ SIBluetoothProtocolFrame SIBluetoothProtocolFrame::fromBytes(const QByteArray& b
         cbor_parser_init(it.ptr, reinterpret_cast<const uint8_t*>(bytes.data()) + bytes.size() - it.ptr, 0, &parser, &it);
         CborError error = CborNoError;
         switch (cbor_value_get_type(&it)) {
+            case CborUndefinedType:
             case CborNullType:
                 parameters.append(QVariant {});
                 error = cbor_value_advance_fixed(&it);
