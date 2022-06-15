@@ -40,7 +40,7 @@ bool SQLiteStorage::open(const QString& filename, int cleanupInterval, int maxim
     }
 
     // Create database.
-    db_ = QSqlDatabase::addDatabase("QSQLITE");
+    db_ = QSqlDatabase::addDatabase("QSQLITE", "org.sgw.SIStorageDriver.sqlite");
     if (!db_.isValid()) {
         qCCritical(SQLite,) << "Unable to create SQLITE database";
         return false;

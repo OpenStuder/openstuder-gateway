@@ -4,6 +4,7 @@
 #include <sideviceaccessregistry.h>
 #include <sideviceaccess.h>
 #include <sidevice.h>
+#include "../extension/siextensionmanager.h"
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QTextStream>
@@ -26,7 +27,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::DESCRIBE: {
-            if (frame.hasBody() || !frame.validateHeaders({}, {"id", "flags"})) {
+            if (frame.hasBody() || ! frame.validateHeaders({}, {"id", "flags"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
@@ -112,7 +113,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::READ_PROPERTY: {
-            if (frame.hasBody() || !frame.validateHeaders({"id"})) {
+            if (frame.hasBody() || ! frame.validateHeaders({"id"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
@@ -124,7 +125,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                     {"id", frame.header("id")}
                 }};
             }
-            if (!property.isFlagSet(SIPropertyFlag::Readable)) {
+            if (! property.isFlagSet(SIPropertyFlag::Readable)) {
                 return {SIWebSocketProtocolFrame::PROPERTY_READ, {
                     {"status", to_string(SIStatus::Error)},
                     {"id", frame.header("id")}
@@ -137,19 +138,19 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::READ_PROPERTIES: {
-            if (!frame.hasBody() || !frame.validateHeaders({})) {
+            if (! frame.hasBody() || ! frame.validateHeaders({})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             auto idsDocument = QJsonDocument::fromJson(frame.body());
-            if (!idsDocument.isArray() || idsDocument.array().empty()) {
+            if (! idsDocument.isArray() || idsDocument.array().empty()) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             QVector<SIGlobalPropertyID> ids;
             for (auto entry: idsDocument.array()) {
                 SIGlobalPropertyID id {entry.toString()};
-                if (!id.isValid() || id.isWildcard()) {
+                if (! id.isValid() || id.isWildcard()) {
                     return SIWebSocketProtocolFrame::error("invalid frame");
                 }
                 ids << id;
@@ -161,7 +162,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::WRITE_PROPERTY: {
-            if (frame.hasBody() || !frame.validateHeaders({"id"}, {"value", "flags"})) {
+            if (frame.hasBody() || ! frame.validateHeaders({"id"}, {"value", "flags"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
@@ -173,7 +174,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                     {"id", frame.header("id")}
                 }};
             }
-            if (!property.isFlagSet(SIPropertyFlag::Writeable)) {
+            if (! property.isFlagSet(SIPropertyFlag::Writeable)) {
                 return {SIWebSocketProtocolFrame::PROPERTY_WRITTEN, {
                     {"status", to_string(SIStatus::Error)},
                     {"id", frame.header("id")}
@@ -198,7 +199,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::SUBSCRIBE_PROPERTY: {
-            if (frame.hasBody() || !frame.validateHeaders({"id"})) {
+            if (frame.hasBody() || ! frame.validateHeaders({"id"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
@@ -210,7 +211,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                     {"id", frame.header("id")}
                 }};
             }
-            if (!property.isFlagSet(SIPropertyFlag::Readable)) {
+            if (! property.isFlagSet(SIPropertyFlag::Readable)) {
                 return {SIWebSocketProtocolFrame::PROPERTY_SUBSCRIBED, {
                     {"status", to_string(SIStatus::Error)},
                     {"id", frame.header("id")}
@@ -225,12 +226,12 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::SUBSCRIBE_PROPERTIES: {
-            if (!frame.hasBody() || !frame.validateHeaders({})) {
+            if (! frame.hasBody() || ! frame.validateHeaders({})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             auto requestJSON = QJsonDocument::fromJson(frame.body());
-            if (!requestJSON.isArray()) {
+            if (! requestJSON.isArray()) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
@@ -248,7 +249,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                     continue;
                 }
 
-                if (!property.isFlagSet(SIPropertyFlag::Readable)) {
+                if (! property.isFlagSet(SIPropertyFlag::Readable)) {
                     responseJSON.append(QJsonObject {
                         {"status", to_string(SIStatus::Error)},
                         {"id",     id.toString()}
@@ -269,12 +270,12 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::UNSUBSCRIBE_PROPERTY: {
-            if (frame.hasBody() || !frame.validateHeaders({"id"})) {
+            if (frame.hasBody() || ! frame.validateHeaders({"id"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             auto id = SIGlobalPropertyID(frame.header("id"));
-            if (!id.isValid()) {
+            if (! id.isValid()) {
                 return {SIWebSocketProtocolFrame::PROPERTY_UNSUBSCRIBED, {
                     {"status", to_string(SIStatus::NoProperty)},
                     {"id", frame.header("id")}
@@ -289,19 +290,19 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::UNSUBSCRIBE_PROPERTIES: {
-            if (!frame.hasBody() || !frame.validateHeaders({})) {
+            if (! frame.hasBody() || ! frame.validateHeaders({})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             auto requestJSON = QJsonDocument::fromJson(frame.body());
-            if (!requestJSON.isArray()) {
+            if (! requestJSON.isArray()) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             QJsonArray responseJSON;
             for (auto entry: requestJSON.array()) {
                 SIGlobalPropertyID id {entry.toString()};
-                if (!id.isValid()) {
+                if (! id.isValid()) {
                     responseJSON.append(QJsonObject {
                         {"status", to_string(SIStatus::NoProperty)},
                         {"id",     id.toString()}
@@ -322,14 +323,14 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::READ_MESSAGES: {
-            if (frame.hasBody() || !frame.validateHeaders({}, {"from", "to", "limit"})) {
+            if (frame.hasBody() || ! frame.validateHeaders({}, {"from", "to", "limit"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             auto from = QDateTime::fromMSecsSinceEpoch(0);
             if (frame.hasHeader("from")) {
                 from = QDateTime::fromString(frame.header("from"), Qt::ISODate);
-                if (!from.isValid()) {
+                if (! from.isValid()) {
                     return SIWebSocketProtocolFrame::error("invalid frame");
                 }
             }
@@ -337,7 +338,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             auto to = QDateTime::currentDateTimeUtc();
             if (frame.hasHeader("to")) {
                 to = QDateTime::fromString(frame.header("to"), Qt::ISODate);
-                if (!from.isValid()) {
+                if (! from.isValid()) {
                     return SIWebSocketProtocolFrame::error("invalid frame");
                 }
             }
@@ -346,7 +347,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             if (frame.hasHeader("limit")) {
                 bool conversionOk = false;
                 limit = frame.header("limit").toUInt(&conversionOk);
-                if (!conversionOk) {
+                if (! conversionOk) {
                     return SIWebSocketProtocolFrame::error("invalid frame");
                 }
             }
@@ -356,7 +357,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             // Encode JSON messages array
             QJsonArray jsonMessages;
-            for (auto message = messages.crbegin(); message != messages.crend(); ++message) {
+            for (auto message = messages.crbegin(); message != messages.crend(); ++ message) {
                 QJsonObject jsonMessage;
                 jsonMessage["timestamp"] = message->timestamp().toUTC().toString(Qt::ISODate);
                 jsonMessage["access_id"] = message->accessID();
@@ -373,14 +374,14 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::READ_DATALOG: {
-            if (frame.hasBody() || !frame.validateHeaders({}, {"id", "from", "to", "limit"})) {
+            if (frame.hasBody() || ! frame.validateHeaders({}, {"id", "from", "to", "limit"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             auto id = SIGlobalPropertyID();
             if (frame.hasHeader("id")) {
                 id = SIGlobalPropertyID(frame.header("id"));
-                if (!id.isValid()) {
+                if (! id.isValid()) {
                     return SIWebSocketProtocolFrame::error("invalid frame");
                 }
             }
@@ -388,7 +389,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             auto from = QDateTime::fromMSecsSinceEpoch(0);
             if (frame.hasHeader("from")) {
                 from = QDateTime::fromString(frame.header("from"), Qt::ISODate);
-                if (!from.isValid()) {
+                if (! from.isValid()) {
                     return SIWebSocketProtocolFrame::error("invalid frame");
                 }
             }
@@ -396,7 +397,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             auto to = QDateTime::currentDateTimeUtc();
             if (frame.hasHeader("to")) {
                 to = QDateTime::fromString(frame.header("to"), Qt::ISODate);
-                if (!from.isValid()) {
+                if (! from.isValid()) {
                     return SIWebSocketProtocolFrame::error("invalid frame");
                 }
             }
@@ -405,7 +406,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             if (frame.hasHeader("limit")) {
                 bool conversionOk = false;
                 limit = frame.header("limit").toUInt(&conversionOk);
-                if (!conversionOk) {
+                if (! conversionOk) {
                     return SIWebSocketProtocolFrame::error("invalid frame");
                 }
             }
@@ -416,7 +417,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
                 QString buffer;
                 QTextStream output(&buffer);
-                for (auto entry = data.crbegin(); entry != data.crend(); ++entry) {
+                for (auto entry = data.crbegin(); entry != data.crend(); ++ entry) {
                     output << entry->timestamp.toUTC().toString(Qt::ISODate) << "," << entry->value.toString() << "\n";
                 }
                 output.flush();
@@ -432,7 +433,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
                 QString buffer;
                 QTextStream output(&buffer);
-                for (const auto & propertyID : storedPropertyIDs) {
+                for (const auto& propertyID: storedPropertyIDs) {
                     output << propertyID.toString() << "\n";
                 }
                 output.flush();
@@ -445,12 +446,12 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
         }
 
         case SIWebSocketProtocolFrame::FIND_PROPERTIES: {
-            if (frame.hasBody() || !frame.validateHeaders({"id"}, {"virtual", "functions"})) {
+            if (frame.hasBody() || ! frame.validateHeaders({"id"}, {"virtual", "functions"})) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
             SIGlobalPropertyID id = frame.header("id");
-            if (!id.isValid()) {
+            if (! id.isValid()) {
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
@@ -458,13 +459,13 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             SIDeviceFunctions functionsMask = frame.hasHeader("functions") ? SIDeviceFunction::None : SIDeviceFunction::All;
             for (const auto& functionString: frame.header("functions", "").split(",")) {
-                if (functionString.isEmpty()) continue;
-                if (functionString.toLower() == "inverter") functionsMask |= SIDeviceFunction::Inverter;
-                else if (functionString.toLower() == "charger") functionsMask |= SIDeviceFunction::Charger;
-                else if (functionString.toLower() == "solar") functionsMask |= SIDeviceFunction::Solar;
-                else if (functionString.toLower() == "transfer") functionsMask |= SIDeviceFunction::Transfer;
-                else if (functionString.toLower() == "battery") functionsMask |= SIDeviceFunction::Battery;
-                else if (functionString.toLower() == "all") functionsMask |= SIDeviceFunction::All;
+                if (functionString.isEmpty()) { continue; }
+                if (functionString.toLower() == "inverter") { functionsMask |= SIDeviceFunction::Inverter; }
+                else if (functionString.toLower() == "charger") { functionsMask |= SIDeviceFunction::Charger; }
+                else if (functionString.toLower() == "solar") { functionsMask |= SIDeviceFunction::Solar; }
+                else if (functionString.toLower() == "transfer") { functionsMask |= SIDeviceFunction::Transfer; }
+                else if (functionString.toLower() == "battery") { functionsMask |= SIDeviceFunction::Battery; }
+                else if (functionString.toLower() == "all") { functionsMask |= SIDeviceFunction::All; }
                 else {
                     return SIWebSocketProtocolFrame::error("invalid frame");
                 }
@@ -472,7 +473,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
 
             auto propertyIDs = context.deviceAccessManager().findProperties(id, virtualDevices, functionsMask);
             QJsonArray propertyIDsJSON;
-            for (const auto& id: propertyIDs) propertyIDsJSON << id.toString();
+            for (const auto& id: propertyIDs) { propertyIDsJSON << id.toString(); }
 
             return {SIWebSocketProtocolFrame::PROPERTIES_FOUND, {
                 {"status", to_string(SIStatus::Success)},
@@ -481,6 +482,30 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 {"functions", frame.header("functions", "all")},
                 {"count", QString::number(propertyIDs.count())}
             }, QJsonDocument(propertyIDsJSON).toJson(QJsonDocument::Compact)};
+        }
+
+        case SIWebSocketProtocolFrame::LIST_EXTENSIONS: {
+            if (frame.hasBody() || ! frame.validateHeaders({}, {})) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            return {SIWebSocketProtocolFrame::EXTENSIONS_LIST, {},
+                    QJsonDocument(QJsonArray::fromStringList(context.extensionManager().availableExtensions())).toJson(QJsonDocument::Compact)};
+        }
+
+        case SIWebSocketProtocolFrame::CALL_EXTENSION: {
+            if (! frame.hasHeader("extension") || ! frame.hasHeader("command")) {
+                return SIWebSocketProtocolFrame::error("invalid frame");
+            }
+
+            auto result = context.extensionManager().callExtension(frame.header("extension"), frame.header("command"), frame.headers(), frame.body(), context);
+            SIWebSocketProtocolFrame response(SIWebSocketProtocolFrame::EXTENSION_CALLED, {
+                {"extension", frame.header("extension")},
+                {"command", frame.header("command")},
+                {"status", to_string(result.status())}
+            }, result.body());
+            response.mergeHeaders(result.headers());
+            return response;
         }
 
         default:
@@ -539,7 +564,7 @@ void SIWebSocketProtocolV1::readPropertiesOperationFinished_(SIStatus status) {
     auto* operations = dynamic_cast<SIPropertiesReadOperation*>(sender());
 
     QJsonArray json;
-    for (int i = 0; i < operations->count(); ++i) {
+    for (int i = 0; i < operations->count(); ++ i) {
         const auto& operation = (*operations)[i];
 
         json.append(QJsonObject {

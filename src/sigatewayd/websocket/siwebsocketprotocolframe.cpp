@@ -79,6 +79,10 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = READ_MESSAGES;
     } else if (commandStr == "READ DATALOG") {
         frame.command_ = READ_DATALOG;
+    } else if (commandStr == "LIST EXTENSIONS") {
+        frame.command_ = LIST_EXTENSIONS;
+    } else if (commandStr == "CALL EXTENSION") {
+        frame.command_ = CALL_EXTENSION;
     } else if (commandStr == "ERROR") {
         frame.command_ = ERROR;
     } else if (commandStr == "AUTHORIZED") {
@@ -113,6 +117,10 @@ SIWebSocketProtocolFrame SIWebSocketProtocolFrame::fromMessage(QString message) 
         frame.command_ = FIND_PROPERTIES;
     } else if (commandStr == "PROPERTIES FOUND") {
         frame.command_ = PROPERTIES_FOUND;
+    } else if (commandStr == "EXTENSIONS LIST") {
+        frame.command_ = EXTENSIONS_LIST;
+    } else if (commandStr == "EXTENSION CALLED") {
+        frame.command_ = EXTENSION_CALLED;
     }
 
     QString headerLine;
@@ -167,6 +175,12 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
         case SIWebSocketProtocolFrame::READ_DATALOG:
             return "READ DATALOG";
 
+        case SIWebSocketProtocolFrame::LIST_EXTENSIONS:
+            return "LIST EXTENSIONS";
+
+        case SIWebSocketProtocolFrame::CALL_EXTENSION:
+            return "CALL EXTENSION";
+
         case SIWebSocketProtocolFrame::ERROR:
             return "ERROR";
 
@@ -217,6 +231,12 @@ QString to_string(SIWebSocketProtocolFrame::Command command) {
 
         case SIWebSocketProtocolFrame::PROPERTIES_FOUND:
             return "PROPERTIES FOUND";
+
+        case SIWebSocketProtocolFrame::EXTENSIONS_LIST:
+            return "EXTENSION LIST";
+
+        case SIWebSocketProtocolFrame::EXTENSION_CALLED:
+            return "EXTENSION CALLED";
 
         default:
             return "INVALID";

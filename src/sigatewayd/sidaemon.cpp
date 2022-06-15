@@ -12,6 +12,7 @@
 #include <sideviceaccessregistry.h>
 #include <siuserauthorizedriver.h>
 #include <sitextfileusermanagement.h>
+#include <siextensiondriver.h>
 #include <QCommandLineParser>
 #include <QFile>
 #include <QLoggingCategory>
@@ -136,6 +137,22 @@ bool SIDaemon::initialize() {
         }
     }
 
+    // Load protocol extensions.
+    qCInfo(DAEMON,) << "Loading protocol extension drivers and instantiating objects...";
+    for (const auto& extensionName: settings.extensionNames()) {
+        auto* extensionDriver = SIExtensionDriver::loadExtensionDriver(driverSearchPaths, extensionName);
+        if (extensionDriver == nullptr) {
+            qCCritical(DAEMON,) << "Unable to load extension driver" << extensionName;
+        }
+        auto* extension = extensionDriver->createExtensionInstance(settings.extensionOptions(extensionName));
+        if (extension != nullptr) {
+            extensionManager_.addExtension(extension);
+        } else {
+            qCCritical(DAEMON,) << "Unable to instantiate extension" << extensionName;
+        }
+        qCInfo(DAEMON,) << "Successfully loaded extension" << extensionName;
+    }
+
     // Create device access manager.
     int propertyPollInterval = settings.propertyPollInterval();
     deviceAccessManager_ = new SISequentialPropertyManager(this);
@@ -191,4 +208,8 @@ const SIUserAuthorizer* SIDaemon::userAuthorizer() {
 
 SIStorage& SIDaemon::storage() {
     return *storage_;
+}
+
+SIExtensionManager& SIDaemon::extensionManager() {
+    return extensionManager_;
 }

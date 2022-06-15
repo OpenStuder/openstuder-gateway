@@ -62,7 +62,8 @@ add_executable(sigatewayd
                datalog/sidataloggroup.cpp
                sicontext.h
                datalog/sidatalogmanager.h
-               datalog/sidatalogmanager.cpp)
-target_link_libraries(sigatewayd Qt5::Core Qt5::Network Qt5::WebSockets Qt5::Bluetooth SIDeviceAccess SIStorage SIAuthorize tinycbor)
+               datalog/sidatalogmanager.cpp
+               extension/siextensionmanager.cpp
+               extension/siextensionmanager.h)
+target_link_libraries(sigatewayd Qt5::Core Qt5::Network Qt5::WebSockets Qt5::Bluetooth SIDeviceAccess SIStorage SIAuthorize SIExtension tinycbor)
 install(TARGETS sigatewayd RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SBINDIR}")
-

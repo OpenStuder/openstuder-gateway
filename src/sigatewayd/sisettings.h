@@ -65,12 +65,28 @@ class SISettings {
         return filteredChildSettings_(deviceAccessConfigurationName, {"driver"}, driverSettings_.get());
     };
 
+    inline QStringList extensionNames() const {
+        if (extensionSettings_ != nullptr) {
+            return filteredChildGroups_({}, extensionSettings_.get());
+        } else {
+            return {};
+        }
+    }
+
+    inline QVariantMap extensionOptions(const QString& extensionName) const {
+        if (extensionSettings_ != nullptr) {
+            return filteredChildSettings_(extensionName, {}, extensionSettings_.get());
+        } else {
+            return {};
+        }
+    }
+
     static void loadFromLocation(const QString& location);
 
     static const SISettings& sharedSettings();
 
   private:
-    explicit SISettings(QSettings* gateway = nullptr, QSettings* driver = nullptr);
+    explicit SISettings(QSettings* gateway = nullptr, QSettings* driver = nullptr, QSettings* extension = nullptr);
 
     static QVariant requiredValue_(const QString& key, const QSettings* settings);
     static QVariant valueWithDefault_(const QString& key, const QVariant& defaultValue, const QSettings* settings);
@@ -80,6 +96,7 @@ class SISettings {
 
     std::shared_ptr<QSettings> gatewaySettings_;
     std::shared_ptr<QSettings> driverSettings_;
+    std::shared_ptr<QSettings> extensionSettings_;
 
     static SISettings sharedSettings_;
 };

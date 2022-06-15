@@ -1,0 +1,7 @@
+function(si_add_extension_driver NAME)
+    add_library(${NAME} MODULE)
+    target_sources(${NAME} PRIVATE ${ARGN})
+    target_link_libraries(${NAME} Qt5::Core SIExtension)
+    set_target_properties(${NAME} PROPERTIES PREFIX "" SUFFIX ".sed")
+    install(TARGETS ${NAME} LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}/openstuder/drivers")
+endfunction()

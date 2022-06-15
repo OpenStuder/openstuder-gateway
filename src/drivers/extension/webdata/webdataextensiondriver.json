@@ -1,0 +1,13 @@
+{
+  "name": "webdata",
+  "version": "1.0",
+  "author": "michael.clausen@hevs.ch",
+  "parameters": [
+    {
+      "name": "file",
+      "type": "QString",
+      "required": false,
+      "default": "/var/lib/sigateway/webdata.sqlite"
+    }
+  ]
+}

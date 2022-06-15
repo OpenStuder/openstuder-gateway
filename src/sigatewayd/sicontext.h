@@ -3,6 +3,7 @@ class SISettings;
 class SIDeviceAccessManager;
 class SIUserAuthorizer;
 class SIStorage;
+class SIExtensionManager;
 
 class SIContext {
   public:
@@ -12,4 +13,5 @@ class SIContext {
     virtual SIDeviceAccessManager& deviceAccessManager() = 0;
     virtual const SIUserAuthorizer* userAuthorizer() = 0;
     virtual SIStorage& storage() = 0;
+    virtual SIExtensionManager& extensionManager() = 0;
 };

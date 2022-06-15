@@ -362,7 +362,7 @@ void XCom485iDeviceAccess::retrievePendingDeviceMessages_(QVector<SIDeviceMessag
             return;
         }
         auto messageID = reply->result().value(1);
-        auto deviceID = XCom485iDevice::deviceNames.value(reply->result().value(0), QString::number(reply->result().value(0)));
+        auto deviceID = XCom485iDevice::deviceNames.value(reply->result().value(0), "rcc");
         SIDeviceMessage message(id(), deviceID, messageID, xcom485iMessages_.value(messageID, "Unknown Message"));
         messages.append(move(message));
         --pendingMessagesCount;

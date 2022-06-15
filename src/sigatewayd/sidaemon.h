@@ -1,5 +1,6 @@
 #pragma once
 #include "sicontext.h"
+#include "extension/siextensionmanager.h"
 #include <QCoreApplication>
 #include <memory>
 
@@ -25,6 +26,7 @@ class SIDaemon: public QCoreApplication, public SIContext {
     SIDeviceAccessManager& deviceAccessManager() override;
     const SIUserAuthorizer* userAuthorizer() override;
     SIStorage& storage() override;
+    SIExtensionManager& extensionManager() override;
 
     SIDeviceAccessManager* deviceAccessManager_ = nullptr;
     std::unique_ptr<SIUserAuthorizer> authorizer_;
@@ -33,4 +35,5 @@ class SIDaemon: public QCoreApplication, public SIContext {
     SIDataLogManager* dataLogManager_ = nullptr;
     SIWebSocketManager* webSocketManager_ = nullptr;
     SIBluetoothManager* bluetoothManager_ = nullptr;
+    SIExtensionManager extensionManager_;
 };

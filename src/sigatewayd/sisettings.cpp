@@ -21,6 +21,7 @@ void SISettings::loadFromLocation(const QString& location) {
     if (settings->status() != QSettings::NoError) {
         throw std::runtime_error(QString("Configuration file %1 is malformed").arg(gatewaySettingsFile).toStdString());
     }
+
     auto driverSettingsFile = location + "/drivers.conf";
     if (!QFile::exists(driverSettingsFile)) {
         throw std::runtime_error(QString("Driver configuration file %1 does not exist").arg(driverSettingsFile).toStdString());
@@ -29,14 +30,25 @@ void SISettings::loadFromLocation(const QString& location) {
     if (driverSettings->status() != QSettings::NoError) {
         throw std::runtime_error(QString("Driver configuration file %1 is malformed").arg(driverSettingsFile).toStdString());
     }
-    sharedSettings_ = SISettings(settings, driverSettings);
+
+    QSettings* extensionSettings = nullptr;
+    auto extensionSettingsFile = location + "/extensions.conf";
+    if (QFile::exists(extensionSettingsFile)) {
+        extensionSettings = new QSettings(extensionSettingsFile, QSettings::IniFormat);
+        if (driverSettings->status() != QSettings::NoError) {
+            delete extensionSettings;
+            extensionSettings = new QSettings();
+        }
+    }
+
+    sharedSettings_ = SISettings(settings, driverSettings, extensionSettings);
 }
 
 const SISettings& SISettings::sharedSettings() {
     return sharedSettings_;
 }
 
-SISettings::SISettings(QSettings* gateway, QSettings* driver): gatewaySettings_(gateway), driverSettings_(driver) {}
+SISettings::SISettings(QSettings* gateway, QSettings* driver, QSettings* extension): gatewaySettings_(gateway), driverSettings_(driver), extensionSettings_(extension) {}
 
 QVariant SISettings::requiredValue_(const QString& key, const QSettings* settings) {
     if (settings == nullptr || !settings->contains(key)) {

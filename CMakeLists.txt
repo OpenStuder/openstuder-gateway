@@ -8,6 +8,7 @@ include(SIGitVersion)
 include(SILibrary)
 include(SIDeviceAccessDriver)
 include(SIStorageDriver)
+include(SIExtensionDriver)
 
 # Handle install prefix.
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -48,6 +49,7 @@ add_compile_definitions(OPENSTUDER_GATEWAY_DEFAULT_DRIVER_LOCATION="${OPENSTUDER
 add_subdirectory(src/api/deviceaccess)
 add_subdirectory(src/api/storage)
 add_subdirectory(src/api/authorize)
+add_subdirectory(src/api/extension)
 
 # Executables.
 add_subdirectory(src/sigatewayd)
@@ -57,6 +59,7 @@ add_subdirectory(src/sigwctl)
 add_subdirectory(src/drivers/storage/sqlite)
 add_subdirectory(src/drivers/deviceaccess/xcom485i)
 add_subdirectory(src/drivers/deviceaccess/demo)
+add_subdirectory(src/drivers/extension/webdata)
 
 # Configuration files.
 install(FILES config/gateway.conf DESTINATION "${OPENSTUDER_CONFIG_LOCATION}")

@@ -24,6 +24,8 @@ class SIWebSocketProtocolFrame {
         READ_MESSAGES,
         READ_DATALOG,
         FIND_PROPERTIES,
+        LIST_EXTENSIONS,
+        CALL_EXTENSION,
 
         // Server messages.
         ERROR,
@@ -41,7 +43,9 @@ class SIWebSocketProtocolFrame {
         DEVICE_MESSAGE,
         MESSAGES_READ,
         DATALOG_READ,
-        PROPERTIES_FOUND
+        PROPERTIES_FOUND,
+        EXTENSIONS_LIST,
+        EXTENSION_CALLED
     };
 
     SIWebSocketProtocolFrame(Command command = INVALID, std::initializer_list<QPair<QString,QString>> headers = {}, QByteArray body = {}); // NOLINT(google-explicit-constructor)
@@ -62,6 +66,12 @@ class SIWebSocketProtocolFrame {
 
     inline void setHeaders(const QMap<QString, QString>& headers) {
         headers_ = headers;
+    }
+
+    inline void mergeHeaders(const QMap<QString, QString>& headers) {
+        for (auto i = headers.constBegin(); i != headers.constBegin(); ++i) {
+            headers_.insert(i.key(), i.value());
+        }
     }
 
     inline QString header(const QString& key, const QString& defaultValue = {}) const {
