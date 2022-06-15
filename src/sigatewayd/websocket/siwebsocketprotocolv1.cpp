@@ -484,15 +484,6 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             }, QJsonDocument(propertyIDsJSON).toJson(QJsonDocument::Compact)};
         }
 
-        case SIWebSocketProtocolFrame::LIST_EXTENSIONS: {
-            if (frame.hasBody() || ! frame.validateHeaders({}, {})) {
-                return SIWebSocketProtocolFrame::error("invalid frame");
-            }
-
-            return {SIWebSocketProtocolFrame::EXTENSIONS_LIST, {},
-                    QJsonDocument(QJsonArray::fromStringList(context.extensionManager().availableExtensions())).toJson(QJsonDocument::Compact)};
-        }
-
         case SIWebSocketProtocolFrame::CALL_EXTENSION: {
             if (! frame.hasHeader("extension") || ! frame.hasHeader("command")) {
                 return SIWebSocketProtocolFrame::error("invalid frame");

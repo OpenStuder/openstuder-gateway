@@ -24,7 +24,6 @@ class SIWebSocketProtocolFrame {
         READ_MESSAGES,
         READ_DATALOG,
         FIND_PROPERTIES,
-        LIST_EXTENSIONS,
         CALL_EXTENSION,
 
         // Server messages.
@@ -44,7 +43,6 @@ class SIWebSocketProtocolFrame {
         MESSAGES_READ,
         DATALOG_READ,
         PROPERTIES_FOUND,
-        EXTENSIONS_LIST,
         EXTENSION_CALLED
     };
 
@@ -69,7 +67,7 @@ class SIWebSocketProtocolFrame {
     }
 
     inline void mergeHeaders(const QMap<QString, QString>& headers) {
-        for (auto i = headers.constBegin(); i != headers.constBegin(); ++i) {
+        for (auto i = headers.constBegin(); i != headers.constEnd(); ++i) {
             headers_.insert(i.key(), i.value());
         }
     }

@@ -1,4 +1,4 @@
-#include "webdataextension.h"
+#include "webstorageextension.h"
 #include <QLoggingCategory>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -9,13 +9,13 @@
 
 Q_DECLARE_LOGGING_CATEGORY(webdata)
 
-WebDataExtension::WebDataExtension(): SIExtension("webdata") {}
+WebStorageExtension::WebStorageExtension(): SIExtension("WebStorage") {}
 
-WebDataExtension::~WebDataExtension() {
+WebStorageExtension::~WebStorageExtension() {
     db_.close();
 }
 
-bool WebDataExtension::open(const QString& filename) {
+bool WebStorageExtension::open(const QString& filename) {
     // Check if SQLite driver is available.
     if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
         qCCritical(webdata,) << "Qt SQLITE driver not available";
@@ -64,12 +64,12 @@ bool WebDataExtension::open(const QString& filename) {
     return true;
 }
 
-QStringList& WebDataExtension::commands_() const {
+QStringList& WebStorageExtension::commands_() const {
     static QStringList commands_ {"write", "read"};
     return commands_;
 }
 
-SIExtension::Result WebDataExtension::runCommand_(const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) {
+SIExtension::Result WebStorageExtension::runCommand_(const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) {
     if (command == "write") {
         return write_(headers.value("key"), body);
     } else if (command == "read") {
@@ -79,7 +79,7 @@ SIExtension::Result WebDataExtension::runCommand_(const QString& command, const 
     }
 }
 
-SIExtension::Result WebDataExtension::write_(const QString& key, const QByteArray& body) {
+SIExtension::Result WebStorageExtension::write_(const QString& key, const QByteArray& body) {
     if (key.isEmpty()) {
         return {Status::InvalidHeaders};
     }
@@ -97,7 +97,7 @@ SIExtension::Result WebDataExtension::write_(const QString& key, const QByteArra
     return {Status::Success, {{"key", key}}};
 }
 
-SIExtension::Result WebDataExtension::read_(const QString& key) {
+SIExtension::Result WebStorageExtension::read_(const QString& key) {
     if (key.isEmpty()) {
         return {Status::InvalidHeaders};
     }

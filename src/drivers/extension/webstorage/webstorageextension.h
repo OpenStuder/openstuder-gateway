@@ -2,12 +2,12 @@
 #include <siextension.h>
 #include <QSqlDatabase>
 
-class WebDataExtension: public SIExtension {
+class WebStorageExtension: public SIExtension {
     Q_OBJECT
 
   public:
-    WebDataExtension();
-    ~WebDataExtension() override;
+    WebStorageExtension();
+    ~WebStorageExtension() override;
 
     bool open(const QString& filename);
 

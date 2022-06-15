@@ -2,6 +2,7 @@
 #include "siwebsocketprotocolframe.h"
 #include "siwebsocketprotocolv1.h"
 #include "../sisettings.h"
+#include "../extension/siextensionmanager.h"
 #include <siaccesslevel.h>
 
 SIWebSocketConnection::SIWebSocketConnection(QWebSocket* webSocket, SIContext* context, QObject* parent)
@@ -60,7 +61,8 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
                         sendFrame_({SIWebSocketProtocolFrame::AUTHORIZED, {
                             {"access_level", to_string(accessLevel)},
                             {"protocol_version", QString::number(version)},
-                            {"gateway_version", OPENSTUDER_GATEWAY_VERSION}
+                            {"gateway_version", OPENSTUDER_GATEWAY_VERSION},
+                            {"extensions", context_->extensionManager().availableExtensions().join(",")}
                         }});
                         break;
 
