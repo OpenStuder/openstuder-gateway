@@ -1,4 +1,5 @@
 #pragma once
+#include "siextensioncontext.h"
 #include <memory>
 #include <QObject>
 #include <QString>
@@ -14,7 +15,8 @@ class SIExtension: public QObject {
         UnsupportedCommand = - 2,
         InvalidHeaders = - 3,
         InvalidBody = - 4,
-        Error = - 5
+        Forbidden = - 5,
+        Error = - 6
     };
 
     class Result {
@@ -51,7 +53,7 @@ class SIExtension: public QObject {
 
     const QStringList& commands() const;
 
-    Result runCommand(const QString& command, const QMap<QString, QString>& headers, const QByteArray& body);
+    Result runCommand(const SIExtensionContext& context, const QString& command, const QMap<QString, QString>& headers, const QByteArray& body);
 
   protected:
     explicit SIExtension(const QString& id);
@@ -59,7 +61,7 @@ class SIExtension: public QObject {
   private:
     virtual QStringList& commands_() const = 0;
 
-    virtual Result runCommand_(const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) = 0;
+    virtual Result runCommand_(const SIExtensionContext& context, const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) = 0;
 
     struct Private_;
     std::unique_ptr<Private_> private_;

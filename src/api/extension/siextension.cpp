@@ -18,8 +18,8 @@ const QStringList& SIExtension::commands() const {
     return commands_();
 }
 
-SIExtension::Result SIExtension::runCommand(const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) {
-    return runCommand_(command, headers, body);
+SIExtension::Result SIExtension::runCommand(const SIExtensionContext& context, const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) {
+    return runCommand_(context, command, headers, body);
 }
 
 QString to_string(SIExtension::Status status) {
@@ -38,6 +38,9 @@ QString to_string(SIExtension::Status status) {
 
         case SIExtension::Status::InvalidBody:
             return "InvalidBody";
+
+        case SIExtension::Status::Forbidden:
+            return "Forbidden";
 
         case SIExtension::Status::Error:
             return "Error";

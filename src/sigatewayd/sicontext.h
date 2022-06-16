@@ -11,7 +11,7 @@ class SIContext {
 
     virtual const SISettings& settings() const = 0;
     virtual SIDeviceAccessManager& deviceAccessManager() = 0;
-    virtual const SIUserAuthorizer* userAuthorizer() = 0;
+    virtual SIUserAuthorizer* userAuthorizer() = 0;
     virtual SIStorage& storage() = 0;
     virtual SIExtensionManager& extensionManager() = 0;
 };

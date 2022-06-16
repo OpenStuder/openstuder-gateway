@@ -63,6 +63,7 @@ add_executable(sigatewayd
                sicontext.h
                datalog/sidatalogmanager.h
                datalog/sidatalogmanager.cpp
+               extension/sisessioncontext.h
                extension/siextensionmanager.cpp
                extension/siextensionmanager.h)
 target_link_libraries(sigatewayd Qt5::Core Qt5::Network Qt5::WebSockets Qt5::Bluetooth SIDeviceAccess SIStorage SIAuthorize SIExtension tinycbor)

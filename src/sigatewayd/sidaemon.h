@@ -24,7 +24,7 @@ class SIDaemon: public QCoreApplication, public SIContext {
   private:
     const SISettings& settings() const override;
     SIDeviceAccessManager& deviceAccessManager() override;
-    const SIUserAuthorizer* userAuthorizer() override;
+    SIUserAuthorizer* userAuthorizer() override;
     SIStorage& storage() override;
     SIExtensionManager& extensionManager() override;
 

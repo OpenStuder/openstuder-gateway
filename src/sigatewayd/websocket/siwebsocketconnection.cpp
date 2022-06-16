@@ -56,7 +56,7 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
 
                 switch (version) {
                     case 1:
-                        protocol_ = new SIWebSocketProtocolV1(accessLevel);
+                        protocol_ = new SIWebSocketProtocolV1(frame.header("user"), accessLevel);
                         connect(protocol_, &SIAbstractWebSocketProtocol::frameReadyToSend, this, &SIWebSocketConnection::sendFrame_);
                         sendFrame_({SIWebSocketProtocolFrame::AUTHORIZED, {
                             {"access_level", to_string(accessLevel)},

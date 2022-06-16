@@ -60,6 +60,7 @@ add_subdirectory(src/drivers/storage/sqlite)
 add_subdirectory(src/drivers/deviceaccess/xcom485i)
 add_subdirectory(src/drivers/deviceaccess/demo)
 add_subdirectory(src/drivers/extension/webstorage)
+add_subdirectory(src/drivers/extension/usermanagement)
 
 # Configuration files.
 install(FILES config/gateway.conf DESTINATION "${OPENSTUDER_CONFIG_LOCATION}")

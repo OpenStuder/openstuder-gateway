@@ -1,4 +1,5 @@
 #pragma once
+#include <QString>
 
 enum class SIAccessLevel: unsigned int {
     None = 0,
@@ -9,3 +10,4 @@ enum class SIAccessLevel: unsigned int {
 };
 
 const char* to_string(SIAccessLevel accessLevel);
+SIAccessLevel SIAccessLevelFromString(const QString& string);

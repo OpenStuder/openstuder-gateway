@@ -7,7 +7,7 @@
 #include <QSqlError>
 #include <algorithm>
 
-Q_DECLARE_LOGGING_CATEGORY(webdata)
+Q_DECLARE_LOGGING_CATEGORY(WebStorage)
 
 WebStorageExtension::WebStorageExtension(): SIExtension("WebStorage") {}
 
@@ -18,7 +18,7 @@ WebStorageExtension::~WebStorageExtension() {
 bool WebStorageExtension::open(const QString& filename) {
     // Check if SQLite driver is available.
     if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
-        qCCritical(webdata,) << "Qt SQLITE driver not available";
+        qCCritical(WebStorage,) << "Qt SQLITE driver not available";
         return false;
     }
 
@@ -27,28 +27,28 @@ bool WebStorageExtension::open(const QString& filename) {
     if (!fileInfo.exists()) {
         auto folder = fileInfo.absoluteDir();
         if (!folder.exists()) {
-            qCWarning(webdata,) << "Folder" << folder.absolutePath() << "does not exist, trying to create it";
+            qCWarning(WebStorage,) << "Folder" << folder.absolutePath() << "does not exist, trying to create it";
             if (!folder.mkpath(".")) {
-                qCCritical(webdata,) << "Failed to create folder" << folder.absolutePath();
+                qCCritical(WebStorage,) << "Failed to create folder" << folder.absolutePath();
                 return false;
             }
         }
-        qCInfo(webdata,) << "Creating new SQLite database file" << filename;
+        qCInfo(WebStorage,) << "Creating new SQLite database file" << filename;
     } else {
-        qCInfo(webdata,) << "Opening existing SQLite database file" << filename;
+        qCInfo(WebStorage,) << "Opening existing SQLite database file" << filename;
     }
 
     // Create database.
     db_ = QSqlDatabase::addDatabase("QSQLITE", "org.sgw.SIExtensionDriver.webdata");
     if (!db_.isValid()) {
-        qCCritical(webdata,) << "Unable to create SQLITE database";
+        qCCritical(WebStorage,) << "Unable to create SQLITE database";
         return false;
     }
 
     // Open database file.
     db_.setDatabaseName(filename);
     if (!db_.open()) {
-        qCCritical(webdata,) << "Unable to open SQLITE database" << filename;
+        qCCritical(WebStorage,) << "Unable to open SQLITE database" << filename;
         return false;
     }
 
@@ -57,7 +57,7 @@ bool WebStorageExtension::open(const QString& filename) {
     if (!query.exec("CREATE TABLE IF NOT EXISTS web_data (key STRING, value BLOB)") ||
         !query.exec("CREATE UNIQUE INDEX IF NOT EXISTS web_data_index ON web_data (key)") ) {
 
-        qCCritical(webdata,) << "Error during database initialization:" << query.lastError().text();
+        qCCritical(WebStorage,) << "Error during database initialization:" << query.lastError().text();
         return false;
     }
 
@@ -69,7 +69,9 @@ QStringList& WebStorageExtension::commands_() const {
     return commands_;
 }
 
-SIExtension::Result WebStorageExtension::runCommand_(const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) {
+SIExtension::Result WebStorageExtension::runCommand_(const SIExtensionContext& context, const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) {
+    Q_UNUSED(context);
+
     if (command == "write") {
         return write_(headers.value("key"), body);
     } else if (command == "read") {
@@ -89,7 +91,7 @@ SIExtension::Result WebStorageExtension::write_(const QString& key, const QByteA
     query.addBindValue(key);
     query.addBindValue(body);
     if (!query.exec()) {
-        qCCritical(webdata,) << "Error during web data write:" << query.lastError().text();
+        qCCritical(WebStorage,) << "Error during web data write:" << query.lastError().text();
         db_.rollback();
         return {Status::Error};
     }
@@ -106,7 +108,7 @@ SIExtension::Result WebStorageExtension::read_(const QString& key) {
     query.prepare("SELECT value FROM web_data WHERE key = ?");
     query.addBindValue(key);
     if (!query.exec()) {
-        qCCritical(webdata,) << "Error during web data read:" << query.lastError().text();
+        qCCritical(WebStorage,) << "Error during web data read:" << query.lastError().text();
         return {Status::Error};
     }
 

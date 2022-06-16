@@ -20,3 +20,17 @@ const char* to_string(SIAccessLevel accessLevel) {
 
     return "None";
 }
+
+SIAccessLevel SIAccessLevelFromString(const QString& string) {
+    if (string == "Basic") {
+        return SIAccessLevel::Basic;
+    } else if (string == "Installer") {
+        return SIAccessLevel::Installer;
+    } else if (string == "Expert") {
+        return SIAccessLevel::Expert;
+    } else if (string == "QSP") {
+        return SIAccessLevel::QualifiedServicePersonnel;
+    } else {
+        return SIAccessLevel::None;
+    }
+}

@@ -16,7 +16,7 @@ class WebStorageExtension: public SIExtension {
     Result read_(const QString&  key);
 
     QStringList& commands_() const override;
-    Result runCommand_(const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) override;
+    Result runCommand_(const SIExtensionContext& context, const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) override;
 
     QSqlDatabase db_;
 };

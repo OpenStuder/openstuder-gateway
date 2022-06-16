@@ -1,12 +1,14 @@
 #pragma once
 #include "siabstractwebsocketprotocol.h"
 #include <siaccesslevel.h>
+#include "../extension/sisessioncontext.h"
 
-class SIWebSocketProtocolV1: public SIAbstractWebSocketProtocol {
+
+class SIWebSocketProtocolV1: public SIAbstractWebSocketProtocol, SISessionContext {
     Q_OBJECT
 
   public:
-    explicit SIWebSocketProtocolV1(SIAccessLevel accessLevel);
+    explicit SIWebSocketProtocolV1(QString username, SIAccessLevel accessLevel);
 
     SIWebSocketProtocolFrame handleFrame(SIWebSocketProtocolFrame& frame, SIContext& context) override;
     SIWebSocketProtocolFrame convertDeviceMessage(const SIDeviceMessage& message) override;
@@ -20,5 +22,9 @@ class SIWebSocketProtocolV1: public SIAbstractWebSocketProtocol {
     void writePropertyOperationFinished_(SIStatus status);
 
   private:
+    QString username() const override;
+    SIAccessLevel accessLevel() override;
+
+    QString username_;
     SIAccessLevel accessLevel_;
 };

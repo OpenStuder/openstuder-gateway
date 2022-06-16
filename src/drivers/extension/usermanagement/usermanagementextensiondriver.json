@@ -1,0 +1,12 @@
+{
+  "name": "UserManagement",
+  "version": "1.0",
+  "author": "michael.clausen@hevs.ch",
+  "parameters": [
+    {
+      "name": "adminUsers",
+      "type": "QString",
+      "required": true
+    }
+  ]
+}

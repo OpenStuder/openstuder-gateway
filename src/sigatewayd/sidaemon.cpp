@@ -202,7 +202,7 @@ SIDeviceAccessManager& SIDaemon::deviceAccessManager() {
     return *deviceAccessManager_;
 }
 
-const SIUserAuthorizer* SIDaemon::userAuthorizer() {
+SIUserAuthorizer* SIDaemon::userAuthorizer() {
     return authorizer_.get();
 }
 

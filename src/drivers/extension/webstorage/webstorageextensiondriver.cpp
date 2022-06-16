@@ -2,7 +2,7 @@
 #include "webstorageextension.h"
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(webdata, "driver.storage.SQLite", QtInfoMsg)
+Q_LOGGING_CATEGORY(WebStorage, "driver.extension.WebStorage", QtInfoMsg)
 
 SIExtension* WebStorageExtensionDriver::createExtensionInstance(const QVariantMap& parameters) {
     auto filename = parameters.value("file", OPENSTUDER_GATEWAY_INSTALL_PREFIX "/var/lib/openstuder/webdata.sqlite").toString();

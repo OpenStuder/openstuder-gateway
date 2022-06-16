@@ -9,7 +9,7 @@
 #include <QJsonArray>
 #include <QTextStream>
 
-SIWebSocketProtocolV1::SIWebSocketProtocolV1(SIAccessLevel accessLevel): accessLevel_(accessLevel) {}
+SIWebSocketProtocolV1::SIWebSocketProtocolV1(QString username, SIAccessLevel accessLevel): username_(std::move(username)), accessLevel_(accessLevel) {}
 
 SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolFrame& frame, SIContext& context) {
     switch (frame.command()) {
@@ -489,7 +489,7 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
-            auto result = context.extensionManager().callExtension(frame.header("extension"), frame.header("command"), frame.headers(), frame.body(), context);
+            auto result = context.extensionManager().callExtension(frame.header("extension"), frame.header("command"), frame.headers(), frame.body(), context, *this);
             SIWebSocketProtocolFrame response(SIWebSocketProtocolFrame::EXTENSION_CALLED, {
                 {"extension", frame.header("extension")},
                 {"command", frame.header("command")},
@@ -579,4 +579,11 @@ void SIWebSocketProtocolV1::writePropertyOperationFinished_(SIStatus status) {
         {"id", operation->id().toString()}
     }});
     operation->deleteLater();
+}
+QString SIWebSocketProtocolV1::username() const {
+    return username_;
+}
+
+SIAccessLevel SIWebSocketProtocolV1::accessLevel() {
+    return accessLevel_;
 }
