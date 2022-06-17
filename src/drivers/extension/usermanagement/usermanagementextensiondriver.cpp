@@ -5,16 +5,15 @@
 Q_LOGGING_CATEGORY(UserManagement, "driver.extension.UserManagement", QtInfoMsg)
 
 SIExtension* UserManagementExtensionDriver::createExtensionInstance(const QVariantMap& parameters) {
-    qCCritical(UserManagement,) << parameters;
-    auto adminUsers = parameters.value("adminUsers").toStringList();
-    if (adminUsers.isEmpty()) {
-        qCCritical(UserManagement,) << "Missing required parameter \"adminUsers\"";
+    auto allowedUsers = parameters.value("allowedUsers").toStringList();
+    if (allowedUsers.isEmpty()) {
+        qCCritical(UserManagement,) << "Missing required parameter \"allowedUsers\"";
         return nullptr;
     }
-    qCCritical(UserManagement,) << adminUsers;
-    for (auto& adminUser: adminUsers) {
-        adminUser = adminUser.trimmed();
+
+    for (auto& user: allowedUsers) {
+        user = user.trimmed();
     }
 
-    return new UserManagementExtension(adminUsers);
+    return new UserManagementExtension(allowedUsers);
 }

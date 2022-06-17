@@ -18,34 +18,28 @@ const QStringList& SIExtension::commands() const {
     return commands_();
 }
 
-SIExtension::Result SIExtension::runCommand(const SIExtensionContext& context, const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) {
-    return runCommand_(context, command, headers, body);
+const SIExtensionWebSocketResult* SIExtension::runCommand(const SIExtensionContext& context, const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) {
+    auto result = runCommand_(context, command, headers, body);
+
+    if (result != nullptr) {
+        result->extension_ = id();
+        result->command_ = command;
+    }
+
+    return result;
 }
 
-QString to_string(SIExtension::Status status) {
-    switch (status) {
-        case SIExtension::Status::Success:
-            return "Success";
+bool SIExtension::bluetoothSupported() const {
+    return bluetoothSupported_();
+}
 
-        case SIExtension::Status::UnsupportedExtension:
-            return "UnsupportedExtension";
+const SIExtensionBluetoothResult* SIExtension::runCommand(const SIExtensionContext& context, const QString& command, const QVector<QVariant>& parameters) {
+    auto result = runCommand_(context, command, parameters);
 
-        case SIExtension::Status::UnsupportedCommand:
-            return "UnsupportedCommand";
-
-        case SIExtension::Status::InvalidHeaders:
-            return "InvalidHeaders";
-
-        case SIExtension::Status::InvalidBody:
-            return "InvalidBody";
-
-        case SIExtension::Status::Forbidden:
-            return "Forbidden";
-
-        case SIExtension::Status::Error:
-            return "Error";
-
-        default:
-            return "Invalid";
+    if (result != nullptr) {
+        result->extension_ = id();
+        result->command_ = command;
     }
+
+    return result;
 }

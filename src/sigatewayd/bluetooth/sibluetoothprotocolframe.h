@@ -22,6 +22,7 @@ class SIBluetoothProtocolFrame {
         READ_DATALOG = 0x08,
         READ_MESSAGES = 0x09,
         FIND_PROPERTIES = 0x0A,
+        CALL_EXTENSION = 0x0B,
 
         // Server messages.
         ERROR = 0xFF,
@@ -35,6 +36,7 @@ class SIBluetoothProtocolFrame {
         DATALOG_READ = 0x88,
         MESSAGES_READ = 0x89,
         PROPERTIES_FOUND = 0x8A,
+        EXTENSION_CALLED = 0x8B,
         PROPERTY_UPDATE = 0xFE,
         DEVICE_MESSAGE = 0xFD
     };
@@ -59,11 +61,15 @@ class SIBluetoothProtocolFrame {
         parameters_ = parameters;
     }
 
+    inline void appendParameters(const QVector<QVariant>& parameters) {
+        parameters_.append(parameters);
+    }
+
     inline int parameterCount() const {
         return parameters_.count();
     }
 
-    bool validateParameters(const QVector<QSet<QVariant::Type>>& parameterTypes);
+    bool validateParameters(const QVector<QSet<QVariant::Type>>& parameterTypes, bool allowAdditionalParameters = false);
 
     QByteArray toBytes(qsizetype bufferSize = 8*1024) const;
     static SIBluetoothProtocolFrame fromBytes(const QByteArray& bytes);

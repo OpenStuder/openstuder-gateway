@@ -20,6 +20,7 @@ class SIWebSocketProtocolV1: public SIAbstractWebSocketProtocol, SISessionContex
     void readPropertyOperationFinished_(SIStatus status);
     void readPropertiesOperationFinished_(SIStatus status);
     void writePropertyOperationFinished_(SIStatus status);
+    void extensionCallCompleted_();
 
   private:
     QString username() const override;

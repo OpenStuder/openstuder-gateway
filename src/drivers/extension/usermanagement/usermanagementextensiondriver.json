@@ -4,8 +4,8 @@
   "author": "michael.clausen@hevs.ch",
   "parameters": [
     {
-      "name": "adminUsers",
-      "type": "QString",
+      "name": "allowedUsers",
+      "type": "QStringList",
       "required": true
     }
   ]

@@ -8,12 +8,18 @@ bool SIBluetoothProtocolFrame::isNull() const {
     return command_ == INVALID;
 }
 
-bool SIBluetoothProtocolFrame::validateParameters(const QVector<QSet<QVariant::Type>>& parameterTypes) {
-    if (parameters_.count() != parameterTypes.count()) {
-        return false;
+bool SIBluetoothProtocolFrame::validateParameters(const QVector<QSet<QVariant::Type>>& parameterTypes, bool allowAdditionalParameters) {
+    if (allowAdditionalParameters) {
+        if (parameters_.count() < parameterTypes.count()) {
+            return false;
+        }
+    } else {
+        if (parameters_.count() != parameterTypes.count()) {
+            return false;
+        }
     }
 
-    for (int i = 0; i < parameters_.count(); ++i) {
+    for (int i = 0; i < parameterTypes.count(); ++i) {
         if (!parameterTypes[i].isEmpty() && std::none_of(parameterTypes[i].cbegin(), parameterTypes[i].cend(), [this, i](QVariant::Type type) { return parameters_[i].canConvert(type); })) {
             return false;
         }

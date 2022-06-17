@@ -69,7 +69,7 @@ QStringList& WebStorageExtension::commands_() const {
     return commands_;
 }
 
-SIExtension::Result WebStorageExtension::runCommand_(const SIExtensionContext& context, const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) {
+SIExtensionWebSocketResult* WebStorageExtension::runCommand_(const SIExtensionContext& context, const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) {
     Q_UNUSED(context);
 
     if (command == "write") {
@@ -77,13 +77,13 @@ SIExtension::Result WebStorageExtension::runCommand_(const SIExtensionContext& c
     } else if (command == "read") {
         return read_(headers.value("key"));
     } else {
-        return {Status::UnsupportedCommand};
+        return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::UnsupportedCommand);
     }
 }
 
-SIExtension::Result WebStorageExtension::write_(const QString& key, const QByteArray& body) {
+SIExtensionWebSocketResult* WebStorageExtension::write_(const QString& key, const QByteArray& body) {
     if (key.isEmpty()) {
-        return {Status::InvalidHeaders};
+        return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
     }
 
     auto query = QSqlQuery(db_);
@@ -93,15 +93,15 @@ SIExtension::Result WebStorageExtension::write_(const QString& key, const QByteA
     if (!query.exec()) {
         qCCritical(WebStorage,) << "Error during web data write:" << query.lastError().text();
         db_.rollback();
-        return {Status::Error};
+        return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::Error);
     }
 
-    return {Status::Success, {{"key", key}}};
+    return new SIExtensionWebSocketResult(SIExtensionStatus::Success, {{"key", key}});
 }
 
-SIExtension::Result WebStorageExtension::read_(const QString& key) {
+SIExtensionWebSocketResult* WebStorageExtension::read_(const QString& key) {
     if (key.isEmpty()) {
-        return {Status::InvalidHeaders};
+        return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
     }
 
     auto query = QSqlQuery(db_);
@@ -109,7 +109,7 @@ SIExtension::Result WebStorageExtension::read_(const QString& key) {
     query.addBindValue(key);
     if (!query.exec()) {
         qCCritical(WebStorage,) << "Error during web data read:" << query.lastError().text();
-        return {Status::Error};
+        return  SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::Error);
     }
 
     QByteArray body;
@@ -117,5 +117,5 @@ SIExtension::Result WebStorageExtension::read_(const QString& key) {
         body = query.value(0).toByteArray();
     }
 
-    return {Status::Success, {{"key", key}}, body};
+    return new SIExtensionWebSocketResult(SIExtensionStatus::Success, {{"key", key}}, body);
 }

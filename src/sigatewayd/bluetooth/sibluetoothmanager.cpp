@@ -116,7 +116,7 @@ void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic
 
                 switch (version) {
                     case 1:
-                        protocol_ = new SIBluetoothProtocolV1(accessLevel);
+                        protocol_ = new SIBluetoothProtocolV1(frame.parameters()[0].toString(), accessLevel);
                         connect(protocol_, &SIAbstractBluetoothProtocol::frameReadyToSend, this, &SIBluetoothManager::sendFrame_);
                         sendFrame_({SIBluetoothProtocolFrame::AUTHORIZED, {(unsigned int)accessLevel, version, OPENSTUDER_GATEWAY_VERSION}});
                         break;

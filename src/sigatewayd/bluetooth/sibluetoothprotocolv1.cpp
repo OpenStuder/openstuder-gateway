@@ -1,8 +1,9 @@
 #include "sibluetoothprotocolv1.h"
+#include "../extension/siextensionmanager.h"
 #include <sistorage.h>
 #include <sideviceaccessregistry.h>
 
-SIBluetoothProtocolV1::SIBluetoothProtocolV1(SIAccessLevel accessLevel): accessLevel_(accessLevel) {}
+SIBluetoothProtocolV1::SIBluetoothProtocolV1(QString username, SIAccessLevel accessLevel): username_(username), accessLevel_(accessLevel) {}
 
 SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolFrame& frame, SIContext& context) {
     switch (frame.command()) {
@@ -298,6 +299,28 @@ SIBluetoothProtocolFrame SIBluetoothProtocolV1::handleFrame(SIBluetoothProtocolF
             return {SIBluetoothProtocolFrame::PROPERTIES_FOUND, {(int)SIStatus::Success, frame.parameters()[0], propertyIDs.count(), propertyIDStrings}};
         }
 
+        case SIBluetoothProtocolFrame::CALL_EXTENSION: {
+            if (!frame.validateParameters({{QVariant::String, QVariant::String}}, true)) {
+                return SIBluetoothProtocolFrame::error("invalid frame");
+            }
+
+            auto extension = frame.parameters()[0].toString();
+            auto command = frame.parameters()[1].toString();
+            auto parameters = frame.parameters(); // TODO: Remove first 2 parameters.
+            parameters.remove(0, 2);
+
+            auto result = context.extensionManager().callExtension(extension, command, parameters, context, *this);
+            if (result->isComplete()) {
+                SIBluetoothProtocolFrame response(SIBluetoothProtocolFrame::EXTENSION_CALLED, {{extension, command, (int)result->status()}});
+                response.appendParameters(result->results());
+                return response;
+            } else {
+                connect(result, &SIExtensionBluetoothResult::completed, this, &SIBluetoothProtocolV1::extensionCallCompleted_);
+                return {};
+            }
+
+        }
+
         default:
             return {SIBluetoothProtocolFrame::ERROR, {"invalid frame"}};
     }
@@ -327,4 +350,19 @@ void SIBluetoothProtocolV1::writePropertyOperationFinished_(SIStatus status) {
     auto* operation = dynamic_cast<SIPropertyWriteOperation*>(sender());
     emit frameReadyToSend({SIBluetoothProtocolFrame::PROPERTY_WRITTEN, {(int)status, operation->id().toString()}});
     operation->deleteLater();
+}
+
+void SIBluetoothProtocolV1::extensionCallCompleted_() {
+    auto* result = dynamic_cast<SIExtensionBluetoothResult*>(sender());
+    SIBluetoothProtocolFrame response(SIBluetoothProtocolFrame::EXTENSION_CALLED, {{result->extension(), result->command(), (int)result->status()}});
+    response.appendParameters(result->results());
+    emit frameReadyToSend(response);
+}
+
+QString SIBluetoothProtocolV1::username() const {
+    return username_;
+}
+
+SIAccessLevel SIBluetoothProtocolV1::accessLevel() {
+    return accessLevel_;
 }

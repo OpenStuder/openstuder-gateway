@@ -489,14 +489,25 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
                 return SIWebSocketProtocolFrame::error("invalid frame");
             }
 
-            auto result = context.extensionManager().callExtension(frame.header("extension"), frame.header("command"), frame.headers(), frame.body(), context, *this);
-            SIWebSocketProtocolFrame response(SIWebSocketProtocolFrame::EXTENSION_CALLED, {
-                {"extension", frame.header("extension")},
-                {"command", frame.header("command")},
-                {"status", to_string(result.status())}
-            }, result.body());
-            response.mergeHeaders(result.headers());
-            return response;
+            auto extension = frame.header("extension");
+            auto command = frame.header("command");
+            auto headers = frame.headers();
+            headers.remove("extension");
+            headers.remove("command");
+
+            auto result = context.extensionManager().callExtension(extension, command, headers, frame.body(), context, *this);
+            if (result->isComplete()) {
+                SIWebSocketProtocolFrame response(SIWebSocketProtocolFrame::EXTENSION_CALLED, {
+                    {"extension", extension},
+                    {"command", command},
+                    {"status", to_string(result->status())}
+                }, result->body());
+                response.mergeHeaders(result->headers());
+                return response;
+            } else {
+                connect(result, &SIExtensionWebSocketResult::completed, this, &SIWebSocketProtocolV1::extensionCallCompleted_);
+                return  {};
+            }
         }
 
         default:
@@ -580,6 +591,18 @@ void SIWebSocketProtocolV1::writePropertyOperationFinished_(SIStatus status) {
     }});
     operation->deleteLater();
 }
+
+void SIWebSocketProtocolV1::extensionCallCompleted_() {
+    auto result = dynamic_cast<const SIExtensionWebSocketResult*>(sender());
+    SIWebSocketProtocolFrame response(SIWebSocketProtocolFrame::EXTENSION_CALLED, {
+        {"extension", result->extension()},
+        {"command", result->command()},
+        {"status", to_string(result->status())}
+    }, result->body());
+    response.mergeHeaders(result->headers());
+    emit frameReadyToSend(response);
+}
+
 QString SIWebSocketProtocolV1::username() const {
     return username_;
 }

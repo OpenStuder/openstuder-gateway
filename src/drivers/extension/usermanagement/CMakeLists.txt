@@ -4,4 +4,4 @@ si_add_extension_driver(UserManagement
                         usermanagementextension.cpp
                         usermanagementextensiondriver.h
                         usermanagementextensiondriver.cpp)
-target_link_libraries(UserManagement Qt5::Sql SIDeviceAccess SIAuthorize)
+target_link_libraries(UserManagement SIDeviceAccess SIAuthorize)
