@@ -10,12 +10,15 @@
 #include <QMap>
 #include <QVector>
 #include <QVariant>
+#include <QSet>
 
 class SIExtension: public QObject {
   public:
     SIExtension(const SIExtension&) = delete;
     SIExtension& operator =(const SIExtension&) = delete;
     ~SIExtension() override;
+
+    void  setAllowedUsers(const QStringList& allowedUsers);
 
     const QString& id() const;
 
@@ -27,7 +30,10 @@ class SIExtension: public QObject {
     const SIExtensionBluetoothResult* runCommand(const SIExtensionContext& context, const QString& command, const QVector<QVariant>& parameters);
 
   protected:
-    explicit SIExtension(const QString& id);
+    explicit SIExtension(const QString& id, const QStringList allowedUsers = {});
+
+    static bool validateWebSocketHeaders(const QMap<QString, QString>& headers, const std::initializer_list<const char*>& required, const std::initializer_list<const char*>& optional = {});
+    static bool validateBluetoothParameters(const QVector<QVariant>& parameters, const QVector<QSet<QVariant::Type>>& parameterTypes, bool allowAdditionalParameters = false);
 
   private:
     virtual QStringList& commands_() const = 0;
