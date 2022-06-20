@@ -6,7 +6,7 @@ class UserManagementExtension: public SIExtension {
   Q_OBJECT
 
   public:
-    UserManagementExtension(QStringList allowedUsers);
+    explicit UserManagementExtension(QStringList allowedUsers);
     ~UserManagementExtension() override;
 
   private:
@@ -15,6 +15,4 @@ class UserManagementExtension: public SIExtension {
 
     bool bluetoothSupported_() const override;
     SIExtensionBluetoothResult* runCommand_(const SIExtensionContext& context, const QString& command, const QVector<QVariant>& parameters) override;
-
-    QStringList allowedUsers_;
 };

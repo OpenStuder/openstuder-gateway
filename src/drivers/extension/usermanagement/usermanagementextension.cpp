@@ -5,7 +5,7 @@
 
 Q_DECLARE_LOGGING_CATEGORY(UserManagement)
 
-UserManagementExtension::UserManagementExtension(QStringList allowedUsers): SIExtension("UserManagement"), allowedUsers_(std::move(allowedUsers)) {}
+UserManagementExtension::UserManagementExtension(QStringList allowedUsers): SIExtension("UserManagement", allowedUsers) {}
 
 UserManagementExtension::~UserManagementExtension() = default;
 
@@ -16,15 +16,15 @@ QStringList& UserManagementExtension::commands_() const {
 
 SIExtensionWebSocketResult* UserManagementExtension::runCommand_(const SIExtensionContext& context, const QString& command, const QMap<QString, QString>& headers, const QByteArray& body) {
     Q_UNUSED(body);
-    if (!allowedUsers_.contains(context.sessionUserName())) {
-        return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::Forbidden);
-    }
-
     if (context.userAuthorizer() == nullptr || !context.userAuthorizer()->managementSupported()) {
         return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::Error);
     }
 
     if (command == "list") {
+        if (! validateWebSocketHeaders(headers, {})) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
         bool ok;
         auto users = context.userAuthorizer()->listUsers(&ok);
         if (!ok) {
@@ -38,6 +38,10 @@ SIExtensionWebSocketResult* UserManagementExtension::runCommand_(const SIExtensi
         return new SIExtensionWebSocketResult(SIExtensionStatus::Success, {}, QJsonDocument(usersObj).toJson(QJsonDocument::Compact));
 
     } else if (command == "add") {
+        if (! validateWebSocketHeaders(headers, {"username", "password", "access_level"})) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
         auto username = headers["username"];
         auto password = headers["password"];
         auto accessLevel = SIAccessLevelFromString(headers["access_level"]);
@@ -52,6 +56,10 @@ SIExtensionWebSocketResult* UserManagementExtension::runCommand_(const SIExtensi
             return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::Error);
         }
     } else if (command == "change_password") {
+        if (! validateWebSocketHeaders(headers, {"username", "password"})) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
         auto username = headers["username"];
         auto password = headers["password"];
 
@@ -65,6 +73,10 @@ SIExtensionWebSocketResult* UserManagementExtension::runCommand_(const SIExtensi
             return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::Error);
         }
     } else if (command == "change_access_level") {
+        if (! validateWebSocketHeaders(headers, {"username", "access_level"})) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
         auto username = headers["username"];
         auto accessLevel = SIAccessLevelFromString(headers["access_level"]);
 
@@ -78,10 +90,18 @@ SIExtensionWebSocketResult* UserManagementExtension::runCommand_(const SIExtensi
             return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::Error);
         }
     } else if (command == "remove") {
+        if (! validateWebSocketHeaders(headers, {"username"})) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
         auto username = headers["username"];
 
         if (username.isEmpty()) {
             return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
+        if (username == context.sessionUserName()) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::Error);
         }
 
         if (context.userAuthorizer()->removeUser(username)) {
@@ -98,15 +118,15 @@ bool UserManagementExtension::bluetoothSupported_() const {
 }
 
 SIExtensionBluetoothResult* UserManagementExtension::runCommand_(const SIExtensionContext& context, const QString& command, const QVector<QVariant>& parameters) {
-    if (!allowedUsers_.contains(context.sessionUserName())) {
-        return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::Forbidden);
-    }
-
     if (context.userAuthorizer() == nullptr || !context.userAuthorizer()->managementSupported()) {
         return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::Error);
     }
 
     if (command == "list") {
+        if (! validateBluetoothParameters(parameters, {})) {
+            return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+        }
+
         bool ok;
         auto users = context.userAuthorizer()->listUsers(&ok);
         if (!ok) {
@@ -119,9 +139,10 @@ SIExtensionBluetoothResult* UserManagementExtension::runCommand_(const SIExtensi
         }
         return new SIExtensionBluetoothResult (SIExtensionStatus::Success, {{usersMap}});
     } else if (command == "add") {
-        if (parameters.size() != 3) {
+        if (! validateBluetoothParameters(parameters, {{QVariant::String}, {QVariant::String}, {QVariant::Int}})) {
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
         }
+
         auto username = parameters[0].toString();
         auto password = parameters[1].toString();
         auto accessLevel = static_cast<SIAccessLevel>(parameters[2].toUInt());
@@ -135,9 +156,10 @@ SIExtensionBluetoothResult* UserManagementExtension::runCommand_(const SIExtensi
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::Error);
         }
     } else if (command == "change_password") {
-        if (parameters.size() != 2) {
+        if (! validateBluetoothParameters(parameters, {{QVariant::String}, {QVariant::String}})) {
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
         }
+
         auto username = parameters[0].toString();
         auto password = parameters[1].toString();
 
@@ -151,11 +173,12 @@ SIExtensionBluetoothResult* UserManagementExtension::runCommand_(const SIExtensi
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::Error);
         }
     } else if (command == "change_access_level") {
-        if (parameters.size() != 2) {
+        if (! validateBluetoothParameters(parameters, {{QVariant::String}, {QVariant::Int}})) {
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
         }
+
         auto username = parameters[0].toString();
-        auto accessLevel = static_cast<SIAccessLevel>(parameters[2].toUInt());
+        auto accessLevel = static_cast<SIAccessLevel>(parameters[1].toUInt());
 
         if (username.isEmpty() || accessLevel < SIAccessLevel::None || accessLevel > SIAccessLevel::QualifiedServicePersonnel) {
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
@@ -167,9 +190,10 @@ SIExtensionBluetoothResult* UserManagementExtension::runCommand_(const SIExtensi
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::Error);
         }
     } else if (command == "remove") {
-        if (parameters.size() != 1) {
+        if (! validateBluetoothParameters(parameters, {{QVariant::String}})) {
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
         }
+
         auto username = parameters[0].toString();
 
         if (username.isEmpty()) {
