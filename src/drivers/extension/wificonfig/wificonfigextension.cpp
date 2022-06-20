@@ -15,9 +15,8 @@
 
 Q_DECLARE_LOGGING_CATEGORY(WifiConfig)
 
-WifiConfigExtension::WifiConfigExtension(QStringList allowedUsers, QString country): SIExtension("WifiConfig"),
-                                                                                                  allowedUsers_(std::move(allowedUsers)),
-                                                                                                  country_(std::move(country)) {}
+WifiConfigExtension::WifiConfigExtension(QStringList allowedUsers, QString country): SIExtension("WifiConfig", allowedUsers),
+                                                                                     countryCode_(std::move(country)) {}
 
 WifiConfigExtension::~WifiConfigExtension() = default;
 
@@ -64,7 +63,7 @@ SIExtensionStatus WifiConfigExtension::clientSetup(const ClientSettings& setting
 
     QTextStream config(&configFile);
     config << "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" << endl
-           << "update_config=1" << endl << "country=" << country_ << endl << endl;
+           << "update_config=1" << endl << "country=" << countryCode_ << endl << endl;
 
     if (settings.enabled) {
         auto result = execute_("wpa_passphrase", {settings.ssid, settings.passKey});
@@ -125,10 +124,10 @@ rsn_pairwise=CCMP
 #wmm_enabled=1
 # Enable 40MHz channels with 20ns guard interval
 #ht_capab=[HT40][SHORT-GI-20][DSSS_CCK-40])")
-    .arg(settings.channel).arg(settings.ssid).arg(settings.passKey).arg(countryCode);
+            .arg(settings.channel).arg(settings.ssid).arg(settings.passKey).arg(countryCode);
 
         QFile hostapdSettings("/etc/hostapd/hostapd.conf");
-        if (!hostapdSettings.open(QIODevice::ReadWrite)) {
+        if (! hostapdSettings.open(QIODevice::ReadWrite)) {
             qCCritical(WifiConfig,) << "Error during AP setup: Could not open hostapd config file";
             return SIExtensionStatus::Error;
         }
@@ -207,10 +206,10 @@ bool WifiConfigExtension::installAccessPointRequirements(const AccessPointSettin
     }
 
     QProcess::execute(QString("%1 --install --ap-ssid=\"%2\" --ap-password=\"%3\" --ap-country-code=\"%4\"")
-        .arg(installScript)
-        .arg(settings.ssid)
-        .arg(settings.passKey)
-        .arg(countryCode));
+                          .arg(installScript)
+                          .arg(settings.ssid)
+                          .arg(settings.passKey)
+                          .arg(countryCode));
 
     return true;
 }
@@ -281,7 +280,7 @@ WifiConfigExtension::ScanResults WifiConfigExtension::parseWifiScanOutput_(const
     return list;
 }
 
-QByteArray WifiConfigExtension::encodeScanResults_(const WifiConfigExtension::ScanResults& scanResults) {
+QByteArray WifiConfigExtension::encodeScanResultsAsJson_(const WifiConfigExtension::ScanResults& scanResults) {
     QJsonArray results;
 
     for (const auto& scanResult: scanResults) {
@@ -293,6 +292,16 @@ QByteArray WifiConfigExtension::encodeScanResults_(const WifiConfigExtension::Sc
     }
 
     return QJsonDocument(results).toJson(QJsonDocument::Compact);
+}
+
+QVector<QVariant> WifiConfigExtension::encodeScanResultsAsList_(const WifiConfigExtension::ScanResults& scanResults) {
+    QVector<QVariant> results;
+
+    for (const auto& scanResult: scanResults) {
+        results << scanResult.ssid;
+    }
+
+    return results;
 }
 
 QString WifiConfigExtension::prepareAPInstallScript_() {
@@ -328,6 +337,10 @@ SIExtensionWebSocketResult* WifiConfigExtension::runCommand_(const SIExtensionCo
     Q_UNUSED(body);
 
     if (command == "status") {
+        if (! validateWebSocketHeaders(headers, {})) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
         auto status_ = status();
         return new SIExtensionWebSocketResult(SIExtensionStatus::Success, {
             {"client",    status_.clientEnabled ? "true" : "false"},
@@ -336,12 +349,20 @@ SIExtensionWebSocketResult* WifiConfigExtension::runCommand_(const SIExtensionCo
             {"ap",        status_.accessPointEnabled ? "true" : "false"}
         });
     } else if (command == "scan") {
+        if (! validateWebSocketHeaders(headers, {})) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
         auto* result = new SIExtensionWebSocketResult();
         scan([result](SIExtensionStatus status, const ScanResults& scanResults) {
-            result->complete(status, {}, encodeScanResults_(scanResults));
+            result->complete(status, {}, encodeScanResultsAsJson_(scanResults));
         });
         return result;
     } else if (command == "cliconf") {
+        if (! validateWebSocketHeaders(headers, {"enabled"}, {"ssid", "passkey"})) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
         auto enabledString = headers["enabled"];
         auto enabled = enabledString.toLower() == "true";
         auto ssid = headers["ssid"];
@@ -357,6 +378,10 @@ SIExtensionWebSocketResult* WifiConfigExtension::runCommand_(const SIExtensionCo
                                                                       passKey
                                                                   }));
     } else if (command == "apconf") {
+        if (! validateWebSocketHeaders(headers, {"enabled"}, {"channel", "ssid", "passkey"})) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
         auto enabledString = headers["enabled"];
         auto enabled = enabledString.toLower() == "true";
         auto channel = headers.value("channel", "1").toInt();
@@ -368,24 +393,95 @@ SIExtensionWebSocketResult* WifiConfigExtension::runCommand_(const SIExtensionCo
         }
 
         return SIExtensionWebSocketResult::fromStatus(apSetup({
-                                                                      enabled,
-                                                                      channel,
-                                                                      ssid,
-                                                                      passKey
-                                                                  }, country_));
+                                                                  enabled,
+                                                                  channel,
+                                                                  ssid,
+                                                                  passKey
+                                                              }, countryCode_));
     } else {
         return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::UnsupportedCommand);
     }
 }
 
 bool WifiConfigExtension::bluetoothSupported_() const {
-    return false;  // TODO: Add support for bluetooth.
+    return true;
 }
 
 SIExtensionBluetoothResult* WifiConfigExtension::runCommand_(const SIExtensionContext& context, const QString& command, const QVector<QVariant>& parameters) {
     Q_UNUSED(context);
-    Q_UNUSED(command);
-    Q_UNUSED(parameters);
 
-    return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::UnsupportedExtension); // TODO: Add support for bluetooth.
+    if (command == "status") {
+        if (! validateBluetoothParameters(parameters, {})) {
+            return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+        }
+
+        auto status_ = status();
+        return new SIExtensionBluetoothResult(SIExtensionStatus::Success, {
+            status_.clientEnabled,
+            status_.clientConnected,
+            status_.clientIPAddress,
+            status_.accessPointEnabled
+        });
+    } else if (command == "scan") {
+        if (! validateBluetoothParameters(parameters, {})) {
+            return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+        }
+
+        auto* result = new SIExtensionBluetoothResult();
+        scan([result](SIExtensionStatus status, const ScanResults& scanResults) {
+            result->complete(status, encodeScanResultsAsList_(scanResults));
+        });
+        return result;
+    } else if (command == "cliconf") {
+        if (! validateBluetoothParameters(parameters, {{QVariant::Bool}})) {
+            return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+        }
+
+        auto enabled = parameters[0].toBool();
+        if (enabled && ! validateBluetoothParameters(parameters, {{QVariant::Bool},
+                                                                  {QVariant::String},
+                                                                  {QVariant::String}})) {
+            return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+        }
+
+        auto ssid = parameters[1].toString();
+        auto passKey = parameters[2].toString();
+        if (enabled && passKey.length() < 8) {
+            return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+        }
+
+        return SIExtensionBluetoothResult::fromStatus(clientSetup({
+                                                                      enabled,
+                                                                      ssid,
+                                                                      passKey
+                                                                  }));
+    } else if (command == "apconf") {
+        if (! validateBluetoothParameters(parameters, {{QVariant::Bool}})) {
+            return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+        }
+
+        auto enabled = parameters[0].toBool();
+        if (enabled && ! validateBluetoothParameters(parameters, {{QVariant::Bool},
+                                                                  {QVariant::Int},
+                                                                  {QVariant::String},
+                                                                  {QVariant::String}})) {
+            return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+        }
+
+        auto channel = parameters[1].toInt();
+        auto ssid = parameters[2].toString();
+        auto passKey = parameters[3].toString();
+        if (enabled && (passKey.length() < 8 || channel < 1 || channel > 13)) {
+            return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+        }
+
+        return SIExtensionBluetoothResult::fromStatus(apSetup({
+                                                                  enabled,
+                                                                  channel,
+                                                                  ssid,
+                                                                  passKey
+                                                              }, countryCode_));
+    } else {
+        return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::UnsupportedCommand);
+    }
 }

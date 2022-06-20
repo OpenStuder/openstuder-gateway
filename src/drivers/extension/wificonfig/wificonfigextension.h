@@ -61,7 +61,8 @@ class WifiConfigExtension: public SIExtension {
     static ExecutionResult execute_(const QString& command, const QStringList& arguments = {});
 
     static ScanResults parseWifiScanOutput_(const QByteArray& output);
-    static QByteArray encodeScanResults_(const ScanResults& scanResults);
+    static QByteArray encodeScanResultsAsJson_(const ScanResults& scanResults);
+    static QVector<QVariant> encodeScanResultsAsList_(const ScanResults& scanResults);
 
     static QString prepareAPInstallScript_();
 
@@ -71,6 +72,5 @@ class WifiConfigExtension: public SIExtension {
     bool bluetoothSupported_() const override;
     SIExtensionBluetoothResult* runCommand_(const SIExtensionContext& context, const QString& command, const QVector<QVariant>& parameters) override;
 
-    QStringList allowedUsers_;
-    QString country_;
+    QString countryCode_;
 };
