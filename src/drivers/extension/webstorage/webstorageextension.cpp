@@ -73,8 +73,16 @@ SIExtensionWebSocketResult* WebStorageExtension::runCommand_(const SIExtensionCo
     Q_UNUSED(context);
 
     if (command == "write") {
+        if (! validateWebSocketHeaders(headers, {"key"})) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
         return write_(headers.value("key"), body);
     } else if (command == "read") {
+        if (! validateWebSocketHeaders(headers, {"key"})) {
+            return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
+        }
+
         return read_(headers.value("key"));
     } else {
         return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::UnsupportedCommand);
@@ -87,9 +95,14 @@ SIExtensionWebSocketResult* WebStorageExtension::write_(const QString& key, cons
     }
 
     auto query = QSqlQuery(db_);
-    query.prepare("INSERT OR REPLACE INTO web_data (key, value) VALUES (?, ?)");
-    query.addBindValue(key);
-    query.addBindValue(body);
+    if (body.isEmpty()) {
+        query.prepare("DELETE FROM web_data WHERE key = ?");
+        query.addBindValue(key);
+    } else {
+        query.prepare("INSERT OR REPLACE INTO web_data (key, value) VALUES (?, ?)");
+        query.addBindValue(key);
+        query.addBindValue(body);
+    }
     if (!query.exec()) {
         qCCritical(WebStorage,) << "Error during web data write:" << query.lastError().text();
         db_.rollback();
