@@ -1,0 +1,17 @@
+{
+  "name": "WifiConfig",
+  "version": "1.0",
+  "author": "michael.clausen@hevs.ch",
+  "parameters": [
+    {
+      "name": "allowedUsers",
+      "type": "QStringList",
+      "required": true
+    },
+    {
+      "name": "country",
+      "type": "QString",
+      "required": true
+    }
+  ]
+}
