@@ -56,13 +56,17 @@ void SIWebSocketConnection::onTextMessageReceived_(const QString& message) {
 
                 switch (version) {
                     case 1:
+
+
                         protocol_ = new SIWebSocketProtocolV1(frame.header("user"), accessLevel);
                         connect(protocol_, &SIAbstractWebSocketProtocol::frameReadyToSend, this, &SIWebSocketConnection::sendFrame_);
                         sendFrame_({SIWebSocketProtocolFrame::AUTHORIZED, {
                             {"access_level", to_string(accessLevel)},
                             {"protocol_version", QString::number(version)},
                             {"gateway_version", OPENSTUDER_GATEWAY_VERSION},
-                            {"extensions", context_->extensionManager().availableExtensions().join(",")}
+                            {"extensions", context_->extensionManager().availableExtensions([&](const SIExtension* extension) {
+                                return extension->allowedForUser(frame.header("user"));
+                            }).join(",")}
                         }});
                         break;
 

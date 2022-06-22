@@ -18,7 +18,9 @@ class SIExtension: public QObject {
     SIExtension& operator =(const SIExtension&) = delete;
     ~SIExtension() override;
 
-    void  setAllowedUsers(const QStringList& allowedUsers);
+    bool allowedForUser(const QString& sessionUsername) const;
+
+    void setAllowedUsers(const QStringList& allowedUsers);
 
     const QString& id() const;
 

@@ -2,6 +2,7 @@
 #include "sibluetoothprotocolframe.h"
 #include "sibluetoothprotocolv1.h"
 #include "../sisettings.h"
+#include "../extension/siextensionmanager.h"
 #include <siaccesslevel.h>
 #include <QLowEnergyController>
 #include <QLowEnergyCharacteristicData>
@@ -118,7 +119,10 @@ void SIBluetoothManager::onCharacteristicChanged_(const QLowEnergyCharacteristic
                     case 1:
                         protocol_ = new SIBluetoothProtocolV1(frame.parameters()[0].toString(), accessLevel);
                         connect(protocol_, &SIAbstractBluetoothProtocol::frameReadyToSend, this, &SIBluetoothManager::sendFrame_);
-                        sendFrame_({SIBluetoothProtocolFrame::AUTHORIZED, {(unsigned int)accessLevel, version, OPENSTUDER_GATEWAY_VERSION}});
+                        sendFrame_({SIBluetoothProtocolFrame::AUTHORIZED, {(unsigned int)accessLevel, version, OPENSTUDER_GATEWAY_VERSION,
+                                    context_->extensionManager().availableExtensions([&](const SIExtension* extension){
+                                        return extension->bluetoothSupported() && extension->allowedForUser(frame.parameters()[0].toString());
+                                    }).join(',')}});
                         break;
 
                     default:

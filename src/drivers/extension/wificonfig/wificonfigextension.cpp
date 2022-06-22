@@ -103,7 +103,7 @@ channel=%1
 ssid=%2
 wpa_passphrase=%3
 country_code=%4
-interface=wlan0
+interface=uap0
 # Use the 2.4GHz band (I think you can use in ag mode to get the 5GHz band as well, but I have not tested this yet)
 hw_mode=g
 # Accept all MAC addresses

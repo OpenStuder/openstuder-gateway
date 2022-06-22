@@ -13,6 +13,10 @@ SIExtension::SIExtension(const QString& id, const QStringList allowedUsers): pri
 
 SIExtension::~SIExtension() = default;
 
+bool SIExtension::allowedForUser(const QString& sessionUsername) const {
+    return private_->allowedUsers.isEmpty() || private_->allowedUsers.contains(sessionUsername);
+}
+
 void SIExtension::setAllowedUsers(const QStringList& allowedUsers) {
     private_->allowedUsers = allowedUsers;
 }
