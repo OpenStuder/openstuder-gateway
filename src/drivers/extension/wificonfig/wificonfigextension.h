@@ -14,7 +14,11 @@ class WifiConfigExtension: public SIExtension {
         bool clientEnabled;
         bool clientConnected;
         QString clientIPAddress;
+
         bool accessPointEnabled;
+
+        bool wiredEnabled;
+        QString wiredIPAddress;
     };
     static Status status();
 
@@ -49,6 +53,9 @@ class WifiConfigExtension: public SIExtension {
 
     static bool isAPInterfacePresent();
     static bool isAPEnabled();
+
+    static bool isWiredEnabled();
+    static QString wiredIPAddress();
 
     static bool installAccessPointRequirements(const AccessPointSettings& settings, const QString& countryCode);
     static void uninstallAccessPointRequirements();

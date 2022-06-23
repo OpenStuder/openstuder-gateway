@@ -25,7 +25,9 @@ WifiConfigExtension::Status WifiConfigExtension::status() {
         isClientInterfacePresent() && isClientEnabled(),
         isClientConnected(),
         clientIPAddress(),
-        isAPInterfacePresent() && isAPEnabled()
+        isAPInterfacePresent() && isAPEnabled(),
+        isWiredEnabled(),
+        wiredIPAddress()
     };
 }
 
@@ -197,6 +199,26 @@ bool WifiConfigExtension::isAPEnabled() {
     return uap0.isValid() && uap0.flags().testFlag(QNetworkInterface::IsRunning);
 }
 
+bool WifiConfigExtension::isWiredEnabled() {
+    QNetworkInterface eth0 = QNetworkInterface::interfaceFromName("eth0");
+    return eth0.isValid() && eth0.flags().testFlag(QNetworkInterface::IsUp);
+}
+
+QString WifiConfigExtension::wiredIPAddress() {
+    QNetworkInterface eth0 = QNetworkInterface::interfaceFromName("eth0");
+    auto addresses = eth0.addressEntries();
+    for (const auto& address: addresses) {
+        if (address.ip().isGlobal() && address.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+            return address.ip().toString();
+        }
+    }
+    for (const auto& address: addresses) {
+        if (address.ip().isGlobal() && address.ip().protocol() == QAbstractSocket::IPv6Protocol) {
+            return address.ip().toString();
+        }
+    }
+    return {};
+}
 
 bool WifiConfigExtension::installAccessPointRequirements(const AccessPointSettings& settings, const QString& countryCode) {
     auto installScript = prepareAPInstallScript_();
@@ -328,7 +350,7 @@ QString WifiConfigExtension::prepareAPInstallScript_() {
 }
 
 QStringList& WifiConfigExtension::commands_() const {
-    static QStringList commands_ {"status", "scan", "client", "ap"};
+    static QStringList commands_ {"status", "scan", "cliconf", "apconf"};
     return commands_;
 }
 
@@ -346,7 +368,9 @@ SIExtensionWebSocketResult* WifiConfigExtension::runCommand_(const SIExtensionCo
             {"client",    status_.clientEnabled ? "true" : "false"},
             {"connected", status_.clientConnected ? "true" : "false"},
             {"ip",        status_.clientIPAddress},
-            {"ap",        status_.accessPointEnabled ? "true" : "false"}
+            {"ap",        status_.accessPointEnabled ? "true" : "false"},
+            {"wired", status_.wiredEnabled ? "true" : "false"},
+            {"wired_ip", status_.wiredIPAddress}
         });
     } else if (command == "scan") {
         if (! validateWebSocketHeaders(headers, {})) {
@@ -420,7 +444,9 @@ SIExtensionBluetoothResult* WifiConfigExtension::runCommand_(const SIExtensionCo
             status_.clientEnabled,
             status_.clientConnected,
             status_.clientIPAddress,
-            status_.accessPointEnabled
+            status_.accessPointEnabled,
+            status_.wiredEnabled,
+            status_.wiredIPAddress
         });
     } else if (command == "scan") {
         if (! validateBluetoothParameters(parameters, {})) {
