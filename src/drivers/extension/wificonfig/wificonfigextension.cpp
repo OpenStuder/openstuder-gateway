@@ -433,7 +433,7 @@ SIExtensionBluetoothResult* WifiConfigExtension::runCommand_(const SIExtensionCo
         });
         return result;
     } else if (command == "cliconf") {
-        if (! validateBluetoothParameters(parameters, {{QVariant::Bool}})) {
+        if (! validateBluetoothParameters(parameters, {{QVariant::Bool}}, true)) {
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
         }
 
@@ -444,19 +444,20 @@ SIExtensionBluetoothResult* WifiConfigExtension::runCommand_(const SIExtensionCo
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
         }
 
-        auto ssid = parameters[1].toString();
-        auto passKey = parameters[2].toString();
-        if (enabled && passKey.length() < 8) {
-            return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+        if (enabled) {
+            auto ssid = parameters[1].toString();
+            auto passKey = parameters[2].toString();
+            if (passKey.length() < 8) {
+                return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+            }
+
+            return SIExtensionBluetoothResult::fromStatus(clientSetup({enabled, ssid, passKey}));
+        } else {
+            return SIExtensionBluetoothResult::fromStatus(clientSetup({false, "", ""}));
         }
 
-        return SIExtensionBluetoothResult::fromStatus(clientSetup({
-                                                                      enabled,
-                                                                      ssid,
-                                                                      passKey
-                                                                  }));
     } else if (command == "apconf") {
-        if (! validateBluetoothParameters(parameters, {{QVariant::Bool}})) {
+        if (! validateBluetoothParameters(parameters, {{QVariant::Bool}}, true)) {
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
         }
 
@@ -468,19 +469,17 @@ SIExtensionBluetoothResult* WifiConfigExtension::runCommand_(const SIExtensionCo
             return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
         }
 
-        auto channel = parameters[1].toInt();
-        auto ssid = parameters[2].toString();
-        auto passKey = parameters[3].toString();
-        if (enabled && (passKey.length() < 8 || channel < 1 || channel > 13)) {
-            return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+        if (enabled) {
+            auto channel = parameters[1].toInt();
+            auto ssid = parameters[2].toString();
+            auto passKey = parameters[3].toString();
+            if (passKey.length() < 8 || channel < 1 || channel > 13) {
+                return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
+            }
+            return SIExtensionBluetoothResult::fromStatus(apSetup({enabled, channel, ssid, passKey}, countryCode_));
+        } else {
+            return SIExtensionBluetoothResult::fromStatus(apSetup({false, 1, "", ""}, countryCode_));
         }
-
-        return SIExtensionBluetoothResult::fromStatus(apSetup({
-                                                                  enabled,
-                                                                  channel,
-                                                                  ssid,
-                                                                  passKey
-                                                              }, countryCode_));
     } else {
         return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::UnsupportedCommand);
     }
