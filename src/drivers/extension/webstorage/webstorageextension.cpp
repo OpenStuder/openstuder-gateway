@@ -122,13 +122,14 @@ SIExtensionWebSocketResult* WebStorageExtension::read_(const QString& key) {
     query.addBindValue(key);
     if (!query.exec()) {
         qCCritical(WebStorage,) << "Error during web data read:" << query.lastError().text();
-        return  SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::Error);
+        return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::Error);
     }
 
     QByteArray body;
     if (query.next()) {
         body = query.value(0).toByteArray();
+        return new SIExtensionWebSocketResult(SIExtensionStatus::Success, {{"key", key}}, body);
+    } else {
+        return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::Error);
     }
-
-    return new SIExtensionWebSocketResult(SIExtensionStatus::Success, {{"key", key}}, body);
 }
