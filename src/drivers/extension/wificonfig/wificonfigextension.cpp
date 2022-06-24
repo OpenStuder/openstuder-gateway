@@ -24,9 +24,11 @@ WifiConfigExtension::Status WifiConfigExtension::status() {
     return {
         isClientInterfacePresent() && isClientEnabled(),
         isClientConnected(),
+        clientSSID(),
         clientIPAddress(),
         isAPInterfacePresent() && isAPEnabled(),
-        isWiredEnabled(),
+        apSSID(),
+        isWiredConnected(),
         wiredIPAddress()
     };
 }
@@ -174,6 +176,15 @@ bool WifiConfigExtension::isClientConnected() {
     return wlan0.isValid() && wlan0.flags().testFlag(QNetworkInterface::IsRunning) && wlan0.addressEntries().count() > 1;
 }
 
+QString WifiConfigExtension::clientSSID() {
+    auto result = execute_("iwgetid",  {"-r", "wlan0"});
+    if (result.exitCode == 0) {
+        return result.stdOut.trimmed();
+    } else {
+        return {};
+    }
+}
+
 QString WifiConfigExtension::clientIPAddress() {
     auto wlan0 = QNetworkInterface::interfaceFromName("wlan0");
     auto addresses = wlan0.addressEntries();
@@ -199,9 +210,18 @@ bool WifiConfigExtension::isAPEnabled() {
     return uap0.isValid() && uap0.flags().testFlag(QNetworkInterface::IsRunning);
 }
 
-bool WifiConfigExtension::isWiredEnabled() {
+QString WifiConfigExtension::apSSID() {
+    auto result = execute_("grep", {"^ssid=", "/etc/hostapd/hostapd.conf"});
+    if (result.exitCode == 0) {
+        return result.stdOut.mid(5).trimmed();
+    } else {
+        return {};
+    }
+}
+
+bool WifiConfigExtension::isWiredConnected() {
     QNetworkInterface eth0 = QNetworkInterface::interfaceFromName("eth0");
-    return eth0.isValid() && eth0.flags().testFlag(QNetworkInterface::IsUp);
+    return eth0.isValid() && eth0.flags().testFlag(QNetworkInterface::IsRunning);
 }
 
 QString WifiConfigExtension::wiredIPAddress() {
@@ -365,11 +385,13 @@ SIExtensionWebSocketResult* WifiConfigExtension::runCommand_(const SIExtensionCo
 
         auto status_ = status();
         return new SIExtensionWebSocketResult(SIExtensionStatus::Success, {
-            {"client",    status_.clientEnabled ? "true" : "false"},
-            {"connected", status_.clientConnected ? "true" : "false"},
-            {"ip",        status_.clientIPAddress},
-            {"ap",        status_.accessPointEnabled ? "true" : "false"},
-            {"wired", status_.wiredEnabled ? "true" : "false"},
+            {"client_enabled",    status_.clientEnabled ? "true" : "false"},
+            {"client_connected", status_.clientConnected ? "true" : "false"},
+            {"client_ssid", status_.clientSSID},
+            {"client_ip",        status_.clientIPAddress},
+            {"ap_enabled",        status_.accessPointEnabled ? "true" : "false"},
+            {"ap_ssid", status_.accessPointSSID},
+            {"wired_connected",     status_.wiredConnected ? "true" : "false"},
             {"wired_ip", status_.wiredIPAddress}
         });
     } else if (command == "scan") {
@@ -445,7 +467,7 @@ SIExtensionBluetoothResult* WifiConfigExtension::runCommand_(const SIExtensionCo
             status_.clientConnected,
             status_.clientIPAddress,
             status_.accessPointEnabled,
-            status_.wiredEnabled,
+            status_.wiredConnected,
             status_.wiredIPAddress
         });
     } else if (command == "scan") {

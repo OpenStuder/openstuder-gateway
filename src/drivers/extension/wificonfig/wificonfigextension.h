@@ -13,11 +13,13 @@ class WifiConfigExtension: public SIExtension {
     struct Status {
         bool clientEnabled;
         bool clientConnected;
+        QString clientSSID;
         QString clientIPAddress;
 
         bool accessPointEnabled;
+        QString accessPointSSID;
 
-        bool wiredEnabled;
+        bool wiredConnected;
         QString wiredIPAddress;
     };
     static Status status();
@@ -49,12 +51,14 @@ class WifiConfigExtension: public SIExtension {
     static bool isClientInterfacePresent();
     static bool isClientEnabled();
     static bool isClientConnected();
+    static QString clientSSID();
     static QString clientIPAddress();
 
     static bool isAPInterfacePresent();
     static bool isAPEnabled();
+    static QString apSSID();
 
-    static bool isWiredEnabled();
+    static bool isWiredConnected();
     static QString wiredIPAddress();
 
     static bool installAccessPointRequirements(const AccessPointSettings& settings, const QString& countryCode);
