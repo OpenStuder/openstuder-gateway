@@ -70,13 +70,20 @@ SIExtensionStatus WifiConfigExtension::clientSetup(const ClientSettings& setting
            << "update_config=1" << endl << "country=" << countryCode_ << endl << endl;
 
     if (settings.enabled) {
-        auto result = execute_("wpa_passphrase", {settings.ssid, settings.passKey});
-        if (result.exitCode != 0) {
-            qCCritical(WifiConfig,) << "Error during client setup: Failed to generate WPA passkey";
-            return SIExtensionStatus::Error;
-        }
+        if (settings.passKey.isEmpty()) {
+            config << "network={" << endl
+            << "    ssid=\"" << settings.ssid << "\"" << endl
+            << "    key_mgmt=NONE" << endl
+            << "}" << endl;
+        } else {
+            auto result = execute_("wpa_passphrase", {settings.ssid, settings.passKey});
+            if (result.exitCode != 0) {
+                qCCritical(WifiConfig,) << "Error during client setup: Failed to generate WPA passkey";
+                return SIExtensionStatus::Error;
+            }
 
-        config << result.stdOut;
+            config << result.stdOut;
+        }
     }
     config.flush();
     configFile.close();
@@ -414,7 +421,7 @@ SIExtensionWebSocketResult* WifiConfigExtension::runCommand_(const SIExtensionCo
         auto ssid = headers["ssid"];
         auto passKey = headers["passkey"];
 
-        if (enabledString.isEmpty() || (enabled && (ssid.isEmpty() || passKey.length() < 8))) {
+        if (enabledString.isEmpty() || (enabled && (ssid.isEmpty() || (!passKey.isEmpty() && passKey.length() < 8)))) {
             return SIExtensionWebSocketResult::fromStatus(SIExtensionStatus::InvalidHeaders);
         }
 
@@ -495,7 +502,7 @@ SIExtensionBluetoothResult* WifiConfigExtension::runCommand_(const SIExtensionCo
         if (enabled) {
             auto ssid = parameters[1].toString();
             auto passKey = parameters[2].toString();
-            if (passKey.length() < 8) {
+            if (!passKey.isEmpty() && passKey.length() < 8) {
                 return SIExtensionBluetoothResult::fromStatus(SIExtensionStatus::InvalidParameters);
             }
 
