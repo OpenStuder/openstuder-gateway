@@ -2,7 +2,7 @@
 #include "wificonfigextension.h"
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(WifiConfig, "driver.extension.UserManagement", QtInfoMsg)
+Q_LOGGING_CATEGORY(WifiConfig, "driver.extension.WifiConfig", QtInfoMsg)
 
 SIExtension* WifiConfigExtensionDriver::createExtensionInstance(const QVariantMap& parameters) {
     auto allowedUsers = parameters.value("allowedUsers").toStringList();

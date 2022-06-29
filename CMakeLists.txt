@@ -67,6 +67,7 @@ add_subdirectory(src/drivers/extension/wificonfig)
 install(FILES config/gateway.conf DESTINATION "${OPENSTUDER_CONFIG_LOCATION}")
 install(FILES config/drivers.conf DESTINATION "${OPENSTUDER_CONFIG_LOCATION}")
 install(FILES config/datalog.conf DESTINATION "${OPENSTUDER_CONFIG_LOCATION}")
+install(FILES config/extensions.conf DESTINATION "${OPENSTUDER_CONFIG_LOCATION}")
 
 # Service (systemd).
 configure_file(install/sigatewayd.service.in ${CMAKE_BINARY_DIR}/sigatewayd.service @ONLY)
