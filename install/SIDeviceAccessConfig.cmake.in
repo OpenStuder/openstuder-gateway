@@ -1,0 +1,88 @@
+# Distributed under the MIT License.
+
+#[=======================================================================[.rst:
+FindSIDeviceAccess
+-------
+
+Finds the openstuder device access library.
+
+Imported Targets
+^^^^^^^^^^^^^^^^
+
+This module provides the following imported targets, if found:
+
+``SIDeviceAccess``
+  The SIDeviceAccess library
+
+Result Variables
+^^^^^^^^^^^^^^^^
+
+This will define the following variables:
+
+``SIDeviceAccess_FOUND``
+  True if the system has the SIDeviceAccess library.
+``SIDeviceAccess_VERSION``
+  The version of the SIDeviceAccess library which was found.
+``SIDeviceAccess_INCLUDE_DIRS``
+  Include directories needed to use SIDeviceAccess.
+``SIDeviceAccess_LIBRARIES``
+  Libraries needed to link to SIDeviceAccess.
+
+Cache Variables
+^^^^^^^^^^^^^^^
+
+The following cache variables may also be set:
+
+``SIDeviceAccess_INCLUDE_DIR``
+  The directory containing ``SIDeviceAccess.h``.
+``SIDeviceAccess_LIBRARY``
+  The path to the SIDeviceAccess library.
+
+#]=======================================================================]
+
+find_package(Qt5 5.11 REQUIRED COMPONENTS Core)
+
+find_package(PkgConfig)
+pkg_check_modules(PC_SIDeviceAccess QUIET SIDeviceAccess)
+
+find_path(SIDeviceAccess_INCLUDE_DIR
+          NAMES sideviceaccess.h
+          PATHS ${PC_SIDeviceAccess_INCLUDE_DIRS}
+          PATH_SUFFIXES openstuder/SIDeviceAccess
+          )
+
+find_library(SIDeviceAccess_LIBRARY
+             NAMES SIDeviceAccess
+             PATHS ${PC_SIDeviceAccess_LIBRARY_DIRS}
+)
+
+set(SIDeviceAccess_VERSION "@OPENSTUDER_VERSION@")
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(SIDeviceAccess
+                                  FOUND_VAR SIDeviceAccess_FOUND
+                                  REQUIRED_VARS
+                                  SIDeviceAccess_LIBRARY
+                                  SIDeviceAccess_INCLUDE_DIR
+                                  VERSION_VAR SIDeviceAccess_VERSION
+                                  )
+
+if(SIDeviceAccess_FOUND)
+    set(SIDeviceAccess_LIBRARIES ${SIDeviceAccess_LIBRARY} Qt5::Core)
+    set(SIDeviceAccess_INCLUDE_DIRS ${SIDeviceAccess_INCLUDE_DIR} ${Qt5Core_INCLUDE_DIRS})
+    set(SIDeviceAccess_DEFINITIONS ${PC_SIDeviceAccess_CFLAGS_OTHER} ${Qt5Core_DEFINITIONS})
+endif()
+
+add_library(SIDeviceAccess SHARED IMPORTED)
+set_property(TARGET SIDeviceAccess PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES ${SIDeviceAccess_INCLUDE_DIRS})
+set_property(TARGET SIDeviceAccess PROPERTY
+      INTERFACE_LINK_LIBRARIES ${SIDeviceAccess_LIBRARIES})
+
+function(si_add_device_access_driver name)
+    add_library(${name} MODULE ${ARGN})
+    target_include_directories(${name} PUBLIC ${SIDeviceAccess_INCLUDE_DIRS})
+    target_link_libraries(${name} ${SIDeviceAccess_LIBRARIES})
+    set_target_properties(${name} PROPERTIES PREFIX "" SUFFIX ".sdd")
+    install(TARGETS ${name} LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}/openstuder/drivers")
+endfunction()

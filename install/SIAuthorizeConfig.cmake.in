@@ -1,0 +1,83 @@
+# Distributed under the MIT License.
+
+#[=======================================================================[.rst:
+FindSIAuthorize
+-------
+
+Finds the openstuder authorize library.
+
+Imported Targets
+^^^^^^^^^^^^^^^^
+
+This module provides the following imported targets, if found:
+
+``SIAuthorize``
+  The SIAuthorize library
+
+Result Variables
+^^^^^^^^^^^^^^^^
+
+This will define the following variables:
+
+``SIAuthorize_FOUND``
+  True if the system has the SIAuthorize library.
+``SIAuthorize_VERSION``
+  The version of the SIAuthorize library which was found.
+``SIAuthorize_INCLUDE_DIRS``
+  Include directories needed to use SIAuthorize.
+``SIAuthorize_LIBRARIES``
+  Libraries needed to link to SIAuthorize.
+
+Cache Variables
+^^^^^^^^^^^^^^^
+
+The following cache variables may also be set:
+
+``SIAuthorize_INCLUDE_DIR``
+  The directory containing ``SIAuthorize.h``.
+``SIAuthorize_LIBRARY``
+  The path to the SIAuthorize library.
+
+#]=======================================================================]
+
+find_package(SIDeviceAccess REQUIRED)
+
+find_package(PkgConfig)
+pkg_check_modules(PC_SIAuthorize QUIET SIAuthorize)
+
+find_path(SIAuthorize_INCLUDE_DIR
+          NAMES siuserauthorizer.h
+          PATHS ${PC_SIAuthorize_INCLUDE_DIRS}
+          PATH_SUFFIXES openstuder/SIAuthorize
+          )
+
+find_library(SIAuthorize_LIBRARY
+             NAMES SIAuthorize
+             PATHS ${PC_SIAuthorize_LIBRARY_DIRS}
+
+)
+
+set(SIAuthorize_VERSION "@OPENSTUDER_VERSION@")
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(SIAuthorize
+                                  FOUND_VAR SIAuthorize_FOUND
+                                  REQUIRED_VARS
+                                  SIAuthorize_LIBRARY
+                                  SIAuthorize_INCLUDE_DIR
+                                  VERSION_VAR SIAuthorize_VERSION
+                                  )
+
+if(SIAuthorize_FOUND)
+    set(SIAuthorize_LIBRARIES ${SIAuthorize_LIBRARY} ${SIDeviceAccess_LIBRARIES})
+    set(SIAuthorize_INCLUDE_DIRS ${SIAuthorize_INCLUDE_DIR} ${SIDeviceAccess_INCLUDE_DIRS})
+    set(SIAuthorize_DEFINITIONS ${PC_SIAuthorize_CFLAGS_OTHER} ${SIDeviceAccess_DEFINITIONS})
+endif()
+
+function(si_add_authorize_driver name)
+    add_library(${name} MODULE ${ARGN})
+    target_include_directories(${name} PUBLIC ${SIAuthorize_INCLUDE_DIRS})
+    target_link_libraries(${name} ${SIAuthorize_LIBRARIES})
+    set_target_properties(${name} PROPERTIES PREFIX "" SUFFIX ".sad")
+    install(TARGETS ${name} LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}/openstuder/drivers")
+endfunction()

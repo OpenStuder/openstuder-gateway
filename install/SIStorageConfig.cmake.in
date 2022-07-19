@@ -1,0 +1,83 @@
+# Distributed under the MIT License.
+
+#[=======================================================================[.rst:
+FindSIStorage
+-------
+
+Finds the openstuder storage library.
+
+Imported Targets
+^^^^^^^^^^^^^^^^
+
+This module provides the following imported targets, if found:
+
+``SIStorage``
+  The SIStorage library
+
+Result Variables
+^^^^^^^^^^^^^^^^
+
+This will define the following variables:
+
+``SIStorage_FOUND``
+  True if the system has the SIStorage library.
+``SIStorage_VERSION``
+  The version of the SIStorage library which was found.
+``SIStorage_INCLUDE_DIRS``
+  Include directories needed to use SIStorage.
+``SIStorage_LIBRARIES``
+  Libraries needed to link to SIStorage.
+
+Cache Variables
+^^^^^^^^^^^^^^^
+
+The following cache variables may also be set:
+
+``SIStorage_INCLUDE_DIR``
+  The directory containing ``sistorage.h``.
+``SIStorage_LIBRARY``
+  The path to the SIStorage library.
+
+#]=======================================================================]
+
+find_package(SIDeviceAccess REQUIRED)
+
+find_package(PkgConfig)
+pkg_check_modules(PC_SIStorage QUIET SIStorage)
+
+find_path(SIStorage_INCLUDE_DIR
+          NAMES sistorage.h
+          PATHS ${PC_SIStorage_INCLUDE_DIRS}
+          PATH_SUFFIXES openstuder/SIStorage
+          )
+
+find_library(SIStorage_LIBRARY
+             NAMES SIStorage
+             PATHS ${PC_SIStorage_LIBRARY_DIRS}
+
+)
+
+set(SIStorage_VERSION "@OPENSTUDER_VERSION@")
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(SIStorage
+                                  FOUND_VAR SIStorage_FOUND
+                                  REQUIRED_VARS
+                                  SIStorage_LIBRARY
+                                  SIStorage_INCLUDE_DIR
+                                  VERSION_VAR SIStorage_VERSION
+                                  )
+
+if(SIStorage_FOUND)
+    set(SIStorage_LIBRARIES ${SIStorage_LIBRARY} ${SIDeviceAccess_LIBRARIES})
+    set(SIStorage_INCLUDE_DIRS ${SIStorage_INCLUDE_DIR} ${SIDeviceAccess_INCLUDE_DIRS})
+    set(SIStorage_DEFINITIONS ${PC_SIStorage_CFLAGS_OTHER} ${SIDeviceAccess_DEFINITIONS})
+endif()
+
+function(si_add_storage_driver name)
+    add_library(${name} MODULE ${ARGN})
+    target_include_directories(${name} PUBLIC ${SIStorage_INCLUDE_DIRS})
+    target_link_libraries(${name} ${SIStorage_LIBRARIES})
+    set_target_properties(${name} PROPERTIES PREFIX "" SUFFIX ".ssd")
+    install(TARGETS ${name} LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}/openstuder/drivers")
+endfunction()

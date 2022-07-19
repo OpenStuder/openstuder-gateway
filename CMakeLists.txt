@@ -12,7 +12,7 @@ include(SIExtensionDriver)
 
 # Handle install prefix.
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "" CACHE PATH "..." FORCE)
+    set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "..." FORCE)
 endif()
 
 # CMake settings.
@@ -35,9 +35,9 @@ si_get_git_version(OPENSTUDER_VERSION)
 find_package(Qt5 5.11 REQUIRED COMPONENTS Core)
 
 # Global variables.
-set(OPENSTUDER_CONFIG_LOCATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SYSCONFDIR}/openstuder")
+set(OPENSTUDER_CONFIG_LOCATION "/etc/openstuder")
 set(OPENSTUDER_DRIVER_LOCATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}/openstuder/drivers")
-set(OPENSTUDER_SYSTEMD_UNIT_LOCATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/systemd/system")
+set(OPENSTUDER_SYSTEMD_UNIT_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/systemd/system")
 
 # Set global compile definitions.
 add_compile_definitions(OPENSTUDER_GATEWAY_VERSION="${OPENSTUDER_VERSION}")
@@ -73,6 +73,16 @@ install(FILES config/users.txt DESTINATION "${OPENSTUDER_CONFIG_LOCATION}")
 # Service (systemd).
 configure_file(install/sigatewayd.service.in ${CMAKE_BINARY_DIR}/sigatewayd.service @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/sigatewayd.service DESTINATION ${OPENSTUDER_SYSTEMD_UNIT_LOCATION})
+
+# SDK files.
+configure_file(install/SIDeviceAccessConfig.cmake.in ${CMAKE_BINARY_DIR}/SIDeviceAccessConfig.cmake @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/SIDeviceAccessConfig.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/share/cmake/SIDeviceAccess)
+configure_file(install/SIStorageConfig.cmake.in ${CMAKE_BINARY_DIR}/SIStorageConfig.cmake @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/SIStorageConfig.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/share/cmake/SIStorage)
+configure_file(install/SIAuthorizeConfig.cmake.in ${CMAKE_BINARY_DIR}/SIAuthorizeConfig.cmake @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/SIAuthorizeConfig.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/share/cmake/SIAuthorize)
+configure_file(install/SIExtensionConfig.cmake.in ${CMAKE_BINARY_DIR}/SIExtensionConfig.cmake @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/SIExtensionConfig.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/share/cmake/SIExtension)
 
 # Install instructions.
 set(CPACK_GENERATOR "DEB")

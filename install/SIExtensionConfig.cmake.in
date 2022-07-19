@@ -1,0 +1,83 @@
+# Distributed under the MIT License.
+
+#[=======================================================================[.rst:
+FindSIExtension
+-------
+
+Finds the openstuder protocol extension library.
+
+Imported Targets
+^^^^^^^^^^^^^^^^
+
+This module provides the following imported targets, if found:
+
+``SIExtension``
+  The SIExtension library
+
+Result Variables
+^^^^^^^^^^^^^^^^
+
+This will define the following variables:
+
+``SIExtension_FOUND``
+  True if the system has the SIExtension library.
+``SIExtension_VERSION``
+  The version of the SIExtension library which was found.
+``SIExtension_INCLUDE_DIRS``
+  Include directories needed to use SIExtension.
+``SIExtension_LIBRARIES``
+  Libraries needed to link to SIExtension.
+
+Cache Variables
+^^^^^^^^^^^^^^^
+
+The following cache variables may also be set:
+
+``SIExtension_INCLUDE_DIR``
+  The directory containing ``SIExtension.h``.
+``SIExtension_LIBRARY``
+  The path to the SIExtension library.
+
+#]=======================================================================]
+
+find_package(SIDeviceAccess REQUIRED)
+
+find_package(PkgConfig)
+pkg_check_modules(PC_SIExtension QUIET SIExtension)
+
+find_path(SIExtension_INCLUDE_DIR
+          NAMES siextension.h
+          PATHS ${PC_SIExtension_INCLUDE_DIRS}
+          PATH_SUFFIXES openstuder/SIExtension
+          )
+
+find_library(SIExtension_LIBRARY
+             NAMES SIExtension
+             PATHS ${PC_SIExtension_LIBRARY_DIRS}
+
+)
+
+set(SIExtension_VERSION "@OPENSTUDER_VERSION@")
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(SIExtension
+                                  FOUND_VAR SIExtension_FOUND
+                                  REQUIRED_VARS
+                                  SIExtension_LIBRARY
+                                  SIExtension_INCLUDE_DIR
+                                  VERSION_VAR SIExtension_VERSION
+                                  )
+
+if(SIExtension_FOUND)
+    set(SIExtension_LIBRARIES ${SIExtension_LIBRARY} ${SIDeviceAccess_LIBRARIES})
+    set(SIExtension_INCLUDE_DIRS ${SIExtension_INCLUDE_DIR} ${SIDeviceAccess_INCLUDE_DIRS})
+    set(SIExtension_DEFINITIONS ${PC_SIExtension_CFLAGS_OTHER} ${SIDeviceAccess_DEFINITIONS})
+endif()
+
+function(si_add_extension_driver name)
+    add_library(${name} MODULE ${ARGN})
+    target_include_directories(${name} PUBLIC ${SIExtension_INCLUDE_DIRS})
+    target_link_libraries(${name} ${SIExtension_LIBRARIES})
+    set_target_properties(${name} PROPERTIES PREFIX "" SUFFIX ".sed")
+    install(TARGETS ${name} LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}/openstuder/drivers")
+endfunction()
