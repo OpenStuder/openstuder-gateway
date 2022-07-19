@@ -40,6 +40,8 @@ The following cache variables may also be set:
 
 #]=======================================================================]
 
+set(CMAKE_AUTOMOC ON)
+
 find_package(Qt5 5.11 REQUIRED COMPONENTS Core)
 
 find_package(PkgConfig)
@@ -79,10 +81,12 @@ set_property(TARGET SIDeviceAccess PROPERTY
 set_property(TARGET SIDeviceAccess PROPERTY
       INTERFACE_LINK_LIBRARIES ${SIDeviceAccess_LIBRARIES})
 
+include(GNUInstallDirs)
+
 function(si_add_device_access_driver name)
     add_library(${name} MODULE ${ARGN})
     target_include_directories(${name} PUBLIC ${SIDeviceAccess_INCLUDE_DIRS})
     target_link_libraries(${name} ${SIDeviceAccess_LIBRARIES})
     set_target_properties(${name} PROPERTIES PREFIX "" SUFFIX ".sdd")
-    install(TARGETS ${name} LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}/openstuder/drivers")
+    install(TARGETS ${name} LIBRARY DESTINATION "@OPENSTUDER_DRIVER_LOCATION@")
 endfunction()

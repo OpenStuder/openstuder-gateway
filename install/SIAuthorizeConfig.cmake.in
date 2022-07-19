@@ -40,6 +40,8 @@ The following cache variables may also be set:
 
 #]=======================================================================]
 
+set(CMAKE_AUTOMOC ON)
+
 find_package(SIDeviceAccess REQUIRED)
 
 find_package(PkgConfig)
@@ -74,10 +76,12 @@ if(SIAuthorize_FOUND)
     set(SIAuthorize_DEFINITIONS ${PC_SIAuthorize_CFLAGS_OTHER} ${SIDeviceAccess_DEFINITIONS})
 endif()
 
+include(GNUInstallDirs)
+
 function(si_add_authorize_driver name)
     add_library(${name} MODULE ${ARGN})
     target_include_directories(${name} PUBLIC ${SIAuthorize_INCLUDE_DIRS})
     target_link_libraries(${name} ${SIAuthorize_LIBRARIES})
     set_target_properties(${name} PROPERTIES PREFIX "" SUFFIX ".sad")
-    install(TARGETS ${name} LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}/openstuder/drivers")
+    install(TARGETS ${name} LIBRARY DESTINATION "@OPENSTUDER_DRIVER_LOCATION@")
 endfunction()
