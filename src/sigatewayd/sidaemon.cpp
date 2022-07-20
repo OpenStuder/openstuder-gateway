@@ -116,7 +116,7 @@ bool SIDaemon::initialize() {
                 qCCritical(DAEMON,) << "Unable to instantiate authorize driver" << authorizerDriverName;
                 return false;
             }
-            qCInfo(DAEMON,) << "Successfully loaded authorize driver" << authorizeDriver;
+            qCInfo(DAEMON,) << "Successfully loaded authorize driver" << authorizerDriverName;
         }
     } else {
         qCInfo(DAEMON,) << "User authorization is disabled, all users have" << to_string(settings.authorizeGuestAccessLevel()) << "access level";

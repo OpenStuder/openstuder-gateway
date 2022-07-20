@@ -3,8 +3,8 @@
 #include <QtCore/QDir>
 
 SIUserAuthorizeDriver* SIUserAuthorizeDriver::loadUserAuthorizeDriver(const QStringList& driverSearchPaths, QString driverName) {
-    if (!driverName.endsWith(".sud")) {
-        driverName.append(".sud");
+    if (!driverName.endsWith(".sad")) {
+        driverName.append(".sad");
     }
     for (const auto& driverSearchPath: driverSearchPaths) {
         QDir directory {driverSearchPath};
