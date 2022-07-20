@@ -76,8 +76,6 @@ if(SIStorage_FOUND)
     set(SIStorage_DEFINITIONS ${PC_SIStorage_CFLAGS_OTHER} ${SIDeviceAccess_DEFINITIONS})
 endif()
 
-include(GNUInstallDirs)
-
 function(si_add_storage_driver name)
     add_library(${name} MODULE ${ARGN})
     target_include_directories(${name} PUBLIC ${SIStorage_INCLUDE_DIRS})

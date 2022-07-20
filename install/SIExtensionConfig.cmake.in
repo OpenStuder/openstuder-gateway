@@ -42,7 +42,7 @@ The following cache variables may also be set:
 
 set(CMAKE_AUTOMOC ON)
 
-find_package(SIDeviceAccess REQUIRED)
+find_package(SIAuthorize REQUIRED)
 
 find_package(PkgConfig)
 pkg_check_modules(PC_SIExtension QUIET SIExtension)
@@ -71,12 +71,10 @@ find_package_handle_standard_args(SIExtension
                                   )
 
 if(SIExtension_FOUND)
-    set(SIExtension_LIBRARIES ${SIExtension_LIBRARY} ${SIDeviceAccess_LIBRARIES})
-    set(SIExtension_INCLUDE_DIRS ${SIExtension_INCLUDE_DIR} ${SIDeviceAccess_INCLUDE_DIRS})
-    set(SIExtension_DEFINITIONS ${PC_SIExtension_CFLAGS_OTHER} ${SIDeviceAccess_DEFINITIONS})
+    set(SIExtension_LIBRARIES ${SIExtension_LIBRARY} ${SIAuthorize_LIBRARIES})
+    set(SIExtension_INCLUDE_DIRS ${SIExtension_INCLUDE_DIR} ${SIAuthorize_INCLUDE_DIRS})
+    set(SIExtension_DEFINITIONS ${PC_SIExtension_CFLAGS_OTHER} ${SIAuthorize_DEFINITIONS})
 endif()
-
-include(GNUInstallDirs)
 
 function(si_add_extension_driver name)
     add_library(${name} MODULE ${ARGN})

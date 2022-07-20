@@ -81,8 +81,6 @@ set_property(TARGET SIDeviceAccess PROPERTY
 set_property(TARGET SIDeviceAccess PROPERTY
       INTERFACE_LINK_LIBRARIES ${SIDeviceAccess_LIBRARIES})
 
-include(GNUInstallDirs)
-
 function(si_add_device_access_driver name)
     add_library(${name} MODULE ${ARGN})
     target_include_directories(${name} PUBLIC ${SIDeviceAccess_INCLUDE_DIRS})

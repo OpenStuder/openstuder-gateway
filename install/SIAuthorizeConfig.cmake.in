@@ -76,8 +76,6 @@ if(SIAuthorize_FOUND)
     set(SIAuthorize_DEFINITIONS ${PC_SIAuthorize_CFLAGS_OTHER} ${SIDeviceAccess_DEFINITIONS})
 endif()
 
-include(GNUInstallDirs)
-
 function(si_add_authorize_driver name)
     add_library(${name} MODULE ${ARGN})
     target_include_directories(${name} PUBLIC ${SIAuthorize_INCLUDE_DIRS})
