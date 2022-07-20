@@ -10,7 +10,7 @@ UserManagementExtension::UserManagementExtension(QStringList allowedUsers): SIEx
 UserManagementExtension::~UserManagementExtension() = default;
 
 QStringList& UserManagementExtension::commands_() const {
-    static QStringList commands_ {"list", "add", "change-password", "change-access-level", "remove"};
+    static QStringList commands_ {"list", "add", "change_password", "change_access_level", "remove"};
     return commands_;
 }
 
