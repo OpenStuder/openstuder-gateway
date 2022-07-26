@@ -3,7 +3,7 @@
 #include <QFile>
 
 SIAccessLevel SISettings::authorizeGuestAccessLevel() const {
-    auto value = valueOfThese_("Authorize/guestAccessLevel", {"None", "Basic", "Installer", "Expert", "QSP"}, "Basic", gatewaySettings_.get());
+    auto value = valueOfThese_("Authorize/guestAccessLevel", {"None", "Basic", "Installer", "Expert", "QSP"}, "None", gatewaySettings_.get());
     if (value == "None") return SIAccessLevel::None;
     else if (value == "Basic") return SIAccessLevel::Basic;
     else if (value == "Installer") return SIAccessLevel::Installer;

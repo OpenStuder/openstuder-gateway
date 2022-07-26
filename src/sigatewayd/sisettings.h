@@ -40,7 +40,7 @@ class SISettings {
     }
 
     inline bool authorizeEnabled() const {
-        return valueWithDefault_("Authorize/enabled", false, gatewaySettings_.get()).toBool();
+        return valueWithDefault_("Authorize/enabled", true, gatewaySettings_.get()).toBool();
     }
 
     inline QString authorizeDriver() const {
