@@ -1,6 +1,7 @@
 #include "wificonfigextensiondriver.h"
 #include "wificonfigextension.h"
 #include <QLoggingCategory>
+#include <QProcess>
 
 Q_LOGGING_CATEGORY(WifiConfig, "driver.extension.WifiConfig", QtInfoMsg)
 
@@ -19,6 +20,8 @@ SIExtension* WifiConfigExtensionDriver::createExtensionInstance(const QVariantMa
         qCCritical(WifiConfig,) << "Missing or invalid parameter \"countryCode\"";
         return nullptr;
     }
+
+    QProcess::execute("rfkill", { "unblock",  "0"});
 
     auto accessPointInstall = parameters.value("accessPointInstall", "true").toBool();
     if (accessPointInstall && !WifiConfigExtension::isAPInterfacePresent()) {
