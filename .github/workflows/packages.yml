@@ -20,7 +20,7 @@ jobs:
           copy_artifact_path: build
           commands: |
             sudo apt-get update
-            sudo apt-get install -yq g++ git cmake=3.13.4-1 cmake-data=3.13.4-1 ninja-build qt5-default libqt5serialport5-dev libqt5serialbus5-dev libqt5serialbus5-plugins libqt5websockets5-dev qtconnectivity5-dev
+            sudo apt-get install -yq g++ git cmake cmake-data ninja-build qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libqt5serialport5-dev libqt5serialbus5-dev libqt5serialbus5-plugins libqt5websockets5-dev qtconnectivity5-dev
             cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
             cmake --build build --target package
 
