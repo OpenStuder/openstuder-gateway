@@ -433,6 +433,7 @@ doRestartSysDaemon() {
 }
 
 doAptClean() {
+    apt-get install iptables -y
     apt-get clean
     apt-get autoclean -y
     apt-get autoremove -y
