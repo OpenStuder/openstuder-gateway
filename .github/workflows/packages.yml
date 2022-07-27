@@ -5,7 +5,7 @@ on:
       - '*'
 jobs:
   package-raspberry:
-    name: Package for latest Raspberry Pi OS
+    name: Package for latest Raspberry Pi OS (32-bit)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -14,6 +14,7 @@ jobs:
       - name: Build package for Raspberry Pi (ARM 32-bit)
         uses: pguyot/arm-runner-action@v1
         with:
+          base_image: raspios_lite:latest
           cpu: cortex-a8
           image_additional_mb: 2048
           copy_artifact_path: build
