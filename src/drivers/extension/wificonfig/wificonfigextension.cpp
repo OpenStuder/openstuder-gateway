@@ -40,7 +40,8 @@ void WifiConfigExtension::scan(const ScanCallback& callback) {
     }
 
     auto* process = new QProcess;
-    connect(process, qOverload<int>(&QProcess::finished), [callback, process](int exitCode) {
+    connect(process, qOverload<int,QProcess::ExitStatus>(&QProcess::finished), [callback, process](int exitCode, QProcess::ExitStatus exitStatus) {
+        Q_UNUSED(exitStatus)
         if (exitCode == 0) {
             callback(SIExtensionStatus::Success, parseWifiScanOutput_(process->readAllStandardOutput()));
         } else {
@@ -66,15 +67,15 @@ SIExtensionStatus WifiConfigExtension::clientSetup(const ClientSettings& setting
     configFile.resize(0);
 
     QTextStream config(&configFile);
-    config << "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" << endl
-           << "update_config=1" << endl << "country=" << countryCode_ << endl << endl;
+    config << "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" << Qt::endl
+           << "update_config=1" << Qt::endl << "country=" << countryCode_ << Qt::endl << Qt::endl;
 
     if (settings.enabled) {
         if (settings.passKey.isEmpty()) {
-            config << "network={" << endl
-            << "    ssid=\"" << settings.ssid << "\"" << endl
-            << "    key_mgmt=NONE" << endl
-            << "}" << endl;
+            config << "network={" << Qt::endl
+            << "    ssid=\"" << settings.ssid << "\"" << Qt::endl
+            << "    key_mgmt=NONE" << Qt::endl
+            << "}" << Qt::endl;
         } else {
             auto result = execute_("wpa_passphrase", {settings.ssid, settings.passKey});
             if (result.exitCode != 0) {
@@ -254,11 +255,12 @@ bool WifiConfigExtension::installAccessPointRequirements(const AccessPointSettin
         return false;
     }
 
-    QProcess::execute(QString("%1 --install --ap-ssid=\"%2\" --ap-password=\"%3\" --ap-country-code=\"%4\"")
-                          .arg(installScript)
-                          .arg(settings.ssid)
-                          .arg(settings.passKey)
-                          .arg(countryCode));
+    QProcess::execute(installScript, {
+        "--install",
+        QString("--ap-ssid=\"%1\"").arg(settings.ssid),
+        QString("--ap-password=\"%1\"").arg(settings.passKey),
+        QString("--ap-country-code=\"%4\"").arg(countryCode)
+    });
 
     return true;
 }
@@ -270,7 +272,7 @@ void WifiConfigExtension::uninstallAccessPointRequirements() {
         return;
     }
 
-    QProcess::execute(QString("%1 --clean").arg(installScript));
+    QProcess::execute(installScript, {"--clean"});
 }
 
 WifiConfigExtension::ExecutionResult WifiConfigExtension::execute_(const QString& command, const QStringList& arguments) {
