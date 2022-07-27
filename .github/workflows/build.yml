@@ -2,7 +2,7 @@ name: Build
 on: [push, pull_request]
 jobs:
   build-raspberry:
-    name: Build for latest Raspberry Pi OS 2022-04-04
+    name: Build for Raspberry Pi OS 2022-04-04
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -10,7 +10,7 @@ jobs:
       - name: Build software for Raspberry Pi (ARM 32-bit)
         uses: pguyot/arm-runner-action@v2
         with:
-          base_image: raspios_lite:2022-04-04
+          base_image: https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-04-07/2022-04-04-raspios-bullseye-armhf-lite.img.xz
           cpu: cortex-a8
           image_additional_mb: 2048
           commands: |
@@ -18,20 +18,3 @@ jobs:
             sudo apt-get install -yq g++ git cmake cmake-data ninja-build qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libqt5serialport5-dev libqt5serialbus5-dev libqt5serialbus5-plugins libqt5websockets5-dev qtconnectivity5-dev
             cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
             cmake --build build
-
-  build-ubuntu:
-    name: Build for Ubuntu 22.04
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -yq g++ git cmake ninja-build qt5-default libqt5serialport5-dev libqt5serialbus5-dev libqt5serialbus5-plugins libqt5websockets5-dev qtconnectivity5-dev
-
-      - name: Build software
-        run: |
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --target package

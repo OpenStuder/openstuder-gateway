@@ -14,7 +14,7 @@ jobs:
       - name: Build package for Raspberry Pi (ARM 32-bit)
         uses: pguyot/arm-runner-action@v2
         with:
-          base_image: raspios_lite:2022-04-04
+          base_image: https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-04-07/2022-04-04-raspios-bullseye-armhf-lite.img.xz
           cpu: cortex-a8
           image_additional_mb: 2048
           copy_artifact_path: build
