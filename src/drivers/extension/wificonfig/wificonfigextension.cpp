@@ -13,6 +13,13 @@
 #include <QNetworkInterface>
 #include <QSettings>
 
+// Fix compilation warning on Qt 5.15 and newer.
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
+#define endl Qt::endl
+#else
+#include <ostream>
+#endif
+
 Q_DECLARE_LOGGING_CATEGORY(WifiConfig)
 
 WifiConfigExtension::WifiConfigExtension(QStringList allowedUsers, QString country): SIExtension("WifiConfig", allowedUsers),
@@ -67,15 +74,15 @@ SIExtensionStatus WifiConfigExtension::clientSetup(const ClientSettings& setting
     configFile.resize(0);
 
     QTextStream config(&configFile);
-    config << "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" << Qt::endl
-           << "update_config=1" << Qt::endl << "country=" << countryCode_ << Qt::endl << Qt::endl;
+    config << "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" << endl
+           << "update_config=1" << endl << "country=" << countryCode_ << endl << endl;
 
     if (settings.enabled) {
         if (settings.passKey.isEmpty()) {
-            config << "network={" << Qt::endl
-            << "    ssid=\"" << settings.ssid << "\"" << Qt::endl
-            << "    key_mgmt=NONE" << Qt::endl
-            << "}" << Qt::endl;
+            config << "network={" << endl
+            << "    ssid=\"" << settings.ssid << "\"" << endl
+            << "    key_mgmt=NONE" << endl
+            << "}" << endl;
         } else {
             auto result = execute_("wpa_passphrase", {settings.ssid, settings.passKey});
             if (result.exitCode != 0) {
@@ -474,8 +481,10 @@ SIExtensionBluetoothResult* WifiConfigExtension::runCommand_(const SIExtensionCo
         return new SIExtensionBluetoothResult(SIExtensionStatus::Success, {
             status_.clientEnabled,
             status_.clientConnected,
+            status_.clientSSID,
             status_.clientIPAddress,
             status_.accessPointEnabled,
+            status_.accessPointSSID,
             status_.wiredConnected,
             status_.wiredIPAddress
         });
