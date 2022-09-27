@@ -184,10 +184,12 @@ SIWebSocketProtocolFrame SIWebSocketProtocolV1::handleFrame(SIWebSocketProtocolF
             SIPropertyWriteFlags writeFlags = SIPropertyWriteFlag::Default;
             if (frame.hasHeader("flags")) {
                 writeFlags = SIPropertyWriteFlag::None;
-                for (const auto& flag: frame.header("flags").split(",")) {
-                    if (flag == "Permanent") { writeFlags |= SIPropertyWriteFlag::Permanent; }
-                    else {
-                        return SIWebSocketProtocolFrame::error("invalid frame");
+                if (!frame.header("flags").isEmpty()) {
+                    for (const auto& flag: frame.header("flags").split(",")) {
+                        if (flag == "Permanent") { writeFlags |= SIPropertyWriteFlag::Permanent; }
+                        else {
+                            return SIWebSocketProtocolFrame::error("invalid frame");
+                        }
                     }
                 }
             }
