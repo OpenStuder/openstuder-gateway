@@ -125,7 +125,14 @@ XCom485iBatteryManager::XCom485iBatteryManager(Model model, XCom485iModbusAccess
                 {138, 6069, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Maximum charge current defined by user", "A"},
                 {132, 6067, SIPropertyType::Float, SIAccessLevel::Expert,SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Manufacturer SOC for 0% displayed", "%" },
                 {134, 6066, SIPropertyType::Float, SIAccessLevel::Expert,SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Manufacturer SOC for 100% displayed", "%" },
-                {128, 6064, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Use battery current limits instead of recommended values", ""}
+                {128, 6064, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Use battery currenFlot limits instead of recommended values", ""},
+                {150, 6075, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "SOC level for end of charge", "%"},
+                {152, 6076, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Allow user to define the maximum discharge current of the battery", ""},
+                {154, 6077, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Maximum discharge current defined by user", "A"},
+                {156, 6078, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Charge current limit ratio", "%"},
+                {144, 6072, SIPropertyType::Bool, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Solar Inverter connected on AC-Out", ""},
+                {146, 6073, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delta from user frequency to start derating of solar inverter", "Hz"},
+                {148, 6074, SIPropertyType::Float, SIAccessLevel::Expert, SIPropertyFlag::Readable | SIPropertyFlag::Writeable, "Delta from user frequency to reach 100% derating of solar inverter", "Hz"}
             });
             break;
     }
